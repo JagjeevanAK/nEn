@@ -36,6 +36,7 @@ services:
       - nen-network
 
   backend:
+    image: ${BACKEND_IMAGE:-nen/backend}
     build:
       context: .
       dockerfile: docker/backend.Dockerfile
@@ -59,6 +60,7 @@ services:
       - nen-network
 
   engine:
+    image: ${ENGINE_IMAGE:-nen/engine}
     build:
       context: .
       dockerfile: docker/engine.Dockerfile
@@ -80,6 +82,7 @@ services:
       - nen-network
 
   frontend:
+    image: ${FRONTEND_IMAGE:-nen/frontend}
     build:
       context: .
       dockerfile: docker/frontend.Dockerfile
