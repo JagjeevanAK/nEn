@@ -16,6 +16,6 @@ COPY apps/frontend ./apps/frontend
 
 RUN bun run build
 
-EXPOSE 4173
+EXPOSE 5173
 
-CMD ["bun", "start"]
+CMD ["bun", "start:frontend"]

@@ -4,6 +4,7 @@ import express, { urlencoded } from "express";
 import cors from "cors";
 
 const app = express();
+const PORT = process.env.BACKEND_PORT
 
 app.use(cookieParser());
 app.use(urlencoded({ extended: true }));
@@ -20,8 +21,8 @@ import { errorHandler } from "./middlewares/error.middleware";
 
 app.use("/api/v1", v1);
 
-app.listen(8888, () => {
-  console.log("app is listening on port ", 8888);
+app.listen(PORT, () => {
+  console.log("app is listening on port ", PORT);
 });
 
 app.use(errorHandler);

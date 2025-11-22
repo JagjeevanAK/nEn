@@ -4,11 +4,11 @@ services:
     container_name: nen-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: nen_user
-      POSTGRES_PASSWORD: nen_password
-      POSTGRES_DB: nen_db
+      POSTGRES_USER: ${POSTGRES_USER:-nen_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nen_password}
+      POSTGRES_DB: ${POSTGRES_DB:-nen_db}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -16,13 +16,15 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - nen-network
 
   redis:
     image: redis:7-alpine
     container_name: nen-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
     healthcheck:
@@ -30,6 +32,73 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - nen-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+      args:
+        DATABASE_URL: postgresql://${POSTGRES_USER:-nen_user}:${POSTGRES_PASSWORD:-nen_password}@postgres:5432/${POSTGRES_DB:-nen_db}
+    container_name: nen-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-nen_user}:${POSTGRES_PASSWORD:-nen_password}@postgres:5432/${POSTGRES_DB:-nen_db}
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "${BACKEND_PORT:-8080}:${BACKEND_PORT:-8080}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - nen-network
+
+  engine:
+    build:
+      context: .
+      dockerfile: docker/engine.Dockerfile
+      args:
+        DATABASE_URL: postgresql://${POSTGRES_USER:-nen_user}:${POSTGRES_PASSWORD:-nen_password}@postgres:5432/${POSTGRES_DB:-nen_db}
+    container_name: nen-engine
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-nen_user}:${POSTGRES_PASSWORD:-nen_password}@postgres:5432/${POSTGRES_DB:-nen_db}
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - nen-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+      args:
+        DATABASE_URL: postgresql://${POSTGRES_USER:-nen_user}:${POSTGRES_PASSWORD:-nen_password}@postgres:5432/${POSTGRES_DB:-nen_db}
+    container_name: nen-frontend
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    depends_on:
+      - backend
+    networks:
+      - nen-network
+
+networks:
+  nen-network:
+    driver: bridge
 
 volumes:
   postgres_data:

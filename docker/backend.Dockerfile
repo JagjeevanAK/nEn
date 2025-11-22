@@ -16,4 +16,4 @@ COPY apps/backend ./apps/backend
 
 RUN bun run build
 
-CMD ["bun", "start"]
+CMD ["bun", "start:backend"]

@@ -16,4 +16,4 @@ COPY apps/engine ./apps/engine
 
 RUN bun run build
 
-CMD ["bun", "start"]
+CMD ["bun", "start:engine"]
