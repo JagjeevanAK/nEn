@@ -145,9 +145,11 @@ export function CredentialDialogContent({
                 </div>
 
                 <div>
-                  <Button className="mr-10 bg-teal-500" onClick={handleSave}>
-                    Save
-                  </Button>
+                  <DialogClose asChild>
+                    <Button className="mr-10 bg-teal-500" onClick={handleSave}>
+                      Save
+                    </Button>
+                  </DialogClose>
                 </div>
               </div>
 
@@ -194,7 +196,7 @@ export function CredentialDialogContent({
                             onChange={(e) =>
                               handleChange(curr.name, e.target.value)
                             }
-                            className="bg-neutral-100 px-4 py-1 my-1 w-full border-1 rounded-xs border-neutral-200"
+                            className="bg-neutral-100 px-4 py-1 my-1 w-full border rounded-xs border-neutral-200"
                           />
                         ) : curr.type === "options" ? (
                           <select

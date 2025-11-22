@@ -140,7 +140,7 @@ export const DashboardTabs = () => {
             </div>
           )}
 
-          {workflowLoading && userWorkflows && userWorkflows.length === 0 && (
+          {!workflowLoading && userWorkflows && userWorkflows.length === 0 && (
             <p className="text-gray-500">No workflows found.</p>
           )}
 

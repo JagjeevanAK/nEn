@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Button } from "./ui/button";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const items = [
   {
@@ -28,9 +28,10 @@ const items = [
 
 export function AppSidebar() {
   const { state } = useSidebar();
+  const navigate = useNavigate();
 
-  const handleProfile = async () =>{
-    
+  const handleProfile = () => {
+    navigate("/profile");
   }
 
   return (

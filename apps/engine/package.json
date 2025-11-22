@@ -18,7 +18,11 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@nen/db": "workspace:*",
+    "@types/imap": "^0.8.42",
     "axios": "^1.12.2",
-    "redis": "^5.8.2"
+    "imap": "^0.8.19",
+    "redis": "^5.8.2",
+    "uuid": "^13.0.0"
   }
 }

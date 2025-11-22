@@ -54,7 +54,7 @@ export function AddTrigger() {
   };
 
   return (
-    <div className="bg-teal-50 border border-dashed py-4 border-teal-400 rounded-lg shadow-md flex flex-col items-center justify-center gap-2 w-[80px]">
+    <div className="bg-teal-50 border border-dashed py-4 border-teal-400 rounded-lg shadow-md flex flex-col items-center justify-center gap-2 w-20">
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetTrigger asChild>
           <button className="cursor-pointer w-[60px] px-2 py-1 text-[10px] rounded-sm bg-teal-500 hover:bg-teal-600 text-white transition-all duration-200 shadow">
@@ -81,7 +81,7 @@ export function AddTrigger() {
                   onClick={() => handleTriggerSelect(trigger)}
                 >
                   <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 mt-1">
+                    <div className="shrink-0 mt-1">
                       {getTriggerIcon(trigger.type)}
                     </div>
 

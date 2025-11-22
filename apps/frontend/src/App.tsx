@@ -3,6 +3,7 @@ import "./App.css";
 import Home from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Profile from "./pages/Profile";
 import { SidebarProvider } from "./components/ui/sidebar";
 import { AppSidebar } from "./components/app-sidebar";
 import WorkflowPage from "./pages/WorkflowPage";
@@ -43,6 +44,17 @@ function App() {
               </>
             }
             path="/workflow/:workflowId"
+          />
+
+          {/* Profile route */}
+          <Route
+            element={
+              <>
+                <AppSidebar /> 
+                <Profile />
+              </>
+            }
+            path="/profile"
           />
 
           <Route element={<Login />} path="/login" />
