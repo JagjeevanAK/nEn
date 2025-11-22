@@ -1,5 +1,5 @@
 import { CustomError } from "./CustomError";
-import type{UserCredentials} from "@repo/db"
+import type{UserCredentials} from "@nen/db"
 
 export const returnSaveCred = (userId: string, data: any) => {
   if (!userId || !data)

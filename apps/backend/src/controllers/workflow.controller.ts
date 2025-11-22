@@ -2,7 +2,7 @@ import { ApiResponse } from "../utils/ApiResponse";
 import asyncHandler from "../utils/asyncHandler";
 import { CustomError } from "../utils/CustomError";
 import { WorkflowSchema } from "../utils/workflowSchema";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@nen/db";
 import { createClient } from "redis";
 import {} from "../utils/queueWorker";
 import { v4 as uuidv4 } from "uuid";
@@ -17,8 +17,6 @@ const connectRedis = async () => {
   }
 };
 connectRedis();
-
-const prisma = new PrismaClient();
 
 export const saveWorkflow = asyncHandler(async (req, res) => {
   const payload = req.body;

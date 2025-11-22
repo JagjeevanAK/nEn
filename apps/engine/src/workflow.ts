@@ -1,7 +1,7 @@
 import { type NodeData, type WorkflowExecutionData } from "./types";
 import { EventPublisher } from "./EventPublisher";
 import { ActionExecutor } from "./ActionExecutor";
-import { prisma } from "@repo/db";
+import { prisma } from "@nen/db";
 
 export class Workflow {
   private executionData: WorkflowExecutionData;

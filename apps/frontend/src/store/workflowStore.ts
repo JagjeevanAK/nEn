@@ -11,7 +11,7 @@ import {
   type OnEdgesChange,
   type OnConnect,
 } from "@xyflow/react";
-import type { UserCredentials } from "@repo/db";
+import type { UserCredentials } from "@nen/db";
 import axios from "axios";
 
 export interface TriggerI {

@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import { ApiResponse } from "../utils/ApiResponse";
 import { returnSaveCred } from "../utils/handleSaveCred";
-import { prisma } from "@repo/db";
+import { prisma } from "@nen/db";
 import z from "zod";
 import { CustomError } from "../utils/CustomError";
 import { google } from "googleapis";

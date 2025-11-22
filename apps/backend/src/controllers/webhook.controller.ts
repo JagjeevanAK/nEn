@@ -1,4 +1,4 @@
-import { prisma } from "@repo/db";
+import { prisma } from "@nen/db";
 import { v4 as uuidv4 } from "uuid";
 import asyncHandler from "../utils/asyncHandler";
 import { createClient } from "redis";

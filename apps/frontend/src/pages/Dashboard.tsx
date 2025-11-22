@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 
-import type { CredentialsI } from "@repo/db";
+import type { CredentialsI } from "@nen/db";
 
 // import { DialogClose } from "@radix-ui/react-dialog";
 import axios from "axios";

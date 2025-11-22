@@ -1,6 +1,6 @@
 import Imap from "imap";
 import { simpleParser } from "mailparser";
-import { prisma } from "@repo/db";
+import { prisma } from "@nen/db";
 import { createClient } from "redis";
 import { v4 as uuidv4 } from "uuid";
 

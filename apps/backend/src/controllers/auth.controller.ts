@@ -1,4 +1,4 @@
-import { prisma } from "@repo/db";
+import { prisma } from "@nen/db";
 import type { Request, RequestHandler, Response } from "express";
 import { ApiResponse } from "../utils/ApiResponse";
 import asyncHandler from "../utils/asyncHandler";

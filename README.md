@@ -1,13 +1,30 @@
-# Turborepo starter
+# nEn - Workflow Automation Platform
 
-This Turborepo starter is maintained by the Turborepo core team.
+A monorepo-based workflow automation platform built with Turborepo.
 
-## Using this example
+## Getting Started
+
+### Environment Setup
+
+This project uses a single `.env` file at the root of the monorepo. All apps (backend, engine, frontend) will load environment variables from this centralized location.
+
+1. Copy the `.env.example` file to `.env`:
+```sh
+cp .env.example .env
+```
+
+2. Update the values in `.env` with your actual configuration:
+   - Database connection string
+   - JWT secrets (generate using `openssl rand -base64 32`)
+   - Google OAuth credentials
+   - Other environment-specific values
+
+### Installation
 
 Run the following command:
 
 ```sh
-npx create-turbo@latest
+bun install
 ```
 
 ## What's inside?
@@ -18,9 +35,9 @@ This Turborepo includes the following packages/apps:
 
 - `docs`: a [Next.js](https://nextjs.org/) app
 - `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- `@nen/ui`: a stub React component library shared by both `web` and `docs` applications
+- `@nen/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
+- `@nen/typescript-config`: `tsconfig.json`s used throughout the monorepo
 
 Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
 

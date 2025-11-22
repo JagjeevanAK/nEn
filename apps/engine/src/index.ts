@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { Workflow } from "./workflow";
 import { createClient } from "redis";
 

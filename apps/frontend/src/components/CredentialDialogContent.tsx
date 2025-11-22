@@ -16,7 +16,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import type { CredentialsI, CredentialSubmitPayload } from "@repo/db";
+import type { CredentialsI, CredentialSubmitPayload } from "@nen/db";
 import axios from "axios";
 import { useEffect, useState } from "react";
 

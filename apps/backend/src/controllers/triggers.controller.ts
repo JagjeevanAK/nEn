@@ -1,6 +1,6 @@
 import asyncHandler from "../utils/asyncHandler";
 import { ApiResponse } from "../utils/ApiResponse";
-import { prisma } from "@repo/db";
+import { prisma } from "@nen/db";
 import { CustomError } from "../utils/CustomError";
 
 const wbId = new Set();
