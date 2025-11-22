@@ -1,6 +1,11 @@
-FROM oven/bun:latest
+FROM oven/bun:1.3.2 AS builder
 
 WORKDIR /app
+
+ARG DATABASE_URL
+ARG VITE_BACKEND_URL
+ENV DATABASE_URL=${DATABASE_URL}
+ENV VITE_BACKEND_URL=${VITE_BACKEND_URL}
 
 COPY package.json bun.lock turbo.json ./
 COPY apps/frontend/package.json ./apps/frontend/package.json
@@ -13,6 +18,10 @@ COPY apps/frontend ./apps/frontend
 
 RUN bun run build
 
-EXPOSE 5173
+FROM nginx:alpine AS runtime
 
-CMD ["bun", "start:frontend"]
+WORKDIR /app
+
+COPY --from=builder /app/apps/frontend/dist /usr/share/nginx/html
+
+CMD ["nginx", "-g", "daemon off;"]
