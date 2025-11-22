@@ -52,6 +52,15 @@ export const availableActions: ActionI[] = [
     category: "Data",
   },
   {
+    id: "open-router",
+    name: "OpenRouter",
+    type: "openRouterNodeType",
+    application: "OpenRouter",
+    description: "Execute LLM calls with multiple AI models",
+    icon: <Database className="w-5 h-5" />,
+    category: "Data",
+  },
+  {
     id: "webhook-call",
     name: "Call Webhook",
     type: "WebHookNodeType",

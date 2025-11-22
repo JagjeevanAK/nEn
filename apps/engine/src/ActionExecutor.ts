@@ -91,6 +91,13 @@ export class ActionExecutor {
             credConfig,
             previousOutputs
           );
+
+        case "openRouterNodeType":
+          return await this.executeOpenRouterAction(
+            parameters,
+            credConfig,
+            previousOutputs
+          );
         default:
           throw new Error(`Unknown action type: ${actionType}`);
       }
@@ -157,6 +164,59 @@ export class ActionExecutor {
 
     return {test: "this is text"}
     
+  }
+
+  private async executeOpenRouterAction(
+    params: any,
+    credConfig: any,
+    context: any
+  ) {
+    console.log("==== OPENROUTER ACTION ====");
+    console.log("1.", credConfig);
+    console.log("2.", context);
+    console.log("3.", params);
+
+    if (!credConfig || !credConfig.data?.apiKey) {
+      throw new Error("OpenRouter API key not configured");
+    }
+
+    const taskId = uuidv4();
+    console.log(`Generated task ID: ${taskId}`);
+
+    // Resolve dynamic values in prompt
+    const resolvedPrompt = this.resolveDynamicValue(params.prompt, context);
+
+    // Prepare task payload for AI Agent service
+    const taskPayload = {
+      taskId,
+      prompt: resolvedPrompt,
+      model: params.model || "openai/gpt-5-mini",
+      temperature: params.temperature || 0.7,
+      maxTokens: params.maxTokens || 1000,
+      tools: params.tools || [],
+      apiKey: credConfig.data.apiKey,
+      baseUrl: credConfig.data.url || "https://openrouter.ai/api/v1",
+      httpReferer: credConfig.data.httpReferer || "",
+      xTitle: credConfig.data.xTitle || "",
+      provider: "openrouter",
+      context: context,
+      timestamp: new Date().toISOString(),
+    };
+
+    try {
+      await this.init();
+      await this.redis.lPush("ai-agent-tasks", JSON.stringify(taskPayload));
+      const result = await this.waitForAIResult(taskId, 120000); // 2 minutes timeout
+      return {
+        success: true,
+        taskId,
+        actionType: "openRouterNodeType",
+        data: result,
+        completedAt: new Date().toISOString(),
+      };
+    } catch (error: any) {
+      throw new Error(`OpenRouter action failed: ${error.message}`);
+    }
   }
 
   private async executeEmailTriggerAction(

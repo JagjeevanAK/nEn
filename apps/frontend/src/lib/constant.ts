@@ -61,6 +61,55 @@ export const actionSchemas: Record<string, any> = {
     ]
   },
 
+  OpenRouter: {
+    fields: [
+      {
+        name: "prompt",
+        label: "Prompt",
+        type: "textarea",
+        required: true,
+        placeholder: "Enter your prompt...",
+      },
+      {
+        name: "model",
+        label: "Model",
+        type: "select",
+        required: true,
+        options: [
+          "openai/gpt-4-turbo",
+          "openai/gpt-4",
+          "openai/gpt-3.5-turbo",
+          "anthropic/claude-3-opus",
+          "anthropic/claude-3-sonnet",
+          "anthropic/claude-3-haiku",
+          "google/gemini-pro",
+          "meta-llama/llama-3-70b-instruct",
+          "mistralai/mistral-large"
+        ],
+      },
+      {
+        name: "maxTokens",
+        label: "Max Tokens",
+        type: "number",
+        required: false,
+        min: 1,
+        max: 8000,
+        step: 1,
+        placeholder: "2000"
+      },
+      {
+        name: "temperature",
+        label: "Temperature",
+        type: "number",
+        required: false,
+        min: 0,
+        max: 2,
+        step: 0.1,
+        placeholder: "0.7"
+      }
+    ]
+  },
+
   WebHookNodeType: {
     fields: [
       {

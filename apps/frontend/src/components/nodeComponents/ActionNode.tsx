@@ -19,6 +19,8 @@ const getActionIcon = (actionType: string) => {
     //   return <Mail className="w-6 h-6 text-white" />;
     case "openAiNodeType":
       return <Database className="w-6 h-6 text-white" />;
+    case "openRouterNodeType":
+      return <Database className="w-6 h-6 text-white" />;
     case "WebHookNodeType":
       return <Webhook className="w-6 h-6 text-white" />;
     case "EmailNodeType":
@@ -36,6 +38,8 @@ const getActionColor = (actionType: string) => {
     //   return "bg-red-600";
     case "openAiNodeType":
       return "bg-green-600";
+    case "openRouterNodeType":
+      return "bg-blue-600";
     case "WebHookNodeType":
       return "bg-purple-600";
     case "EmailTriggerType":
@@ -53,6 +57,8 @@ const getActionDisplayName = (actionType: string) => {
     //   return "Gmail";
     case "openAiNodeType":
       return "OpenAI";
+    case "openRouterNodeType":
+      return "OpenRouter";
     case "WebHookNodeType":
       return "Webhook";
     case "EmailTriggerType":
