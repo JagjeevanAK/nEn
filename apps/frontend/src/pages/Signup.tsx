@@ -1,15 +1,17 @@
 import axios from "axios";
 import { useState } from "react";
 import { BACKEND_URL } from "@/config/api";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
-
+  const navigate = useNavigate();
   const [email, setEmail ] = useState("")
   const [password , setPasseword] = useState("")
+  const [error, setError] = useState("")
   return (
     <div className="h-[100vw] p-2 ">
       <div className=" min-h-screen p-2 flex justify-center items-center ">
-        <div className="border-1 rounded-lg  p-2  h-[40vh] flex flex-col bg-neutral-50">
+        <div className="border rounded-lg  p-2  h-[40vh] flex flex-col bg-neutral-50">
           <div className="py-2">
             <h1>Welcome B</h1>
             <h1 className="">Please Sign up to your Account</h1>
@@ -36,16 +38,29 @@ const Login = () => {
           <div>
             <button className=" m-5 px-10 py-2 bg-green-200 rounded-lg "
               onClick={async () =>{
-                const res = await axios.post(`${BACKEND_URL}/api/v1/auth/signup`, {
-                  email,
-                  password
-                },
-              )
-              console.log(res.data);
+                try {
+                  setError("");
+                  const res = await axios.post(`${BACKEND_URL}/api/v1/auth/signup`, {
+                    email,
+                    password
+                  }, {
+                    withCredentials: true
+                  });
+                  console.log(res.data);
+                  navigate('/login');
+                } catch (err: unknown) {
+                  console.error("Signup error:", err);
+                  if (axios.isAxiosError(err)) {
+                    setError(err.response?.data?.message || "Signup failed");
+                  } else {
+                    setError("Signup failed");
+                  }
+                }
               }}
             >
               Submit
             </button>
+            {error && <p className="text-red-500 text-sm mx-5">{error}</p>}
           </div>
         </div>
       </div>

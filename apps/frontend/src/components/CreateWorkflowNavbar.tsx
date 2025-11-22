@@ -112,7 +112,7 @@ export function CreateWorkflowNavbar({
 
         <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
           <DialogTrigger asChild>
-            <Button className="bg-white text-black cursor-pointer border-1 border-b-3 hover:bg-teal-100 border-neutral-700">
+            <Button className="bg-white text-black cursor-pointer border border-b-3 hover:bg-teal-100 border-neutral-700">
               Add Action
             </Button>
           </DialogTrigger>

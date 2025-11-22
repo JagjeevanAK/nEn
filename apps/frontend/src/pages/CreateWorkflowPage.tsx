@@ -71,7 +71,7 @@ const CreateWorkflowPage = () => {
   };
 
   return (
-    <div className="h-[90vh] w-[100vw] relative">
+    <div className="h-[90vh] w-screen relative">
       <CreateWorkflowNavbar
         projectName={projectName}
         isActive={isWorkflowActive}
