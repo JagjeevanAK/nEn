@@ -11,14 +11,15 @@ import { Input } from "../ui/input";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { useWorkflowStore } from "@/store/workflowStore";
+import { BACKEND_URL } from "@/config/api";
 
 export function WebhookTriggerNode({ data, id }: { data: any, id: string }) {
   const [webhookName, setWebhookName] = useState<string>(data?.webhookName || "");
   const { workflowId } = useWorkflowStore();
   
   const webhookUrl = workflowId 
-    ? `http://localhost:8888/api/v1/webhook/${workflowId}/${id}`
-    : `http://localhost:8888/api/v1/webhook/[WORKFLOW_ID]/${id}`;
+    ? `${BACKEND_URL}/api/v1/webhook/${workflowId}/${id}`
+    : `${BACKEND_URL}/api/v1/webhook/[WORKFLOW_ID]/${id}`;
 
   const updateNodeData = useWorkflowStore((state) => state.updateNodeData);
   const isUrlReady = Boolean(workflowId);

@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEffect, useState } from "react";
 import type { UserCredentials, Workflow } from "@nen/db";
 import axios from "axios";
+import { BACKEND_URL } from "@/config/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Pencil, Save, Trash } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -33,7 +34,7 @@ export const DashboardTabs = () => {
     try {
       setWorkflowLoading(true);
       const res = await axios.post(
-        "http://localhost:8888/api/v1/workflow/getAllWorkflows",
+        `${BACKEND_URL}/api/v1/workflow/getAllWorkflows`,
         {},
         {
           withCredentials: true,
@@ -50,7 +51,7 @@ export const DashboardTabs = () => {
   const fetchCredentials = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:8888/api/v1/cred/all", {
+      const res = await axios.get(`${BACKEND_URL}/api/v1/cred/all`, {
         withCredentials: true,
       });
       setCredentials(res.data.data);
@@ -85,7 +86,7 @@ export const DashboardTabs = () => {
   const handleDeleteWorkflow = async (workflowId: string) => {
     try {
       const res = await axios.delete(
-        `http://localhost:8888/api/v1/workflow/${workflowId}`,
+        `${BACKEND_URL}/api/v1/workflow/${workflowId}`,
         {
           withCredentials: true,
         }
@@ -105,7 +106,7 @@ export const DashboardTabs = () => {
     if (!selectedCred) return;
     try {
       await axios.put(
-        `http://localhost:8888/api/v1/cred/update/${selectedCred.id}`,
+        `${BACKEND_URL}/api/v1/cred/update/${selectedCred.id}`,
         formData,
         { withCredentials: true }
       );
@@ -231,7 +232,7 @@ export const DashboardTabs = () => {
                               e.stopPropagation(); // prevent card navigation
                               try {
                                 const res = await axios.delete(
-                                  `http://localhost:8888/api/v1/cred/${cred.id}`,
+                                  `${BACKEND_URL}/api/v1/cred/${cred.id}`,
                                   { withCredentials: true }
                                 );
 

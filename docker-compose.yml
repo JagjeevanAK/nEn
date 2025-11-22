@@ -12,7 +12,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U nen_user -d nen_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nen_user} -d ${POSTGRES_DB:-nen_db}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -36,21 +36,18 @@ services:
       - nen-network
 
   backend:
-    image: ${BACKEND_IMAGE:-nen/backend}
+    image: nen/backend:latest
     build:
       context: .
       dockerfile: docker/backend.Dockerfile
-      args:
-        DATABASE_URL: postgresql://${POSTGRES_USER:-nen_user}:${POSTGRES_PASSWORD:-nen_password}@postgres:5432/${POSTGRES_DB:-nen_db}
     container_name: nen-backend
     restart: unless-stopped
-    env_file:
-      - .env
+    env_file: .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-nen_user}:${POSTGRES_PASSWORD:-nen_password}@postgres:5432/${POSTGRES_DB:-nen_db}
       REDIS_URL: redis://redis:6379
     ports:
-      - "${BACKEND_PORT:-8080}:${BACKEND_PORT:-8080}"
+      - "${BACKEND_PORT:-8080}:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -60,16 +57,13 @@ services:
       - nen-network
 
   engine:
-    image: ${ENGINE_IMAGE:-nen/engine}
+    image: nen/engine:latest
     build:
       context: .
       dockerfile: docker/engine.Dockerfile
-      args:
-        DATABASE_URL: postgresql://${POSTGRES_USER:-nen_user}:${POSTGRES_PASSWORD:-nen_password}@postgres:5432/${POSTGRES_DB:-nen_db}
     container_name: nen-engine
     restart: unless-stopped
-    env_file:
-      - .env
+    env_file: .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-nen_user}:${POSTGRES_PASSWORD:-nen_password}@postgres:5432/${POSTGRES_DB:-nen_db}
       REDIS_URL: redis://redis:6379
@@ -82,16 +76,15 @@ services:
       - nen-network
 
   frontend:
-    image: ${FRONTEND_IMAGE:-nen/frontend}
+    image: nen/frontend:latest
     build:
       context: .
       dockerfile: docker/frontend.Dockerfile
-      args:
-        DATABASE_URL: postgresql://${POSTGRES_USER:-nen_user}:${POSTGRES_PASSWORD:-nen_password}@postgres:5432/${POSTGRES_DB:-nen_db}
     container_name: nen-frontend
     restart: unless-stopped
-    env_file:
-      - .env
+    env_file: .env
+    environment:
+      VITE_BACKEND_URL: ${VITE_BACKEND_URL:-http://backend:8080}
     ports:
       - "${FRONTEND_PORT:-5173}:5173"
     depends_on:

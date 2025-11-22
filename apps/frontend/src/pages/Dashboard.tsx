@@ -6,6 +6,7 @@ import type { CredentialsI } from "@nen/db";
 // import { DialogClose } from "@radix-ui/react-dialog";
 import axios from "axios";
 import { useState } from "react";
+import { BACKEND_URL } from "@/config/api";
 import { CredentialDialogContent } from "@/components/CredentialDialogContent";
 import { DashboardTabs } from "@/components/DashboardTabs";
 import { Link } from "react-router-dom";
@@ -38,7 +39,7 @@ const Home = () => {
                 <Button
                   onClick={async () => {
                     const res = await axios.get(
-                      "http://localhost:8888/api/v1/cred/get-all",
+                      `${BACKEND_URL}/api/v1/cred/get-all`,
                       {
                         withCredentials: true,
                       }

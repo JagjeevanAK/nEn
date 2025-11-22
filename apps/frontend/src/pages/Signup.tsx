@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
+import { BACKEND_URL } from "@/config/api";
 
 const Login = () => {
 
@@ -35,7 +36,7 @@ const Login = () => {
           <div>
             <button className=" m-5 px-10 py-2 bg-green-200 rounded-lg "
               onClick={async () =>{
-                const res = await axios.post('http://localhost:8888/api/v1/auth/signup', {
+                const res = await axios.post(`${BACKEND_URL}/api/v1/auth/signup`, {
                   email,
                   password
                 },

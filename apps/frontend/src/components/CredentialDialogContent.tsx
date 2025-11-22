@@ -9,6 +9,7 @@ import {
   Dialog,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { BACKEND_URL } from "@/config/api";
 import {
   Select,
   SelectTrigger,
@@ -69,7 +70,7 @@ export function CredentialDialogContent({
 
     try {
       const res = await axios.post(
-        "http://localhost:8888/api/v1/cred/create",
+        `${BACKEND_URL}/api/v1/cred/create`,
         payload,
         { withCredentials: true }
       );
@@ -174,7 +175,7 @@ export function CredentialDialogContent({
                       <Button
                         onClick={() => {
                           window.location.href =
-                            "http://localhost:8888/api/v1/auth/google";
+                            `${BACKEND_URL}/api/v1/auth/google`;
                         }}
                       >
                         Sign in with Google

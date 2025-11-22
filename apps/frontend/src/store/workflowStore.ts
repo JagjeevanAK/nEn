@@ -13,6 +13,7 @@ import {
 } from "@xyflow/react";
 import type { UserCredentials } from "@nen/db";
 import axios from "axios";
+import { BACKEND_URL } from "../config/api";
 
 export interface TriggerI {
   id: string;
@@ -253,14 +254,14 @@ export const useWorkflowStore = create<WorkflowState>()(
           if (workflowId) {
             console.log("in update ");
             res = await axios.put(
-              `http://localhost:8888/api/v1/workflow/${workflowId}`,
+              `${BACKEND_URL}/api/v1/workflow/${workflowId}`,
               workflow,
               { withCredentials: true }
             );
           } else {
             console.log("in create");
             res = await axios.post(
-              "http://localhost:8888/api/v1/workflow/save",
+              `${BACKEND_URL}/api/v1/workflow/save`,
               workflow,
               { withCredentials: true }
             );
@@ -291,7 +292,7 @@ export const useWorkflowStore = create<WorkflowState>()(
 
         try {
           const res = await axios.get(
-            `http://localhost:8888/api/v1/workflow/${workflowId}`,
+            `${BACKEND_URL}/api/v1/workflow/${workflowId}`,
             { withCredentials: true }
           );
 
@@ -318,7 +319,7 @@ export const useWorkflowStore = create<WorkflowState>()(
 
         try {
           const res = await axios.get(
-            "http://localhost:8888/api/v1/trigger/all",
+            `${BACKEND_URL}/api/v1/trigger/all`,
             { withCredentials: true }
           );
 
@@ -332,7 +333,7 @@ export const useWorkflowStore = create<WorkflowState>()(
 
       loadUserCredentials: async () => {
         try {
-          const res = await axios.get("http://localhost:8888/api/v1/cred/all", {
+          const res = await axios.get(`${BACKEND_URL}/api/v1/cred/all`, {
             withCredentials: true,
           });
 
@@ -440,7 +441,7 @@ export const useWorkflowStore = create<WorkflowState>()(
 
           // hit the be endpoint isme => workflowId se workflow nikal ke be will send to engine and engine will execute the thing 
           const res = await axios.post(
-            `http://localhost:8888/api/v1/workflow/execute/${workflowId}`,
+            `${BACKEND_URL}/api/v1/workflow/execute/${workflowId}`,
             {},
             { withCredentials: true }
           );
