@@ -165,9 +165,9 @@ docker-compose ps
 docker-compose exec backend sh
 ```
 
-#### Environment Configuration for Docker
+#### Environment Configuration 
 
-When using Docker Compose, configure these environment variables in your `.env` file:
+When using Docker Compose, configure these environment variables should be in your `.env` file:
 
 ```env
 # PostgreSQL Configuration
@@ -309,35 +309,6 @@ nEn/
 - `GET /api/creds` - List user credentials
 - `POST /api/creds` - Add new credential
 - `DELETE /api/creds/:id` - Remove credential
-
-## Environment Variables
-
-Key environment variables required:
-
-```env
-# Database
-DATABASE_URL=postgresql://user:password@localhost:5432/nen_db
-
-# Redis
-REDIS_URL=redis://localhost:6379
-
-# JWT
-JWT_SECRET=your-jwt-secret
-JWT_REFRESH_SECRET=your-refresh-secret
-
-# Google OAuth
-GOOGLE_CLIENT_ID=your-client-id
-GOOGLE_CLIENT_SECRET=your-client-secret
-GOOGLE_REDIRECT_URI=http://localhost:3000/api/auth/google/callback
-
-# Application URLs
-VITE_BACKEND_URL=http://localhost:3000
-FRONTEND_URL=http://localhost:5173
-
-# Server Ports
-BACKEND_PORT=3000
-FRONTEND_PORT=5173
-```
 
 ## License
 
