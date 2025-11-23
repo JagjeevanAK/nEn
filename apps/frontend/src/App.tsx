@@ -9,16 +9,20 @@ import { AppSidebar } from "./components/AppSidebar";
 import WorkflowPage from "./pages/WorkflowPage";
 import CreateWorkflowPage from "./pages/CreateWorkflowPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import Landing from "./pages/Landing";
 
 function App() {
   return (
     <>
       <Routes>
+        {/* Public landing page */}
+        <Route element={<Landing />} path="/" />
+        
         {/* Auth routes without sidebar */}
         <Route element={<SignIn />} path="/signin" />
         <Route element={<Signup />} path="/signup" />
 
-        {/* Protected routes with sidebar */}
+        {/* Protected dashboard route with sidebar */}
         <Route
           element={
             <ProtectedRoute>
@@ -28,7 +32,7 @@ function App() {
               </SidebarProvider>
             </ProtectedRoute>
           }
-          path="/"
+          path="/dashboard"
         />
         
         {/* Create new workflow route */}

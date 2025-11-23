@@ -46,7 +46,7 @@ export function SignIn({
           withCredentials: true,
         }
       )
-      navigate("/")
+      navigate("/dashboard")
     } catch (err: unknown) {
       console.error("Sign in error:", err)
       if (axios.isAxiosError(err)) {

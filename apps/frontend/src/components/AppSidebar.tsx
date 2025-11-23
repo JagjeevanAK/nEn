@@ -22,7 +22,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 const items = [
   {
     title: "Dashboard",
-    url: "/",
+    url: "/dashboard",
     icon: Home,
   },
   

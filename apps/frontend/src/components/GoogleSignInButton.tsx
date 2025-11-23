@@ -61,7 +61,7 @@ export function GoogleSignInButton({
 
       if (result.data) {
         onSuccess?.();
-        navigate("/");
+        navigate("/dashboard");
       }
     } catch (error) {
       console.error("Google sign-in error:", error);
