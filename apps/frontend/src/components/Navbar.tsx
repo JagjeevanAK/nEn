@@ -47,9 +47,9 @@ export default function Navbar() {
         </Link>
         
         <NavigationMenu className="hidden md:flex">
-          <NavigationMenuList>
+          <NavigationMenuList className="text-xl font-extrabold">
             <NavigationMenuItem>
-              <NavigationMenuTrigger>Features</NavigationMenuTrigger>
+              <NavigationMenuTrigger className="bg-transparent">Features</NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
                   <li className="row-span-3">
@@ -80,7 +80,7 @@ export default function Navbar() {
               </NavigationMenuContent>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <NavigationMenuTrigger>Resources</NavigationMenuTrigger>
+              <NavigationMenuTrigger className="bg-transparent">Resources</NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
                   {components.map((component) => (
@@ -97,14 +97,14 @@ export default function Navbar() {
             </NavigationMenuItem>
             <NavigationMenuItem>
               <Link to="#">
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "bg-transparent")}>
                   Documentation
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
               <Link to="#">
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "bg-transparent")}>
                   Pricing
                 </NavigationMenuLink>
               </Link>

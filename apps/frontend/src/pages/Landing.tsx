@@ -4,22 +4,25 @@ import { Button } from "@/components/ui/button";
 import { Grid } from "@/components/grid/Grid";
 import { GridCell } from "@/components/grid/GridCell";
 import Navbar from "@/components/Navbar";
+import heroWorkflow from "@/assets/hero-workflow.png";
+import featureAi from "@/assets/feature-ai.png";
+import featureCode from "@/assets/feature-code.png";
 
 const FEATURES = [
     {
         title: "Plug AI into your data",
         description: "Connect to over 500 integrations and any LLM to build powerful agents.",
-        illustration: "",
+        illustration: <img src={heroWorkflow} alt="Plug AI into your data" className="rounded-lg border border-gray-200 shadow-sm mb-2" />,
     },
     {
         title: "Self-hostable",
         description: "Keep your data secure. Run on-prem or in your own cloud infrastructure.",
-        illustration: "",
+        illustration: <img src={featureAi} alt="Self-hostable" className="rounded-lg border border-gray-200 shadow-sm mb-2" />,
     },
     {
         title: "Code when you need it",
-        description: "Visual builder for speed, JavaScript/Python for power. The best of both worlds.",
-        illustration: "",
+        description: "Visual builder for speed, JS/Python for power. The best of both worlds.",
+        illustration: <img src={featureCode} alt="Code when you need it" className="rounded-lg border border-gray-200 shadow-sm mb-2" />,
     },
 ];
 
@@ -28,7 +31,7 @@ const WORKFLOW_JSON = `{
     {
       "parameters": {},
       "name": "Start",
-      "type": "n8n-nodes-base.start",
+      "type": "nEn-nodes-base.start",
       "typeVersion": 1,
       "position": [250, 300]
     },

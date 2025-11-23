@@ -72,10 +72,10 @@ export function Signup() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-teal-50 via-white to-blue-50">
       <div className="flex flex-col gap-6 w-full max-w-md">
-        <div className="text-center mb-2">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">nEn</h1>
-          <div className="h-1 w-16 bg-teal-600 mx-auto rounded"></div>
-        </div>
+        <svg className="self-center" width="80" height="30" viewBox="0 0 80 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect y="20" width="18" height="4" fill="#0d9488" />
+          <text x="18" y="24" fill="#201515" fontFamily="system-ui, sans-serif" fontWeight="800" fontSize="35">nEn</text>
+        </svg>
         <Card className="border-2 shadow-lg">
           <CardHeader>
             <CardTitle className="text-2xl text-center">Create an account</CardTitle>
