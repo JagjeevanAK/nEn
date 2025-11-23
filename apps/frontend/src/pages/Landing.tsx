@@ -3,6 +3,7 @@ import { DottedLines } from "@/components/DottedLines";
 import { Button } from "@/components/ui/button";
 import { Grid } from "@/components/grid/Grid";
 import { GridCell } from "@/components/grid/GridCell";
+import Navbar from "@/components/Navbar";
 
 const FEATURES = [
     {
@@ -46,6 +47,7 @@ const WORKFLOW_JSON = `{
 export default function HomePage() {
     return (
         <>
+            <Navbar />
             <div className="min-h-screen bg-linear-to-br from-teal-50 via-white to-blue-50 py-6 pt-24 max-w-6xl px-3 sm:px-6 md:py-12 md:pt-28 lg:px-12 mx-auto">
                 <Grid
                     columns={{
