@@ -40,7 +40,7 @@ export const generateRefreshToken = (user: any) =>
 
 export const signup: RequestHandler = asyncHandler(
   async (req: Request, res: Response) => {
-    const { email, password } = req.body;
+    const { email, password, name } = req.body;
     // console.log(email, password);
 
     let existingUser;
@@ -55,6 +55,7 @@ export const signup: RequestHandler = asyncHandler(
       data: {
         email: email,
         passwordHash: password,
+        name: name,
         lastLoggedId: new Date(),
       },
     });
@@ -168,17 +169,26 @@ export const verifyGoogleToken = asyncHandler(async (req, res) => {
 
 
     if (!user) {
+      const name = payload.name || `${payload.given_name || ''} ${payload.family_name || ''}`.trim();
+      
       user = await prisma.user.create({
         data: {
           email: payload.email,
+          name: name || undefined,
           passwordHash: "", // No password for OAuth users
           lastLoggedId: new Date(),
         },
       });
     } else {
+      const updateData: any = { lastLoggedId: new Date() };
+      
+      if (!user.name && payload.name) {
+        updateData.name = payload.name;
+      }
+      
       await prisma.user.update({
         where: { id: user.id },
-        data: { lastLoggedId: new Date() },
+        data: updateData,
       });
     }
 

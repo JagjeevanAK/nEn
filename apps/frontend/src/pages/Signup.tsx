@@ -21,6 +21,8 @@ import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 
 export function Signup() {
   const navigate = useNavigate();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -46,6 +48,7 @@ export function Signup() {
       await axios.post(
         `${BACKEND_URL}/api/v1/auth/signup`,
         {
+          name: `${firstName} ${lastName}`.trim(),
           email,
           password,
         },
@@ -83,6 +86,28 @@ export function Signup() {
           <CardContent>
             <form onSubmit={handleSubmit}>
               <FieldGroup>
+                <Field>
+                  <FieldLabel htmlFor="firstName">First Name</FieldLabel>
+                  <Input
+                    id="firstName"
+                    type="text"
+                    placeholder="John"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="lastName">Last Name</FieldLabel>
+                  <Input
+                    id="lastName"
+                    type="text"
+                    placeholder="Doe"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    required
+                  />
+                </Field>
                 <Field>
                   <FieldLabel htmlFor="email">Email</FieldLabel>
                   <Input

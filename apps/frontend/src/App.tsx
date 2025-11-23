@@ -5,7 +5,7 @@ import { SignIn } from "./pages/SignIn";
 import { Signup } from "./pages/Signup";
 import Profile from "./pages/Profile";
 import { SidebarProvider } from "./components/ui/sidebar";
-import { AppSidebar } from "./components/app-sidebar";
+import { AppSidebar } from "./components/AppSidebar";
 import WorkflowPage from "./pages/WorkflowPage";
 import CreateWorkflowPage from "./pages/CreateWorkflowPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
