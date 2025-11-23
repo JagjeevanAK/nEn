@@ -18,6 +18,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { GoogleSignInButton } from "@/components/GoogleSignInButton"
 
 export function SignIn({
   className,
@@ -67,8 +68,8 @@ export function SignIn({
         </div>
         <Card className="border-2 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-2xl">Sign in to your account</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-2xl text-center">Sign in to your account</CardTitle>
+            <CardDescription className="text-center">
               Enter your email below to Sign in to your account
             </CardDescription>
           </CardHeader>
@@ -87,8 +88,11 @@ export function SignIn({
                   />
                 </Field>
                 <Field>
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-between">
                     <FieldLabel htmlFor="password">Password</FieldLabel>
+                    <Link to="/forgot-password" className="text-sm underline underline-offset-4 hover:text-teal-600">
+                      Forgot password?
+                    </Link>
                   </div>
                   <Input
                     id="password"
@@ -105,16 +109,10 @@ export function SignIn({
                   <Button type="submit" disabled={loading} className="bg-teal-600 hover:bg-teal-700 text-white">
                     {loading ? "Signging in..." : "Sign in"}
                   </Button>
-                  <Button
-                    variant="outline"
-                    type="button"
-                    className="border-2 border-teal-600 text-teal-700 hover:bg-teal-50"
-                    onClick={() => {
-                      window.location.href = `${BACKEND_URL}/api/v1/auth/google-auth`;
-                    }}
-                  >
-                    Sign in with Google
-                  </Button>
+                  <GoogleSignInButton
+                    text="signin_with"
+                    onError={(err) => setError(err)}
+                  />
                   <FieldDescription className="text-center">
                     Don&apos;t have an account?{" "}
                     <Link to="/signup" className="underline underline-offset-4 hover:text-primary">

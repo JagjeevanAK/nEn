@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { BACKEND_URL } from "@/config/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, Mail, Calendar } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { User, Mail, Calendar, LogOut } from "lucide-react";
 
 interface UserData {
   id: string;
@@ -13,6 +15,7 @@ interface UserData {
 }
 
 const Profile = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,6 +38,20 @@ const Profile = () => {
 
     fetchUserData();
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        `${BACKEND_URL}/api/v1/auth/logout`,
+        {},
+        { withCredentials: true }
+      );
+      navigate("/signin");
+    } catch (err) {
+      console.error("Logout error:", err);
+      navigate("/signin");
+    }
+  };
 
   if (loading) {
     return (
@@ -140,6 +157,17 @@ const Profile = () => {
             </div>
           </CardContent>
         </Card>
+
+        <div className="mt-6 flex justify-end">
+          <Button
+            onClick={handleLogout}
+            variant="outline"
+            className="border-2 border-red-600 text-red-600 hover:bg-red-50 hover:text-red-700"
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Logout
+          </Button>
+        </div>
       </div>
     </div>
   );

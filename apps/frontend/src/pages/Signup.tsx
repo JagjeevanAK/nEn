@@ -17,6 +17,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 
 export function Signup() {
   const navigate = useNavigate();
@@ -74,8 +75,8 @@ export function Signup() {
         </div>
         <Card className="border-2 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-2xl">Create an account</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-2xl text-center">Create an account</CardTitle>
+            <CardDescription className="text-center">
               Enter your information below to create your account
             </CardDescription>
           </CardHeader>
@@ -125,16 +126,10 @@ export function Signup() {
                   <Button type="submit" disabled={loading} className="bg-teal-600 hover:bg-teal-700 text-white">
                     {loading ? "Creating..." : "Create Account"}
                   </Button>
-                  <Button
-                    variant="outline"
-                    type="button"
-                    className="border-2 border-teal-600 text-teal-700 hover:bg-teal-50"
-                    onClick={() => {
-                      window.location.href = `${BACKEND_URL}/api/v1/auth/google-auth`;
-                    }}
-                  >
-                    Sign up with Google
-                  </Button>
+                  <GoogleSignInButton
+                    text="signup_with"
+                    onError={(err) => setError(err)}
+                  />
                   <FieldDescription className="text-center">
                     Already have an account?{" "}
                     <Link to="/signin" className="underline underline-offset-4 hover:text-primary">

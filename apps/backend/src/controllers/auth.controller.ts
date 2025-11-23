@@ -106,22 +106,11 @@ export const signin: RequestHandler = asyncHandler(async (req, res) => {
 });
 
 export const signout: RequestHandler = asyncHandler(async (req, res) => {
-  const userId = req.user.id;
-
-  if (!userId) throw new CustomError(401, "Not authorized");
-
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      refreshToken: null,
-      refreshTokenExpiry: null,
-    },
-  });
-
   res.clearCookie("accessToken");
   res.clearCookie("refreshToken");
-  res.status(200).json(new ApiResponse(200, "Signout successful", null));
+  res.status(200).json(new ApiResponse(200, "Logged out successfully", null));
 });
+export const logout = signout;
 
 export const getUser: RequestHandler = asyncHandler(
   async (req: Request, res) => {
@@ -152,74 +141,65 @@ const SCOPES = [
   "https://www.googleapis.com/auth/userinfo.email",
 ];
 
-// OAuth client for authentication (sign in/sign up)
-const authOAuth2Client = new google.auth.OAuth2(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  `${process.env.PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/auth/google-auth/callback`
-);
-const AUTH_SCOPES = [
-  "https://www.googleapis.com/auth/userinfo.email",
-  "https://www.googleapis.com/auth/userinfo.profile",
-];
+// Verify Google token from frontend (for user authentication)
+export const verifyGoogleToken = asyncHandler(async (req, res) => {
+  const { credential } = req.body;
 
-
-export const googleAuthSignIn = asyncHandler(async (req, res) => {
-  const url = authOAuth2Client.generateAuthUrl({
-    access_type: "offline",
-    scope: AUTH_SCOPES,
-    prompt: "consent",
-  });
-  res.redirect(url);
-});
-
-export const handleGoogleAuthCallback = asyncHandler(async (req, res) => {
-  const code = req.query.code as string;
-
-  const { tokens } = await authOAuth2Client.getToken(code);
-  authOAuth2Client.setCredentials(tokens);
-
-  const oauth2 = google.oauth2({ version: "v2", auth: authOAuth2Client });
-  const { data } = await oauth2.userinfo.get();
-
-  if (!data.email) {
-    throw new CustomError(400, "Unable to get email from Google");
+  if (!credential) {
+    throw new CustomError(400, "No credential provided");
   }
 
-  let user = await prisma.user.findUnique({
-    where: { email: data.email },
-  });
+  try {
+    const ticket = await oauth2Client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
 
-  if (!user) {
-    user = await prisma.user.create({
-      data: {
-        email: data.email,
-        passwordHash: "", 
-        lastLoggedId: new Date(),
-      },
+    const payload = ticket.getPayload();
+    
+    if (!payload || !payload.email) {
+      throw new CustomError(400, "Invalid token payload");
+    }
+
+
+    let user = await prisma.user.findUnique({
+      where: { email: payload.email },
     });
-  } else {
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { lastLoggedId: new Date() },
-    });
+
+
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          email: payload.email,
+          passwordHash: "", // No password for OAuth users
+          lastLoggedId: new Date(),
+        },
+      });
+    } else {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { lastLoggedId: new Date() },
+      });
+    }
+
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    res.cookie("accessToken", accessToken, generateCookieOptions());
+    res.cookie("refreshToken", refreshToken, generateCookieOptions());
+
+    res.status(200).json(
+      new ApiResponse(200, "Google authentication successful", {
+        user: {
+          id: user.id,
+          email: user.email,
+        },
+      })
+    );
+  } catch (error) {
+    console.error("Google token verification error:", error);
+    throw new CustomError(401, "Invalid Google token");
   }
-
-  const accessToken = generateAccessToken(user);
-  const refreshToken = generateRefreshToken(user);
-
-  res.cookie(
-    "accessToken",
-    accessToken,
-    generateCookieOptions()
-  );
-  res.cookie(
-    "refreshToken",
-    refreshToken,
-    generateCookieOptions()
-  );
-
-  res.redirect(process.env.FRONTEND_URL || "http://localhost:5173/");
 });
 
 
