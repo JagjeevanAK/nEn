@@ -113,12 +113,12 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="border-t">
+      <SidebarFooter>
         <button
           onClick={handleProfile}
-          className="flex items-center gap-3 p-3 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors w-full"
+          className={`flex items-center gap-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors w-full rounded-md ${state === "collapsed" ? "justify-center" : ""}`}
         >
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold ${getRandomColor(user?.name)}`}>
+          <div className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-white text-xs font-semibold ${getRandomColor(user?.name)}`}>
             {getInitials(user?.name)}
           </div>
           {state === "expanded" && (

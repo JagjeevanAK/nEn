@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "./ui/button";
 import { Switch } from "./ui/switch";
 import { Save, Loader2, ArrowLeft } from "lucide-react";
@@ -14,6 +14,7 @@ interface WorkflowNavbarProps {
   isActive?: boolean;
   onSave?: () => void;
   onActiveToggle?: (active: boolean) => void;
+  onNameChange?: (newName: string) => void;
   isSaving?: boolean;
   isViewMode?: boolean;
 }
@@ -23,6 +24,7 @@ export function WorkflowNavbar({
   isActive = false,
   onSave,
   onActiveToggle,
+  onNameChange,
   isSaving = false,
   isViewMode = false,
 }: WorkflowNavbarProps) {
@@ -30,6 +32,9 @@ export function WorkflowNavbar({
   const [dialogState, setDialogState] = useState("actions");
   const [selectedAction, setSelectedAction] = useState<ActionI | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState(projectName);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const {
     executeWorkflowWithWebSocket,
@@ -84,6 +89,7 @@ export function WorkflowNavbar({
   const handleBackToDashboard = () => {
     navigate("/");
   };
+  
   const handleExecution = async () => {
     try {
       await executeWorkflowWithWebSocket();
@@ -91,6 +97,40 @@ export function WorkflowNavbar({
       console.log("Error is execution", err);
     }
   };
+
+  const handleNameClick = () => {
+    setIsEditingName(true);
+    setEditedName(projectName);
+  };
+
+  const handleNameBlur = () => {
+    setIsEditingName(false);
+    if (editedName.trim() && editedName !== projectName) {
+      onNameChange?.(editedName.trim());
+    } else {
+      setEditedName(projectName);
+    }
+  };
+
+  const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      inputRef.current?.blur();
+    } else if (e.key === "Escape") {
+      setEditedName(projectName);
+      setIsEditingName(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isEditingName && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [isEditingName]);
+
+  useEffect(() => {
+    setEditedName(projectName);
+  }, [projectName]);
 
   useEffect(() => {
     return () => {
@@ -111,9 +151,24 @@ export function WorkflowNavbar({
           Back
         </Button>
         <div className="h-6 w-px bg-gray-300"></div>
-        <h1 className="text-md font-semibold text-gray-900 truncate">
-          {projectName}
-        </h1>
+        {isEditingName ? (
+          <input
+            ref={inputRef}
+            type="text"
+            value={editedName}
+            onChange={(e) => setEditedName(e.target.value)}
+            onBlur={handleNameBlur}
+            onKeyDown={handleNameKeyDown}
+            className="text-md font-semibold text-gray-900 bg-transparent border-b-2 border-teal-500 focus:outline-none px-1 min-w-[200px]"
+          />
+        ) : (
+          <h1 
+            className="text-md font-semibold text-gray-900 truncate cursor-pointer hover:text-teal-600 transition-colors"
+            onClick={handleNameClick}
+          >
+            {projectName}
+          </h1>
+        )}
         {isViewMode && (
           <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
             Saved
@@ -138,7 +193,7 @@ export function WorkflowNavbar({
 
         <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
           <DialogTrigger asChild>
-            <Button className="bg-white text-black cursor-pointer border-1 border-b-3 hover:bg-teal-100 border-neutral-700">
+            <Button className="bg-white text-black cursor-pointer border border-b-3 hover:bg-teal-100 border-neutral-700">
               Add Action
             </Button>
           </DialogTrigger>

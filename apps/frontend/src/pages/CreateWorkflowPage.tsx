@@ -47,6 +47,7 @@ const CreateWorkflowPage = () => {
     onConnect,
     saveWorkflow,
     setIsWorkflowActive,
+    setProjectName,
     loadTriggers,
     loadUserCredentials,
     isSaving,
@@ -77,6 +78,7 @@ const CreateWorkflowPage = () => {
         isActive={isWorkflowActive}
         onSave={handleSave}
         onActiveToggle={setIsWorkflowActive}
+        onNameChange={setProjectName}
         isSaving={isSaving}
       />
       <ReactFlow
