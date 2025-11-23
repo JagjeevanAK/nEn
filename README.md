@@ -69,6 +69,23 @@ This project uses Turborepo to manage a monorepo with three main applications:
 - **Deployment**: Docker, Docker Compose, Nginx
 
 
+## Project Structure
+
+```
+nEn/
+├── apps/
+│   ├── backend/          # Express API server
+│   ├── engine/           # Workflow execution engine
+│   └── frontend/         # React web application
+├── packages/
+│   ├── db/              # Prisma schema and database client
+│   ├── eslint-config/   # Shared ESLint configurations
+│   └── typescript-config/ # Shared TypeScript configurations
+├── docker/              # Dockerfiles for each service
+├── conf/                # Nginx configuration files
+└── scripts/             # Utility scripts
+```
+
 ## Getting Started
 
 ### Local Development
@@ -266,49 +283,6 @@ docker build -t nen/frontend:latest -f docker/frontend.Dockerfile .
 - Queue-based task processing
 - RESTful API with authentication
 - Responsive web interface
-
-## Project Structure
-
-```
-nEn/
-├── apps/
-│   ├── backend/          # Express API server
-│   ├── engine/           # Workflow execution engine
-│   └── frontend/         # React web application
-├── packages/
-│   ├── db/              # Prisma schema and database client
-│   ├── eslint-config/   # Shared ESLint configurations
-│   └── typescript-config/ # Shared TypeScript configurations
-├── docker/              # Dockerfiles for each service
-├── conf/                # Nginx configuration files
-└── scripts/             # Utility scripts
-```
-
-## API Endpoints
-
-### Authentication
-- `POST /api/auth/signup` - User registration
-- `POST /api/auth/signin` - User login
-- `GET /api/auth/google` - Google OAuth flow
-
-### Workflows
-- `GET /api/workflows` - List all workflows
-- `POST /api/workflows` - Create workflow
-- `GET /api/workflows/:id` - Get workflow details
-- `PUT /api/workflows/:id` - Update workflow
-- `DELETE /api/workflows/:id` - Delete workflow
-
-### Triggers
-- `GET /api/triggers` - List available triggers
-- `POST /api/triggers` - Configure trigger
-
-### Webhooks
-- `POST /api/webhook/:workflowId` - Execute workflow via webhook
-
-### Credentials
-- `GET /api/creds` - List user credentials
-- `POST /api/creds` - Add new credential
-- `DELETE /api/creds/:id` - Remove credential
 
 ## License
 
