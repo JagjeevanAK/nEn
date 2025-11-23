@@ -1,7 +1,8 @@
 import { createClient } from "redis";
 import WebSocket, { WebSocketServer } from "ws";
 
-const wss = new WebSocketServer({ port: 8080 });
+const WS_PORT = parseInt(process.env.WS_PORT || "8080", 10);
+const wss = new WebSocketServer({ port: WS_PORT });
 const clients = new Map<string, WebSocket[]>();
 
 wss.on("connection", (ws, req) => {
@@ -25,7 +26,8 @@ const subscriberRedis = createClient({ url: "redis://localhost:6379" });
 const connectRedis = async () => {
   try {
     await subscriberRedis.connect();
-    console.log("Redis connected ");
+    console.log("Redis connected");
+    console.log(`WebSocket server running on port ${WS_PORT}`);
   } catch (error) {
     console.log("error ", error);
   }

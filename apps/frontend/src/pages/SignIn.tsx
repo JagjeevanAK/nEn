@@ -2,14 +2,14 @@ import axios from "axios";
 import  { useState } from "react";
 import { BACKEND_URL } from "@/config/api";
 
-const Login = () => {
+const SignIn = () => {
 
   const [email, setEmail ] = useState("")
   const [password , setPasseword] = useState("")
   return (
     <div className="h-[100vw] p-2 ">
       <div className=" min-h-screen p-2 flex justify-center items-center ">
-        <div className="border-1 rounded-lg  p-2  h-[40vh] flex flex-col bg-neutral-50">
+        <div className="border rounded-lg  p-2  h-[40vh] flex flex-col bg-neutral-50">
           <div className="py-2">
             <h1>Welcome Back..</h1>
             <h1 className="">Please SignIn to your Account</h1>
@@ -56,4 +56,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default SignIn;

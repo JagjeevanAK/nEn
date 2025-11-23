@@ -7,3 +7,8 @@ dist
 .idea
 .vscode
 .turbo
+
+apps/**/dist
+apps/**/.next
+apps/**/build
+packages/**/dist
