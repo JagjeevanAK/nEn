@@ -86,9 +86,16 @@ export function AppSidebar() {
   return (
     <Sidebar variant="sidebar" collapsible="icon">
       <SidebarHeader className="hover:bg-[#f7f1e6]">
-        <div className="flex justify-between ">
-          <SidebarGroupLabel className="text-xl font-bold text-black ">nEn</SidebarGroupLabel>
-          <SidebarTrigger className="ml-[-50px]" />
+        <div className={`flex items-center ${state === "collapsed" ? "justify-center" : "justify-between"}`}>
+          {state === "expanded" && (
+            <SidebarGroupLabel>
+              <div className="flex items-baseline">
+                <div className="h-1 w-[18px] bg-[#0d9488]" />
+                <span className="text-[26px] font-extrabold text-[#201515] leading-none">nEn</span>
+              </div>
+            </SidebarGroupLabel>
+          )}
+          <SidebarTrigger className={state === "expanded" ? "ml-[-50px]" : ""} />
         </div>
       </SidebarHeader>
       <SidebarContent>
