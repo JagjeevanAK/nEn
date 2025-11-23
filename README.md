@@ -59,19 +59,6 @@ graph TB
     Engine -.->|Config| TSConfigPkg
     Frontend -.->|Config| ESLintPkg
     Frontend -.->|Config| TSConfigPkg
-
-    style User fill:#e1f5ff
-    style Frontend fill:#bbdefb
-    style Backend fill:#90caf9
-    style Engine fill:#64b5f6
-    style PostgreSQL fill:#ffccbc
-    style Redis fill:#ffab91
-    style Gmail fill:#c8e6c9
-    style OAuth fill:#a5d6a7
-    style Webhooks fill:#81c784
-    style DBPackage fill:#fff9c4
-    style ESLintPkg fill:#f0f4c3
-    style TSConfigPkg fill:#e6ee9c
 ```
 
 ### Monorepo Structure
