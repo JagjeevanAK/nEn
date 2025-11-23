@@ -6,35 +6,35 @@ A workflow automation platform built with TypeScript and Turborepo. Create, mana
 
 ```mermaid
 graph TB
-    subgraph "Client Layer"
+    subgraph Client["Client Layer"]
         User[User Browser]
     end
 
-    subgraph "Frontend Container"
-        Frontend[React + Vite App<br/>Port: 80]
+    subgraph FrontendLayer["Frontend Container"]
+        Frontend["React + Vite App<br/>Port: 80"]
         Nginx[Nginx Server]
     end
 
-    subgraph "Backend Services"
-        Backend[Backend API<br/>Express.js<br/>Port: 3000]
-        Engine[Workflow Engine<br/>Execution Service]
+    subgraph BackendServices["Backend Services"]
+        Backend["Backend API<br/>Express.js<br/>Port: 3000"]
+        Engine["Workflow Engine<br/>Execution Service"]
     end
 
-    subgraph "Data Layer"
-        PostgreSQL[(PostgreSQL<br/>Database<br/>Port: 5432)]
-        Redis[(Redis Cache<br/>Queue Manager<br/>Port: 6379)]
+    subgraph DataLayer["Data Layer"]
+        PostgreSQL[("PostgreSQL<br/>Database<br/>Port: 5432")]
+        Redis[("Redis Cache<br/>Queue Manager<br/>Port: 6379")]
     end
 
-    subgraph "External Services"
-        Gmail[Gmail API<br/>Email Triggers]
-        OAuth[Google OAuth<br/>Authentication]
+    subgraph External["External Services"]
+        Gmail["Gmail API<br/>Email Triggers"]
+        OAuth["Google OAuth<br/>Authentication"]
         Webhooks[External Webhooks]
     end
 
-    subgraph "Shared Packages"
-        DB[@nen/db<br/>Prisma Client]
-        ESLint[@nen/eslint-config]
-        TSConfig[@nen/typescript-config]
+    subgraph Packages["Shared Packages"]
+        DBPackage["@nen/db<br/>Prisma Client"]
+        ESLintPkg["@nen/eslint-config"]
+        TSConfigPkg["@nen/typescript-config"]
     end
 
     User -->|HTTP/HTTPS| Nginx
@@ -51,14 +51,14 @@ graph TB
     Engine -->|Process Jobs| Redis
     Engine -->|Execute Actions| Gmail
     
-    Backend -.->|Uses| DB
-    Engine -.->|Uses| DB
-    Backend -.->|Config| ESLint
-    Backend -.->|Config| TSConfig
-    Engine -.->|Config| ESLint
-    Engine -.->|Config| TSConfig
-    Frontend -.->|Config| ESLint
-    Frontend -.->|Config| TSConfig
+    Backend -.->|Uses| DBPackage
+    Engine -.->|Uses| DBPackage
+    Backend -.->|Config| ESLintPkg
+    Backend -.->|Config| TSConfigPkg
+    Engine -.->|Config| ESLintPkg
+    Engine -.->|Config| TSConfigPkg
+    Frontend -.->|Config| ESLintPkg
+    Frontend -.->|Config| TSConfigPkg
 
     style User fill:#e1f5ff
     style Frontend fill:#bbdefb
@@ -69,9 +69,9 @@ graph TB
     style Gmail fill:#c8e6c9
     style OAuth fill:#a5d6a7
     style Webhooks fill:#81c784
-    style DB fill:#fff9c4
-    style ESLint fill:#f0f4c3
-    style TSConfig fill:#e6ee9c
+    style DBPackage fill:#fff9c4
+    style ESLintPkg fill:#f0f4c3
+    style TSConfigPkg fill:#e6ee9c
 ```
 
 ### Monorepo Structure
