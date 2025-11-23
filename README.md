@@ -282,6 +282,7 @@ nEn/
 ├── docker/              # Dockerfiles for each service
 ├── conf/                # Nginx configuration files
 └── scripts/             # Utility scripts
+```
 
 ## API Endpoints
 
