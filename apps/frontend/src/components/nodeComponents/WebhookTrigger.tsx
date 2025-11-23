@@ -12,6 +12,7 @@ import { useState } from "react";
 import { Button } from "../ui/button";
 import { useWorkflowStore } from "@/store/workflowStore";
 import { BACKEND_URL } from "@/config/api";
+import { toast } from "sonner";
 
 export function WebhookTriggerNode({ data, id }: { data: any, id: string }) {
   const [webhookName, setWebhookName] = useState<string>(data?.webhookName || "");
@@ -26,7 +27,7 @@ export function WebhookTriggerNode({ data, id }: { data: any, id: string }) {
 
   const handleSave = () => {
     if (!webhookName.trim()) {
-      alert("Please enter webhook name");
+      toast.warning("Please enter webhook name");
       return;
     }
     updateNodeData(id, { 
@@ -38,10 +39,11 @@ export function WebhookTriggerNode({ data, id }: { data: any, id: string }) {
 
   const copyUrl = () => {
     if (!isUrlReady) {
-      alert("Save workflow first");
+      toast.info("Please save workflow first");
       return;
     }
     navigator.clipboard.writeText(webhookUrl);
+    toast.success("Webhook URL copied to clipboard");
   };
 
   return (

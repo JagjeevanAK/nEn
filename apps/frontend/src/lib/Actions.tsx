@@ -9,6 +9,7 @@ import {
   Webhook,
 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { actionSchemas } from "./constant";
 import { useWorkflowStore } from "@/store/workflowStore";
 
@@ -129,7 +130,7 @@ export const ActionForm = ({
       await onSubmit(submitData);
     } catch (error) {
       console.error("Error submitting action form:", error);
-      alert("Error submitting action form ");
+      toast.error("Error submitting action form");
     } finally {
       setIsSubmitting(false);
     }

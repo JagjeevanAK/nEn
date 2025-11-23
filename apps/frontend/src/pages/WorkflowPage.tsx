@@ -114,7 +114,7 @@ const WorkflowPage = () => {
       loadWorkflow(workflowId);
       loadUserCredentials();
     }
-  }, [workflowId, loadWorkflow]);
+  }, [workflowId, loadWorkflow, loadUserCredentials]);
 
   const handleSave = async () => {
     try {
@@ -126,14 +126,14 @@ const WorkflowPage = () => {
 
   if (isLoading) {
     return (
-      <div className="h-[100vh] w-[100vw] flex items-center justify-center">
+      <div className="h-screen w-screen flex items-center justify-center">
         <div className="text-lg">Loading workflow...</div>
       </div>
     );
   }
 
   return (
-    <div className="h-[90vh] w-[100vw] relative">
+    <div className="h-screen w-full flex flex-col">
       {isExecuting && (
         <div className="absolute top-20 right-4 z-50 bg-orange-100 border border-orange-300 rounded-lg p-3 shadow-lg">
           <div className="flex items-center gap-2">
@@ -149,52 +149,55 @@ const WorkflowPage = () => {
         isActive={isWorkflowActive}
         onSave={handleSave}
         onActiveToggle={setIsWorkflowActive}
+        onNameChange={useWorkflowStore.getState().setProjectName}
         isSaving={isSaving}
         isViewMode={true}
       />
-      <ReactFlow
-        className=""
-        nodes={nodesWithStatus}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onNodeDrag={onNodeDrag}
-        nodeTypes={nodeTypes}
-        fitView
-        fitViewOptions={fitViewOptions}
-        defaultEdgeOptions={defaultEdgeOptions}
-      >
-        <Controls>
-          <ControlButton
-            onClick={() => alert("Something magical just happened")}
-          />
-        </Controls>
-        <Background />
-        <MiniMap nodeStrokeWidth={3} />
-      </ReactFlow>
+      <div className="flex-1 relative">
+        <ReactFlow
+          className="h-full w-full"
+          nodes={nodesWithStatus}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          onNodeDrag={onNodeDrag}
+          nodeTypes={nodeTypes}
+          fitView
+          fitViewOptions={fitViewOptions}
+          defaultEdgeOptions={defaultEdgeOptions}
+        >
+          <Controls>
+            <ControlButton
+              onClick={() => {}}
+            />
+          </Controls>
+          <Background />
+          <MiniMap nodeStrokeWidth={3} nodeColor="#14b8a6" zoomable pannable />
+        </ReactFlow>
 
-      {executionEvents.length > 0 && (
-        <div className="absolute bottom-4 left-4 max-w-sm bg-white border rounded-lg shadow-lg p-4 max-h-40 overflow-y-auto">
-          <h4 className="font-medium mb-2">Execution Log:</h4>
-          {executionEvents.slice(-5).map((event, index) => (
-            <div key={index} className="text-xs text-gray-600 mb-1">
-              <span
-                className={`font-medium ${
-                  event.status === "started"
-                    ? "text-orange-600"
-                    : event.status === "completed"
-                      ? "text-green-600"
-                      : "text-red-600"
-                }`}
-              >
-                {event.status.toUpperCase()}
-              </span>
-              : {event.nodeId}
-            </div>
-          ))}
-        </div>
-      )}
+        {executionEvents.length > 0 && (
+          <div className="absolute bottom-4 left-4 max-w-sm bg-white border rounded-lg shadow-lg p-4 max-h-40 overflow-y-auto">
+            <h4 className="font-medium mb-2">Execution Log:</h4>
+            {executionEvents.slice(-5).map((event, index) => (
+              <div key={index} className="text-xs text-gray-600 mb-1">
+                <span
+                  className={`font-medium ${
+                    event.status === "started"
+                      ? "text-orange-600"
+                      : event.status === "completed"
+                        ? "text-green-600"
+                        : "text-red-600"
+                  }`}
+                >
+                  {event.status.toUpperCase()}
+                </span>
+                : {event.nodeId}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

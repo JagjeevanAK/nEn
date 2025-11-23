@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from "zustand";
+import { toast } from "sonner";
 import { devtools } from "zustand/middleware";
 import {
   addEdge,
@@ -119,7 +120,7 @@ export const useWorkflowStore = create<WorkflowState>()(
       edges: [],
       workflowId: undefined,
       isWorkflowActive: false,
-      projectName: "My Workflow Project",
+      projectName: "My Workflow",
       triggers: [],
       userCredentials: [],
       isLoading: false,
@@ -155,7 +156,7 @@ export const useWorkflowStore = create<WorkflowState>()(
           edges: [],
           workflowId: undefined,
           isWorkflowActive: false,
-          projectName: "My Workflow Project",
+          projectName: "My Workflow",
         });
       },
 
@@ -274,12 +275,12 @@ export const useWorkflowStore = create<WorkflowState>()(
               res.data.workflowId || res.data.data?.workflowId;
             console.log(savedWorkflowId);
             set({ workflowId: savedWorkflowId });
-            alert("Workflow saved successfully!");
+            toast.success("Workflow saved successfully!");
             return savedWorkflowId;
           }
         } catch (error) {
           console.error("Failed to save workflow:", error);
-          alert("Failed to save workflow");
+          toast.error("Failed to save workflow");
           return null;
         } finally {
           set({ isSaving: false });
@@ -308,7 +309,7 @@ export const useWorkflowStore = create<WorkflowState>()(
           }
         } catch (error) {
           console.error("Failed to load workflow:", error);
-          alert("Failed to load workflow");
+          toast.error("Failed to load workflow");
         } finally {
           set({ isLoading: false });
         }

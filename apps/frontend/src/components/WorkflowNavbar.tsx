@@ -2,12 +2,11 @@
 import { useEffect, useState, useRef } from "react";
 import { Button } from "./ui/button";
 import { Switch } from "./ui/switch";
-import { Save, Loader2, ArrowLeft } from "lucide-react";
+import { Save, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { ActionForm, availableActions, type ActionI } from "@/lib/Actions";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { useWorkflowStore } from "@/store/workflowStore";
-import { useNavigate } from "react-router-dom";
 
 interface WorkflowNavbarProps {
   projectName?: string;
@@ -28,7 +27,6 @@ export function WorkflowNavbar({
   isSaving = false,
   isViewMode = false,
 }: WorkflowNavbarProps) {
-  const navigate = useNavigate();
   const [dialogState, setDialogState] = useState("actions");
   const [selectedAction, setSelectedAction] = useState<ActionI | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -85,10 +83,6 @@ export function WorkflowNavbar({
       setSelectedAction(null);
     }
   };
-
-  const handleBackToDashboard = () => {
-    navigate("/");
-  };
   
   const handleExecution = async () => {
     try {
@@ -139,18 +133,9 @@ export function WorkflowNavbar({
   }, [disconnectWebSocket]);
 
   return (
-    <nav className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 h-16 mt-2 rounded-sm mr-2 flex items-center justify-between shadow-sm">
-      <div className="flex items-center gap-4">
-        <Button
-          onClick={handleBackToDashboard}
-          variant="ghost"
-          size="sm"
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back
-        </Button>
-        <div className="h-6 w-px bg-gray-300"></div>
+    <nav className="w-full flex items-center justify-between py-2 px-3 mt-1 border-b bg-white">
+      <div className="flex items-center gap-2">
+        <div className="h-5 w-1 rounded bg-teal-600"></div>
         {isEditingName ? (
           <input
             ref={inputRef}
@@ -159,15 +144,15 @@ export function WorkflowNavbar({
             onChange={(e) => setEditedName(e.target.value)}
             onBlur={handleNameBlur}
             onKeyDown={handleNameKeyDown}
-            className="text-md font-semibold text-gray-900 bg-transparent border-b-2 border-teal-500 focus:outline-none px-1 min-w-[200px]"
+            className="text-xl font-semibold text-gray-800 bg-transparent border-b-2 border-teal-500 focus:outline-none px-1 min-w-[200px]"
           />
         ) : (
-          <h1 
-            className="text-md font-semibold text-gray-900 truncate cursor-pointer hover:text-teal-600 transition-colors"
+          <h2 
+            className="text-xl font-semibold text-gray-800 cursor-pointer hover:text-teal-600 transition-colors"
             onClick={handleNameClick}
           >
             {projectName}
-          </h1>
+          </h2>
         )}
         {isViewMode && (
           <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
@@ -231,7 +216,7 @@ export function WorkflowNavbar({
         </Dialog>
 
         <Button
-          className="bg-teal-500 hover:bg-teal-600 text-white px-3 sm:px-4 py-2 flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-teal-600 hover:bg-teal-700 text-white px-3 sm:px-4 py-2 flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={handleExecution}
           disabled={isExecuting}
         >
@@ -248,8 +233,7 @@ export function WorkflowNavbar({
         <Button
           onClick={onSave}
           disabled={isSaving}
-          className="bg-teal-500 hover:bg-teal-600 text-white px-3 sm:px-4 py-2 flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          size="sm"
+          className="bg-teal-600 hover:bg-teal-700 text-white px-3 sm:px-4 py-2 flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSaving ? (
             <Loader2 className="w-4 h-4 animate-spin" />

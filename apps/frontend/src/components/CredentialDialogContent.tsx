@@ -20,6 +20,7 @@ import {
 import type { CredentialsI, CredentialSubmitPayload } from "@nen/db";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 type CredentialDialogContentProps = {
   credApis: CredentialsI[];
@@ -75,7 +76,7 @@ export function CredentialDialogContent({
         { withCredentials: true }
       );
       console.log("saved", res.data);
-      if (res) alert("Credentials created successfully");
+      if (res) toast.success("Credentials created successfully");
     } catch (error) {
       console.error("Error saving credential:", error);
     }

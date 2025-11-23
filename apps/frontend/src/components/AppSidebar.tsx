@@ -102,7 +102,7 @@ export function AppSidebar() {
                       {({ isActive }) => (
                         <>
                           <item.icon className={isActive ? "text-teal-500" : undefined} />
-                          <span className={` ${isActive ? "text-teal-500" : ""}`}>{item.title}</span>
+                          <span className={`text-base ${isActive ? "text-teal-500" : ""}`}>{item.title}</span>
                         </>
                       )}
                     </NavLink>

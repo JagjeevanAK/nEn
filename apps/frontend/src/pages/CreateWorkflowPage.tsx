@@ -72,7 +72,7 @@ const CreateWorkflowPage = () => {
   };
 
   return (
-    <div className="h-[90vh] w-screen relative">
+    <div className="h-screen w-full flex flex-col">
       <CreateWorkflowNavbar
         projectName={projectName}
         isActive={isWorkflowActive}
@@ -81,27 +81,29 @@ const CreateWorkflowPage = () => {
         onNameChange={setProjectName}
         isSaving={isSaving}
       />
-      <ReactFlow
-        className=""
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onNodeDrag={onNodeDrag}
-        nodeTypes={nodeTypes}
-        fitView
-        fitViewOptions={fitViewOptions}
-        defaultEdgeOptions={defaultEdgeOptions}
-      >
-        <Controls>
-          <ControlButton
-            onClick={() => alert("Something magical just happened")}
-          />
-        </Controls>
-        <Background />
-        <MiniMap nodeStrokeWidth={3} />
-      </ReactFlow>
+      <div className="flex-1">
+        <ReactFlow
+          className="h-full w-full"
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          onNodeDrag={onNodeDrag}
+          nodeTypes={nodeTypes}
+          fitView
+          fitViewOptions={fitViewOptions}
+          defaultEdgeOptions={defaultEdgeOptions}
+        >
+          <Controls>
+            <ControlButton
+              onClick={() => {}}
+            />
+          </Controls>
+          <Background />
+          <MiniMap nodeStrokeWidth={3} />
+        </ReactFlow>
+      </div>
     </div>
   );
 };

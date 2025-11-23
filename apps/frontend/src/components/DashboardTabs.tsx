@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEffect, useState } from "react";
 import type { UserCredentials, Workflow } from "@nen/db";
 import axios from "axios";
+import { toast } from "sonner";
 import { BACKEND_URL } from "@/config/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Pencil, Save, Trash } from "lucide-react";
@@ -93,11 +94,11 @@ export const DashboardTabs = () => {
       );
 
       if (res) {
-        alert("workflow deleted successfully");
+        toast.success("Workflow deleted successfully");
       }
       fetchWorkflows();
     } catch (error) {
-      alert("workflow failed to delete");
+      toast.error("Failed to delete workflow");
       console.log(error);
     }
   };
@@ -110,12 +111,12 @@ export const DashboardTabs = () => {
         formData,
         { withCredentials: true }
       );
-      alert("Credential updated successfully!");
+      toast.success("Credential updated successfully!");
       fetchCredentials();
       setIsEditing(false);
     } catch (err) {
       console.error("Error updating credential", err);
-      alert("Failed to update credential");
+      toast.error("Failed to update credential");
     }
   };
 
@@ -123,9 +124,9 @@ export const DashboardTabs = () => {
     <div className="flex w-full flex-col gap-6">
       <Tabs className="p-5" defaultValue="workflows">
         <div className="w-full">
-          <TabsList className="gap-5 bg-neutral-100">
-            <TabsTrigger value="workflows">WorkFlows</TabsTrigger>
-            <TabsTrigger value="credentials">Credentials</TabsTrigger>
+          <TabsList className="gap py-5.5 bg-neutral-100">
+            <TabsTrigger className="p-4" value="workflows">WorkFlows</TabsTrigger>
+            <TabsTrigger className="p-4" value="credentials">Credentials</TabsTrigger>
             {/* <TabsTrigger value="executions">Executions</TabsTrigger> */}
           </TabsList>
         </div>
@@ -144,7 +145,7 @@ export const DashboardTabs = () => {
             <p className="text-gray-500">No workflows found.</p>
           )}
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-2 gap-2">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {!workflowLoading &&
               userWorkflows &&
               userWorkflows.map((wf) => (
@@ -166,19 +167,41 @@ export const DashboardTabs = () => {
                       className="cursor-pointer z-10 text-red-800 transition-transform duration-200 hover:scale-110"
                     />
                   </CardHeader>
-                  <CardContent className="text-sm px-3">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-gray-500" />
+                  <CardContent className="text-sm px-3 space-y-2">
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Calendar className="h-4 w-4" />
                       <span>
                         Created: {new Date(wf.createdAt!).toLocaleDateString()}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-gray-500" />
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Calendar className="h-4 w-4" />
                       <span>
                         Updated: {new Date(wf.updatedAt!).toLocaleDateString()}
                       </span>
                     </div>
+                    {wf.nodes && Array.isArray(wf.nodes) && wf.nodes.length > 0 && (
+                      <div className="mt-2 pt-2 border-t border-gray-200">
+                        <div className="text-xs font-semibold text-gray-700 mb-1">
+                          Nodes ({wf.nodes.length}):
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {wf.nodes.slice(0, 5).map((node: any, idx: number) => (
+                            <span
+                              key={idx}
+                              className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-teal-50 text-teal-700 border border-teal-200"
+                            >
+                              {node.type || 'Node'}
+                            </span>
+                          ))}
+                          {wf.nodes.length > 5 && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-600">
+                              +{wf.nodes.length - 5} more
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}
@@ -240,7 +263,7 @@ export const DashboardTabs = () => {
                                   setCredentials((prev) =>
                                     prev!.filter((c) => c.id !== cred.id)
                                   );
-                                  alert("credentials eleted successfully ")
+                                  toast.success("Credential deleted successfully");
                                   console.log(
                                     "Credential deleted successfully"
                                   );
