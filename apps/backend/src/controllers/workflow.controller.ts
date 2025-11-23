@@ -26,6 +26,7 @@ export const saveWorkflow = asyncHandler(async (req, res) => {
     const savedWorkflow = await prisma.workflow.create({
       data: {
         name: parsed.name,
+        description: parsed.description,
         active: parsed.active,
         nodes: parsed.nodes,
         edges: parsed.edges,
@@ -68,6 +69,7 @@ export const getWorkflowById = asyncHandler(async (req, res) => {
     const workflowData = {
       id: workflow.id,
       name: workflow.name,
+      description: workflow.description,
       active: workflow.active,
       nodes: workflow.nodes,
       edges: workflow.edges,
@@ -101,6 +103,7 @@ export const updateWorkflow = asyncHandler(async (req, res) => {
       },
       data: {
         name: parsed.name,
+        description: parsed.description,
         active: parsed.active,
         nodes: parsed.nodes,
         edges: parsed.edges,
@@ -142,6 +145,7 @@ export const getUserWorkflows = asyncHandler(async (req, res) => {
       select: {
         id: true,
         name: true,
+        description: true,
         active: true,
         tags: true,
         createdAt: true,

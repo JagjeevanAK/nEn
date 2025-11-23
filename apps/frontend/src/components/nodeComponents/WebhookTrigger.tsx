@@ -47,7 +47,7 @@ export function WebhookTriggerNode({ data, id }: { data: any, id: string }) {
   };
 
   return (
-    <div className="border-1 border-l rounded-l-3xl bg-cyan-900 relative">
+    <div className="border border-l rounded-l-3xl bg-cyan-900 relative">
       <Dialog>
         <DialogTrigger asChild>
           <Settings className="absolute opacity-80 w-3 h-3 -top-2 bg-neutral-100 text-black rounded-full right-0 cursor-pointer p-0.5" />
