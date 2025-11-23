@@ -5,60 +5,43 @@ A workflow automation platform built with TypeScript and Turborepo. Create, mana
 ## Architecture
 
 ```mermaid
-graph TB
-    subgraph Client["Client Layer"]
-        User[User Browser]
+flowchart LR
+    subgraph Client
+        A[User Browser]
     end
-
-    subgraph FrontendLayer["Frontend Container"]
-        Frontend["React + Vite App<br/>Port: 80"]
-        Nginx[Nginx Server]
-    end
-
-    subgraph BackendServices["Backend Services"]
-        Backend["Backend API<br/>Express.js<br/>Port: 3000"]
-        Engine["Workflow Engine<br/>Execution Service"]
-    end
-
-    subgraph DataLayer["Data Layer"]
-        PostgreSQL[("PostgreSQL<br/>Database<br/>Port: 5432")]
-        Redis[("Redis Cache<br/>Queue Manager<br/>Port: 6379")]
-    end
-
-    subgraph External["External Services"]
-        Gmail["Gmail API<br/>Email Triggers"]
-        OAuth["Google OAuth<br/>Authentication"]
-        Webhooks[External Webhooks]
-    end
-
-    subgraph Packages["Shared Packages"]
-        DBPackage["@nen/db<br/>Prisma Client"]
-        ESLintPkg["@nen/eslint-config"]
-        TSConfigPkg["@nen/typescript-config"]
-    end
-
-    User -->|HTTP/HTTPS| Nginx
-    Nginx --> Frontend
-    Frontend -->|REST API| Backend
     
-    Backend -->|Queries| PostgreSQL
-    Backend -->|Queue Jobs| Redis
-    Backend -->|Auth| OAuth
-    Backend -->|Fetch Emails| Gmail
-    Backend -->|Receive| Webhooks
+    subgraph Frontend["Frontend Layer"]
+        B[Nginx]
+        C[React App]
+    end
     
-    Engine -->|Queries| PostgreSQL
-    Engine -->|Process Jobs| Redis
-    Engine -->|Execute Actions| Gmail
+    subgraph Backend["Backend Layer"]
+        D[Express API]
+        E[Workflow Engine]
+    end
     
-    Backend -.->|Uses| DBPackage
-    Engine -.->|Uses| DBPackage
-    Backend -.->|Config| ESLintPkg
-    Backend -.->|Config| TSConfigPkg
-    Engine -.->|Config| ESLintPkg
-    Engine -.->|Config| TSConfigPkg
-    Frontend -.->|Config| ESLintPkg
-    Frontend -.->|Config| TSConfigPkg
+    subgraph Storage["Data Storage"]
+        F[(PostgreSQL)]
+        G[(Redis Queue)]
+    end
+    
+    subgraph External["External Integrations"]
+        H[Google OAuth]
+        I[Gmail API]
+        J[Webhooks]
+    end
+    
+    A -->|HTTPS| B
+    B --> C
+    C -->|API Requests| D
+    D --> F
+    D --> G
+    D -.->|Authentication| H
+    D -.->|Fetch/Send| I
+    J -.->|Trigger| D
+    G -->|Process Jobs| E
+    E --> F
+    E -->|Execute Actions| I
 ```
 
 ### Monorepo Structure
