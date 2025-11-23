@@ -23,5 +23,6 @@ FROM nginx:alpine AS runtime
 WORKDIR /app
 
 COPY --from=builder /app/apps/frontend/dist /usr/share/nginx/html
+COPY conf/frontend-nginx.conf /etc/nginx/conf.d/default.conf
 
 CMD ["nginx", "-g", "daemon off;"]
