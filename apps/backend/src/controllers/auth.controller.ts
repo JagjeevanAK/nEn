@@ -144,13 +144,83 @@ export const getUser: RequestHandler = asyncHandler(
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  "http://localhost:8888/api/v1/auth/google/callback"
+  `${process.env.PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/auth/google/callback`
 );
 const SCOPES = [
   "https://www.googleapis.com/auth/gmail.readonly",
   "https://mail.google.com/",
   "https://www.googleapis.com/auth/userinfo.email",
 ];
+
+// OAuth client for authentication (sign in/sign up)
+const authOAuth2Client = new google.auth.OAuth2(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  `${process.env.PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/auth/google-auth/callback`
+);
+const AUTH_SCOPES = [
+  "https://www.googleapis.com/auth/userinfo.email",
+  "https://www.googleapis.com/auth/userinfo.profile",
+];
+
+
+export const googleAuthSignIn = asyncHandler(async (req, res) => {
+  const url = authOAuth2Client.generateAuthUrl({
+    access_type: "offline",
+    scope: AUTH_SCOPES,
+    prompt: "consent",
+  });
+  res.redirect(url);
+});
+
+export const handleGoogleAuthCallback = asyncHandler(async (req, res) => {
+  const code = req.query.code as string;
+
+  const { tokens } = await authOAuth2Client.getToken(code);
+  authOAuth2Client.setCredentials(tokens);
+
+  const oauth2 = google.oauth2({ version: "v2", auth: authOAuth2Client });
+  const { data } = await oauth2.userinfo.get();
+
+  if (!data.email) {
+    throw new CustomError(400, "Unable to get email from Google");
+  }
+
+  let user = await prisma.user.findUnique({
+    where: { email: data.email },
+  });
+
+  if (!user) {
+    user = await prisma.user.create({
+      data: {
+        email: data.email,
+        passwordHash: "", 
+        lastLoggedId: new Date(),
+      },
+    });
+  } else {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoggedId: new Date() },
+    });
+  }
+
+  const accessToken = generateAccessToken(user);
+  const refreshToken = generateRefreshToken(user);
+
+  res.cookie(
+    "accessToken",
+    accessToken,
+    generateCookieOptions()
+  );
+  res.cookie(
+    "refreshToken",
+    refreshToken,
+    generateCookieOptions()
+  );
+
+  res.redirect(process.env.FRONTEND_URL || "http://localhost:5173/");
+});
 
 
 export const signInWithGoogle = asyncHandler(async (req, res) => {
@@ -192,6 +262,6 @@ export const handleSignInCallback = asyncHandler(async (req, res) => {
 
   console.log(tokens);
 
-  res.redirect("http://localhost:5173/");
+  res.redirect(process.env.FRONTEND_URL || "http://localhost:5173/");
   res.status(200).json(new ApiResponse(200, "Google account connected", createdCred))
 });
