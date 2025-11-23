@@ -40,6 +40,7 @@ export interface WorkflowState {
   // UI state
   isWorkflowActive: boolean;
   projectName: string;
+  projectDescription: string;
 
   // Data
   triggers: TriggerI[];
@@ -57,6 +58,7 @@ export interface WorkflowState {
   // Actions for workflow management
   setIsWorkflowActive: (active: boolean) => void; // not using abhi ke liye likin for webhook and pinging 
   setProjectName: (name: string) => void; // not using abhi will use baad mai 
+  setProjectDescription: (description: string) => void;
   resetWorkflow: () => void; // reset to initial state, will use this later as well 
 
   updateNodeData : (id: string, data: any ) => void; // nodes mai new data ko append krdeta hai - spread and override the existisng vals 
@@ -121,6 +123,7 @@ export const useWorkflowStore = create<WorkflowState>()(
       workflowId: undefined,
       isWorkflowActive: false,
       projectName: "My Workflow",
+      projectDescription: "",
       triggers: [],
       userCredentials: [],
       isLoading: false,
@@ -150,6 +153,9 @@ export const useWorkflowStore = create<WorkflowState>()(
       setProjectName: (name) => {
         set({ projectName: name });
       },
+      setProjectDescription: (description) => {
+        set({ projectDescription: description });
+      },
       resetWorkflow: () => {
         set({
           nodes: initialNodes,
@@ -157,6 +163,7 @@ export const useWorkflowStore = create<WorkflowState>()(
           workflowId: undefined,
           isWorkflowActive: false,
           projectName: "My Workflow",
+          projectDescription: "",
         });
       },
 
@@ -239,7 +246,7 @@ export const useWorkflowStore = create<WorkflowState>()(
       },
 
       saveWorkflow: async (workflowId?: string) => {
-        const { nodes, edges, projectName, isWorkflowActive } = get();
+        const { nodes, edges, projectName, projectDescription, isWorkflowActive } = get();
 
         set({ isSaving: true });
 
@@ -248,6 +255,7 @@ export const useWorkflowStore = create<WorkflowState>()(
             nodes,
             edges,
             name: projectName,
+            description: projectDescription,
             active: isWorkflowActive,
           };
 
@@ -304,6 +312,7 @@ export const useWorkflowStore = create<WorkflowState>()(
               nodes: workflow.nodes || initialNodes,
               edges: workflow.edges || [],
               projectName: workflow.name || "Loaded Workflow",
+              projectDescription: workflow.description || "",
               isWorkflowActive: workflow.active || false,
             });
           }
@@ -390,6 +399,18 @@ export const useWorkflowStore = create<WorkflowState>()(
                 (status) => status === "running"
               );
 
+              if (!stillRunning && state.isExecuting) {
+                toast.dismiss("workflow-execution");
+                const hasFailed = Array.from(newNodeStatus.values()).some(
+                  (status) => status === "failed"
+                );
+                if (hasFailed) {
+                  toast.error("Workflow execution failed");
+                } else {
+                  toast.success("Workflow executed successfully");
+                }
+              }
+
               return {
                 nodeStatuses: newNodeStatus,
                 isExecuting: stillRunning,
@@ -440,6 +461,8 @@ export const useWorkflowStore = create<WorkflowState>()(
             executionEvents: [],
           });
 
+          toast.loading("Executing Workflow...", { id: "workflow-execution" });
+
           // hit the be endpoint isme => workflowId se workflow nikal ke be will send to engine and engine will execute the thing 
           const res = await axios.post(
             `${BACKEND_URL}/api/v1/workflow/execute/${workflowId}`,
@@ -455,6 +478,8 @@ export const useWorkflowStore = create<WorkflowState>()(
           }
         } catch (error) {
           console.error('Error executing workflow:', error);
+          toast.dismiss("workflow-execution");
+          toast.error("Failed to execute workflow");
           set({ isExecuting: false });
          
             get().disconnectWebSocket();

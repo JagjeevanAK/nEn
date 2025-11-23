@@ -17,7 +17,6 @@ import { ScheduledTriggerNode } from "@/components/nodeComponents/ScheduleTrigge
 import { WebhookTriggerNode } from "@/components/nodeComponents/WebhookTrigger";
 import { WorkflowNavbar } from "@/components/WorkflowNavbar";
 import { useWorkflowStore } from "@/store/workflowStore";
-import { Loader2 } from "lucide-react";
 import { ActionNode } from "@/components/nodeComponents/ActionNode";
 
 // ye  Node configuration
@@ -46,7 +45,6 @@ const WorkflowPage = () => {
     edges,
 
     nodeStatuses,
-    isExecuting,
     executionEvents,
 
     isWorkflowActive,
@@ -134,16 +132,6 @@ const WorkflowPage = () => {
 
   return (
     <div className="h-screen w-full flex flex-col">
-      {isExecuting && (
-        <div className="absolute top-20 right-4 z-50 bg-orange-100 border border-orange-300 rounded-lg p-3 shadow-lg">
-          <div className="flex items-center gap-2">
-            <Loader2 className="w-4 h-4 animate-spin text-orange-600" />
-            <span className="text-orange-800 font-medium">
-              Executing Workflow...
-            </span>
-          </div>
-        </div>
-      )}
       <WorkflowNavbar
         projectName={projectName}
         isActive={isWorkflowActive}

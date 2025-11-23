@@ -1,11 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useRef, useEffect } from "react";
 import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 import { Switch } from "./ui/switch";
 import { Save, Loader2 } from "lucide-react";
-import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
+import { Dialog, 
+  DialogContent, 
+  DialogTrigger, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogClose 
+} from "./ui/dialog";
 import { ActionForm, availableActions, type ActionI } from "@/lib/Actions";
-import { DialogTitle } from "@radix-ui/react-dialog";
 import { useWorkflowStore } from "@/store/workflowStore";
 
 interface CreateWorkflowNavbarProps {
@@ -28,12 +36,25 @@ export function CreateWorkflowNavbar({
   const [dialogState, setDialogState] = useState("actions");
   const [selectedAction, setSelectedAction] = useState<ActionI | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [dialogName, setDialogName] = useState(projectName);
+  const [dialogDescription, setDialogDescription] = useState("");
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState(projectName);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Get addActionNode from store
   const addActionNode = useWorkflowStore((state) => state.addActionNode);
+  const projectDescription = useWorkflowStore((state) => state.projectDescription);
+  const setProjectDescription = useWorkflowStore((state) => state.setProjectDescription);
+
+  // Sync dialog states when opening
+  useEffect(() => {
+    if (isConfirmDialogOpen) {
+      setDialogName(projectName);
+      setDialogDescription(projectDescription);
+    }
+  }, [isConfirmDialogOpen, projectName, projectDescription]);
 
   const handleActionSelect = (action: ActionI) => {
     setSelectedAction(action);
@@ -188,20 +209,97 @@ export function CreateWorkflowNavbar({
           </DialogContent>
         </Dialog>
 
-        <Button
-          onClick={onSave}
-          disabled={isSaving}
-          className="bg-teal-600 hover:bg-teal-700 text-white flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isSaving ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <Save className="w-4 h-4" />
-          )}
-          <span className="hidden sm:inline">
-            {isSaving ? "Creating..." : "Create Workflow"}
-          </span>
-        </Button>
+        <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+          <DialogTrigger asChild>
+            <Button
+              disabled={isSaving}
+              className="bg-teal-600 hover:bg-teal-700 text-white flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSaving ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              <span className="hidden sm:inline">
+                {isSaving ? "Creating..." : "Create Workflow"}
+              </span>
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Confirm Workflow Creation</DialogTitle>
+              <DialogDescription>
+                Review and edit your workflow details before creating it.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <label htmlFor="workflow-name" className="text-sm font-medium text-neutral-700">
+                  Workflow Name <span className="text-red-500">*</span>
+                </label>
+                <Input
+                  id="workflow-name"
+                  value={dialogName}
+                  onChange={(e) => setDialogName(e.target.value)}
+                  placeholder="Enter workflow name"
+                  className="w-full"
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="workflow-description" className="text-sm font-medium text-neutral-700">
+                  Description (Optional)
+                </label>
+                <textarea
+                  id="workflow-description"
+                  value={dialogDescription}
+                  onChange={(e) => setDialogDescription(e.target.value)}
+                  placeholder="Describe what this workflow does..."
+                  className="w-full min-h-[100px] px-3 py-2 text-sm border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <div className="text-sm font-medium text-neutral-700">Status:</div>
+                <div className="text-base">
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
+                  }`}>
+                    {isActive ? "Active" : "Inactive"}
+                  </span>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="text-sm font-medium text-neutral-700">Nodes:</div>
+                <div className="text-base text-neutral-900">{useWorkflowStore.getState().nodes.length} node(s)</div>
+              </div>
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button
+                onClick={() => {
+                  if (dialogName.trim()) {
+                    onNameChange?.(dialogName.trim());
+                    setProjectDescription(dialogDescription.trim());
+                    setIsConfirmDialogOpen(false);
+                    onSave?.();
+                  }
+                }}
+                disabled={isSaving || !dialogName.trim()}
+                className="bg-teal-600 hover:bg-teal-700 text-white"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  "Confirm & Create"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </nav>
   );

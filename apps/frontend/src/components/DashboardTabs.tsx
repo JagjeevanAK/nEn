@@ -168,6 +168,11 @@ export const DashboardTabs = () => {
                     />
                   </CardHeader>
                   <CardContent className="text-sm px-3 space-y-2">
+                    {(wf as any).description && (
+                      <p className="text-gray-600 text-sm line-clamp-2 mb-3">
+                        {(wf as any).description}
+                      </p>
+                    )}
                     <div className="flex items-center gap-2 text-gray-600">
                       <Calendar className="h-4 w-4" />
                       <span>

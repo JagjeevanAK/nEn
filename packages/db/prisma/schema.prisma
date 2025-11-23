@@ -35,15 +35,16 @@ model User {
 }
 
 model Workflow {
-  id        String   @id @default(cuid())
-  userId    String
-  name      String
-  active    Boolean
-  tags      String[] @default([])
-  nodes     Json[]
-  edges     Json[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  active      Boolean
+  tags        String[] @default([])
+  nodes       Json[]
+  edges       Json[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
