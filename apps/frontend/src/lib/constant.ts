@@ -151,7 +151,7 @@ export const actionSchemas: Record<string, any> = {
         type: "text",
         required: true,
         placeholder: "sender@yourdomain.com",
-        description: "Sender email address (must be a verified domain in Resend)"
+        description: "Sender email address (must be from a verified domain in Resend). Example: noreply@yourdomain.com"
       },
       {
         name: "to",

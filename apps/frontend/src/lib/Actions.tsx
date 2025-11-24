@@ -75,7 +75,7 @@ export const availableActions: ActionI[] = [
     name: "Resend",
     type: "ResendNodeType",
     application: "Resend",
-    description: "Send transactional emails via Resend",
+    description: "Send transactional emails via Resend API with high deliverability",
     icon: <Send className="w-5 h-5" />,
     category: "Communication",
   },
@@ -213,6 +213,21 @@ export const ActionForm = ({
             <p className="ml-2 text-sm text-green-700">
               {action.application} credentials are configured and ready to use.
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* Resend-specific help */}
+      {action.type === "ResendNodeType" && (
+        <div className="mb-4 p-3 bg-purple-50 border border-purple-200 rounded-md">
+          <div className="text-sm">
+            <div className="font-semibold text-purple-900 mb-2">💡 Resend Tips:</div>
+            <ul className="list-disc ml-4 space-y-1 text-purple-800">
+              <li>Use dynamic values like <code className="bg-purple-100 px-1 rounded">{"{{previousNode.output}}"}</code></li>
+              <li>From address must be from a verified domain</li>
+              <li>Supports HTML and plain text emails</li>
+              <li>Use comma-separated emails for multiple recipients</li>
+            </ul>
           </div>
         </div>
       )}

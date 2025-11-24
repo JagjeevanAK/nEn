@@ -185,8 +185,21 @@ export function CredentialDialogContent({
                       </Button>
                     </div>
                   )}
-                  <div className="py-2 px-2 w-full rounded-sm">
-                    {currCredApi?.properties.map((curr) => (
+                  {currCredApi?.name === "resendApi" && (
+                    <div className="my-2 p-3 bg-blue-50 border border-blue-200 rounded-md text-sm">
+                      <div className="font-semibold text-blue-900 mb-2">📧 Quick Setup Guide:</div>
+                      <ol className="list-decimal ml-4 space-y-1 text-blue-800">
+                        <li>Sign up at <a href="https://resend.com" target="_blank" className="text-blue-600 underline">resend.com</a></li>
+                        <li>Verify your domain in the Resend dashboard</li>
+                        <li>Generate an API key from <a href="https://resend.com/api-keys" target="_blank" className="text-blue-600 underline">API Keys</a></li>
+                        <li>Paste your API key below</li>
+                      </ol>
+                      <div className="mt-2 text-xs text-blue-700">
+                        💡 Tip: Use a verified domain for the "From" address when sending emails
+                      </div>
+                    </div>
+                  )}
+                  <div className="py-2 px-2 w-full rounded-sm">{currCredApi?.properties.map((curr) => (
                       <div key={curr.name} className="my-1">
                         <div>{curr.displayName}</div>
                         {curr.type === "string" ? (

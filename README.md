@@ -40,6 +40,10 @@ flowchart LR
         H[Google OAuth]
         I[Gmail API]
         J[Webhooks]
+        K[Telegram API]
+        L[OpenAI API]
+        M[OpenRouter API]
+        N[Resend API]
     end
     
     A -->|HTTPS| B
@@ -53,6 +57,10 @@ flowchart LR
     Q -->|Process Jobs| E
     E --> F
     E -->|Execute Actions| I
+    E -->|Send Messages| K
+    E -->|LLM Requests| L
+    E -->|LLM Requests| M
+    E -->|Send Emails| N
     
     D -->|Metrics| M1
     E -->|Metrics| M1
