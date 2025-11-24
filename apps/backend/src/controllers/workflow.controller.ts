@@ -6,6 +6,7 @@ import { prisma } from "@nen/db";
 import { createClient } from "redis";
 import {} from "../utils/queueWorker";
 import { v4 as uuidv4 } from "uuid";
+import { workflowQueue } from "../utils/queue";
 
 const publisherRedis = createClient({ url: "redis://localhost:6379" });
 
@@ -217,13 +218,10 @@ export const executeFlow = asyncHandler(async (req, res) => {
       },
     };
 
-    const queueName = "workflow:execution";
-
-    const score = Date.now();
-
-    await publisherRedis.zAdd(queueName, {
-      score: score,
-      value: JSON.stringify(executionJob),
+    await workflowQueue.add("execute-workflow", executionJob, {
+      jobId: executionId,
+      removeOnComplete: 1000, // Keep last 1000 completed jobs
+      removeOnFail: 5000, // Keep last 5000 failed jobs
     });
 
     await publisherRedis.hSet(`execution:${executionId}`, {

@@ -2,6 +2,7 @@ import { prisma } from "@nen/db";
 import { v4 as uuidv4 } from "uuid";
 import asyncHandler from "../utils/asyncHandler";
 import { createClient } from "redis";
+import { workflowQueue } from "../utils/queue";
 
 const publisherRedis = createClient({ url: "redis://localhost:6379" });
 
@@ -93,9 +94,11 @@ export const triggerWebhook = asyncHandler(async (req, res) => {
       priority: "high",
     };
 
-    await publisherRedis.zAdd("workflow:execution", {
-      score: Date.now(),
-      value: JSON.stringify(executionJob),
+    await workflowQueue.add("execute-workflow", executionJob, {
+      jobId: executionId,
+      priority: 1, // High priority
+      removeOnComplete: 1000,
+      removeOnFail: 5000,
     });
 
     await publisherRedis.hSet(`execution:${executionId}`, {
