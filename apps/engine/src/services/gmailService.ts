@@ -19,8 +19,6 @@ class GmailMonitor {
     }
   > = new Map();
 
-
-
   // start the monitoring job - create hte imap obj add user and token to the obj
   // when imap i sat ready start monitoring the inbox
   async startMonitoring(

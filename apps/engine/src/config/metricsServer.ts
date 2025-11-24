@@ -1,6 +1,6 @@
 import express from "express";
-import { register } from "../src/metrics"
-import logger from "./logger";
+import { register } from "../utils/metrics"
+import logger from "../utils/logger";
 
 const app = express();
 const PORT = process.env.ENGINE_METRICS_PORT || 3000;

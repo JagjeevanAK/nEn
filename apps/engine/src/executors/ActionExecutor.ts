@@ -2,6 +2,7 @@ import axios from "axios";
 import Imap from "imap";
 import { v4 as uuidv4 } from "uuid";
 import { createClient } from "redis";
+import { Resend } from "resend";
 
 type RedisClientType = ReturnType<typeof createClient>;
 
@@ -98,6 +99,14 @@ export class ActionExecutor {
             credConfig,
             previousOutputs
           );
+
+        case "ResendNodeType":
+          return await this.executeResendAction(
+            parameters,
+            credConfig,
+            previousOutputs
+          );
+
         default:
           throw new Error(`Unknown action type: ${actionType}`);
       }
@@ -445,5 +454,67 @@ export class ActionExecutor {
       data: response.data,
       headers: response.headers,
     };
+  }
+
+  private async executeResendAction(
+    params: any,
+    credConfig: any,
+    context: any
+  ): Promise<any> {
+    console.log("=== RESEND ACTION DEBUG ===");
+    console.log("Context:", context);
+    console.log("Params:", params);
+    console.log("Credentials:", credConfig);
+
+    if (!credConfig || !credConfig.data?.apiKey) {
+      throw new Error("Resend API key not configured");
+    }
+
+    const apiKey = credConfig.data.apiKey;
+    const resend = new Resend(apiKey);
+
+    const to = this.resolveDynamicValue(params.to, context);
+    const from = this.resolveDynamicValue(params.from, context);
+    const subject = this.resolveDynamicValue(params.subject, context);
+    const html = this.resolveDynamicValue(params.html, context);
+    const text = params.text ? this.resolveDynamicValue(params.text, context) : undefined;
+    const replyTo = params.replyTo ? this.resolveDynamicValue(params.replyTo, context) : undefined;
+
+    console.log("Sending email:", { to, from, subject });
+
+    try {
+      const response = await resend.emails.send({
+        from,
+        to: Array.isArray(to) ? to : [to],
+        subject,
+        html,
+        text,
+        replyTo,
+      });
+
+      console.log("Resend API Response:", response);
+
+      if (response.error) {
+        throw new Error(`Resend API error: ${response.error.message}`);
+      }
+
+      return {
+        success: true,
+        sentAt: new Date().toISOString(),
+        actionType: "ResendNodeType",
+        data: {
+          emailId: response.data?.id,
+          to,
+          from,
+          subject,
+        },
+      };
+    } catch (error: any) {
+      console.log("Resend API Error Details:", {
+        message: error.message,
+        error,
+      });
+      throw new Error(`Resend email failed: ${error.message}`);
+    }
   }
 }

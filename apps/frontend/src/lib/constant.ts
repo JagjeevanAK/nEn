@@ -141,5 +141,58 @@ export const actionSchemas: Record<string, any> = {
         placeholder: "Request payload"
       }
     ]
+  },
+
+  Resend: {
+    fields: [
+      {
+        name: "from",
+        label: "From",
+        type: "text",
+        required: true,
+        placeholder: "sender@yourdomain.com",
+        description: "Sender email address (must be a verified domain in Resend)"
+      },
+      {
+        name: "to",
+        label: "To",
+        type: "text",
+        required: true,
+        placeholder: "recipient@example.com",
+        description: "Recipient email address(es). Use comma-separated for multiple recipients"
+      },
+      {
+        name: "subject",
+        label: "Subject",
+        type: "text",
+        required: true,
+        placeholder: "Your email subject",
+        description: "Email subject line"
+      },
+      {
+        name: "html",
+        label: "HTML Content",
+        type: "textarea",
+        required: true,
+        placeholder: "<h1>Hello</h1><p>Your email content here...</p>",
+        description: "Email body in HTML format"
+      },
+      {
+        name: "text",
+        label: "Plain Text (Optional)",
+        type: "textarea",
+        required: false,
+        placeholder: "Plain text version of your email...",
+        description: "Plain text fallback for email clients that don't support HTML"
+      },
+      {
+        name: "replyTo",
+        label: "Reply To (Optional)",
+        type: "text",
+        required: false,
+        placeholder: "replyto@example.com",
+        description: "Email address for replies"
+      }
+    ]
   }
 };

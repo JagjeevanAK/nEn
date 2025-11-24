@@ -1,6 +1,6 @@
-import { type NodeData, type WorkflowExecutionData } from "./types";
-import { EventPublisher } from "./EventPublisher";
-import { ActionExecutor } from "./ActionExecutor";
+import { type NodeData, type WorkflowExecutionData } from "../types";
+import { EventPublisher } from "../services/EventPublisher";
+import { ActionExecutor } from "../executors/ActionExecutor";
 import { prisma } from "@nen/db";
 
 export class Workflow {

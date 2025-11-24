@@ -3,7 +3,6 @@ import LokiTransport from "winston-loki";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
-// Custom format for console output
 const consoleFormat = winston.format.combine(
   winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
   winston.format.colorize(),

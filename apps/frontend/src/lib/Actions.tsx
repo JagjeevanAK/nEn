@@ -6,6 +6,7 @@ import {
   Database,
   Mail,
   MessageSquare,
+  Send,
   Webhook,
 } from "lucide-react";
 import { useState } from "react";
@@ -69,7 +70,15 @@ export const availableActions: ActionI[] = [
     icon: <Webhook className="w-5 h-5" />,
     category: "Integration",
   },
- 
+  {
+    id: "resend-email",
+    name: "Resend",
+    type: "ResendNodeType",
+    application: "Resend",
+    description: "Send transactional emails via Resend",
+    icon: <Send className="w-5 h-5" />,
+    category: "Communication",
+  },
 ];
 
 export const ActionForm = ({

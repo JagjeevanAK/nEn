@@ -1,14 +1,14 @@
 import "dotenv/config";
-import { startTracing } from "./tracing";
+import { startTracing } from "./utils/tracing";
 startTracing();
 
-import "./metricsServer"; // Start metrics server
+import "./config/metricsServer"; 
 
-import { Workflow } from "./workflow";
+import { Workflow } from "./workers/workflow";
 import { Worker } from "bullmq";
-import { queueJobsCounter, queueProcessingDuration, activeWorkflowsGauge } from "./metrics";
+import { queueJobsCounter, queueProcessingDuration, activeWorkflowsGauge } from "./utils/metrics";
 import { trace } from "@opentelemetry/api";
-import logger, { createChildLogger } from "./logger";
+import logger, { createChildLogger } from "./utils/logger";
 
 const tracer = trace.getTracer("nen-engine");
 
