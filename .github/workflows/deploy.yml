@@ -47,9 +47,11 @@ jobs:
             ${{ env.REGISTRY }}/${{ steps.image-name.outputs.IMAGE_NAME_LOWER }}/backend:latest
             ${{ env.REGISTRY }}/${{ steps.image-name.outputs.IMAGE_NAME_LOWER }}/backend:${{ github.sha }}
           cache-from: |
-            type=registry,ref=${{ env.REGISTRY }}/${{ steps.image-name.outputs.IMAGE_NAME_LOWER }}/backend:latest
-            type=gha
-          cache-to: type=gha,mode=max
+            type=registry,ref=${{ env.REGISTRY }}/${{ steps.image-name.outputs.IMAGE_NAME_LOWER }}/backend:buildcache
+            type=gha,scope=backend
+          cache-to: |
+            type=registry,ref=${{ env.REGISTRY }}/${{ steps.image-name.outputs.IMAGE_NAME_LOWER }}/backend:buildcache,mode=max
+            type=gha,mode=max,scope=backend
 
       - name: Build and push Engine image
         uses: docker/build-push-action@v5
@@ -63,9 +65,11 @@ jobs:
             ${{ env.REGISTRY }}/${{ steps.image-name.outputs.IMAGE_NAME_LOWER }}/engine:latest
             ${{ env.REGISTRY }}/${{ steps.image-name.outputs.IMAGE_NAME_LOWER }}/engine:${{ github.sha }}
           cache-from: |
-            type=registry,ref=${{ env.REGISTRY }}/${{ steps.image-name.outputs.IMAGE_NAME_LOWER }}/engine:latest
-            type=gha
-          cache-to: type=gha,mode=max
+            type=registry,ref=${{ env.REGISTRY }}/${{ steps.image-name.outputs.IMAGE_NAME_LOWER }}/engine:buildcache
+            type=gha,scope=engine
+          cache-to: |
+            type=registry,ref=${{ env.REGISTRY }}/${{ steps.image-name.outputs.IMAGE_NAME_LOWER }}/engine:buildcache,mode=max
+            type=gha,mode=max,scope=engine
 
       - name: Build and push Frontend image
         uses: docker/build-push-action@v5
@@ -79,9 +83,11 @@ jobs:
             ${{ env.REGISTRY }}/${{ steps.image-name.outputs.IMAGE_NAME_LOWER }}/frontend:latest
             ${{ env.REGISTRY }}/${{ steps.image-name.outputs.IMAGE_NAME_LOWER }}/frontend:${{ github.sha }}
           cache-from: |
-            type=registry,ref=${{ env.REGISTRY }}/${{ steps.image-name.outputs.IMAGE_NAME_LOWER }}/frontend:latest
-            type=gha
-          cache-to: type=gha,mode=max
+            type=registry,ref=${{ env.REGISTRY }}/${{ steps.image-name.outputs.IMAGE_NAME_LOWER }}/frontend:buildcache
+            type=gha,scope=frontend
+          cache-to: |
+            type=registry,ref=${{ env.REGISTRY }}/${{ steps.image-name.outputs.IMAGE_NAME_LOWER }}/frontend:buildcache,mode=max
+            type=gha,mode=max,scope=frontend
 
   deploy:
     needs: build-and-push
