@@ -8,7 +8,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ${{ github.repository_owner }}/nen
 
 jobs:
   build-and-push:
@@ -148,9 +148,9 @@ jobs:
             docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:latest
             
             # Update docker-compose to use the new images
-            export BACKEND_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:latest
-            export ENGINE_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/engine:latest
-            export FRONTEND_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:latest
+            export BACKEND_IMAGE=${{ env.REGISTRY }}/jagjeevanak/nen/backend:latest
+            export ENGINE_IMAGE=${{ env.REGISTRY }}/jagjeevanak/nen/engine:latest
+            export FRONTEND_IMAGE=${{ env.REGISTRY }}/jagjeevanak/nen/frontend:latest
             
             # Stop and remove old containers
             docker-compose down
