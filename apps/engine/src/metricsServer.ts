@@ -1,5 +1,6 @@
 import express from "express";
 import { register } from "../src/metrics"
+import logger from "./logger";
 
 const app = express();
 const PORT = process.env.ENGINE_METRICS_PORT || 3000;
@@ -18,5 +19,5 @@ app.get("/health", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Engine metrics server listening on port ${PORT}`);
+  logger.info(`Engine metrics server listening on port ${PORT}`);
 });

@@ -2,12 +2,13 @@ import "dotenv/config";
 import { startTracing } from "./tracing";
 startTracing();
 
-import "./metricsServer";
+import "./metricsServer"; // Start metrics server
 
 import { Workflow } from "./workflow";
 import { Worker } from "bullmq";
 import { queueJobsCounter, queueProcessingDuration, activeWorkflowsGauge } from "./metrics";
 import { trace } from "@opentelemetry/api";
+import logger, { createChildLogger } from "./logger";
 
 const tracer = trace.getTracer("nen-engine");
 
@@ -17,13 +18,15 @@ const worker = new Worker(
     const span = tracer.startSpan("workflow.execute");
     const start = Date.now();
     activeWorkflowsGauge.inc();
+    const exectionData = job.data;
+    const jobLogger = createChildLogger(exectionData.executionId);
 
     try {
-      console.log("inside Engine");
-      const exectionData = job.data;
-      console.log("ExecutionDATA====>>>", exectionData);
-      console.log("Nodes===> ", exectionData.workflow.nodes);
-      console.log("EDGES===> ", exectionData.workflow.edges);
+      jobLogger.info("Starting workflow execution", {
+        workflowId: exectionData.workflow.id,
+        workflowName: exectionData.workflow.name,
+        triggeredBy: exectionData.triggeredBy,
+      });
 
       span.setAttributes({
         "workflow.id": exectionData.workflow.id,
@@ -35,7 +38,7 @@ const worker = new Worker(
 
       workflowObj.buildGraph();
       if (workflowObj.detectCycle()) {
-        console.error("Cycle detected in workflow", exectionData.workflow.id);
+        jobLogger.error("Cycle detected in workflow", { workflowId: exectionData.workflow.id });
         span.recordException(new Error("Cycle detected"));
         span.end();
         queueJobsCounter.inc({ queue_name: "workflow:execution", status: "failed" });
@@ -44,15 +47,24 @@ const worker = new Worker(
       }
       workflowObj.getExecutionOrder();
 
-      console.log("executing the workflow ", exectionData.workflow.id);
+      jobLogger.info("Executing workflow", { workflowId: exectionData.workflow.id });
       await workflowObj.execute();
 
       const duration = (Date.now() - start) / 1000;
       queueProcessingDuration.observe({ queue_name: "workflow:execution" }, duration);
       queueJobsCounter.inc({ queue_name: "workflow:execution", status: "completed" });
+      jobLogger.info("Workflow execution completed", { 
+        workflowId: exectionData.workflow.id,
+        duration 
+      });
       span.setStatus({ code: 1 }); // OK
       span.end();
     } catch (error: any) {
+      jobLogger.error("Workflow execution failed", { 
+        workflowId: exectionData.workflow.id,
+        error: error.message,
+        stack: error.stack 
+      });
       span.recordException(error);
       span.setStatus({ code: 2, message: error.message }); // ERROR
       span.end();
@@ -71,11 +83,11 @@ const worker = new Worker(
 );
 
 worker.on("completed", (job) => {
-  console.log(`${job.id} has completed!`);
+  logger.info("Job completed", { jobId: job.id });
 });
 
 worker.on("failed", (job, err) => {
-  console.log(`${job?.id} has failed with ${err.message}`);
+  logger.error("Job failed", { jobId: job?.id, error: err.message });
 });
 
-console.log("Worker started");
+logger.info("Workflow engine worker started");

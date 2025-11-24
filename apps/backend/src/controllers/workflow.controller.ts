@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 import { workflowQueue } from "../utils/queue";
 import { queueJobsCounter, workflowExecutionCounter } from "../utils/metrics";
 import { trace } from "@opentelemetry/api";
+import logger, { createChildLogger } from "../utils/logger";
 
 const tracer = trace.getTracer("nen-backend");
 const publisherRedis = createClient({ url: "redis://localhost:6379" });
@@ -16,8 +17,9 @@ const publisherRedis = createClient({ url: "redis://localhost:6379" });
 const connectRedis = async () => {
   try {
     await publisherRedis.connect();
+    logger.info("Redis connected successfully");
   } catch (error) {
-    console.log("redis cannot connect", error);
+    logger.error("Redis connection failed", { error });
   }
 };
 connectRedis();
@@ -39,7 +41,11 @@ export const saveWorkflow = asyncHandler(async (req, res) => {
       },
     });
 
-    console.log("workflow  saved successfully:", savedWorkflow.id);
+    logger.info("Workflow saved successfully", { 
+      workflowId: savedWorkflow.id,
+      userId: req.user?.id,
+      correlationId: req.correlationId 
+    });
 
     res.status(201).json(
       new ApiResponse(201, "workflow created successfully", {
@@ -50,7 +56,7 @@ export const saveWorkflow = asyncHandler(async (req, res) => {
       })
     );
   } catch (error) {
-    console.error("err in  saving workflow:", error);
+    logger.error("Error saving workflow", { error, userId: req.user?.id, correlationId: req.correlationId });
     res.status(500).json(new ApiResponse(500, "failed to save workflow", null));
   }
 });

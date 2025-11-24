@@ -30,9 +30,10 @@ flowchart LR
     end
     
     subgraph Monitoring["Observability Stack"]
-        M1[Prometheus]
-        M2[Grafana]
-        M3[Jaeger]
+        M1[Prometheus<br/>Metrics]
+        M2[Grafana<br/>Dashboards]
+        M3[Jaeger<br/>Traces]
+        M4[Loki<br/>Logs]
     end
     
     subgraph External["External Integrations"]
@@ -57,7 +58,11 @@ flowchart LR
     E -->|Metrics| M1
     D -->|Traces| M3
     E -->|Traces| M3
-    M1 -->|Visualize| M2
+    D -->|Logs| M4
+    E -->|Logs| M4
+    M1 -->|Query| M2
+    M3 -->|Query| M2
+    M4 -->|Query| M2
     M3 -->|Traces UI| M2
 ```
 
@@ -83,7 +88,11 @@ This project uses Turborepo to manage a monorepo with three main applications:
 - **Backend**: Express.js, Prisma ORM
 - **Database**: PostgreSQL
 - **Queue**: Redis with BullMQ
-- **Monitoring**: Prometheus, Grafana, Jaeger, OpenTelemetry
+- **Monitoring**: 
+  - **Metrics**: Prometheus
+  - **Visualization**: Grafana
+  - **Tracing**: Jaeger with OpenTelemetry
+  - **Logging**: Winston with Loki
 - **Deployment**: Docker, Docker Compose, Nginx
 
 
@@ -148,26 +157,39 @@ This will start all applications concurrently:
 
 ### Monitoring Stack
 
-The application includes a complete observability stack for monitoring, metrics, and distributed tracing:
+The application includes a complete observability stack with the **three pillars of observability**:
 
 1. **Access Monitoring Dashboards**:
 
 - **Prometheus**: http://localhost:9090 - Metrics collection and querying
-- **Grafana**: http://localhost:3001 - Visualization dashboards (admin/admin)
+- **Grafana**: http://localhost:3001 - Unified visualization (admin/admin)
 - **Jaeger**: http://localhost:16686 - Distributed tracing UI
+- **Loki**: http://localhost:3100 - Log aggregation (via Grafana)
 
 2. **Metrics Endpoints**:
 
 - Backend: http://localhost:3000/metrics
 - Engine: http://localhost:3000/metrics
 
-3. **Available Metrics**:
+3. **Available Observability Data**:
 
+**Metrics (Prometheus):**
 - Workflow execution counts and durations
 - Queue job processing rates
 - HTTP request latencies
 - Node execution performance
 - Error rates by component
+
+**Traces (Jaeger):**
+- Distributed request tracing across services
+- Workflow execution spans
+- API request traces with timing
+
+**Logs (Loki + Winston):**
+- Structured JSON logs with correlation IDs
+- Workflow execution logs with execution IDs
+- Error tracking and stack traces
+- Request/response logging
 
 For detailed monitoring setup and usage, see [MONITORING.md](./MONITORING.md).
 
@@ -197,13 +219,14 @@ Access the application at http://localhost:80
 
 #### Monitoring URLs
 
-When using Docker Compose, the monitoring stack is automatically deployed:
+When using Docker Compose, the complete observability stack is automatically deployed:
 
 - **Application**: http://localhost:80
 - **Backend API**: http://localhost:3000
-- **Prometheus**: http://localhost:9090
-- **Grafana**: http://localhost:3001 (admin/admin)
-- **Jaeger UI**: http://localhost:16686
+- **Prometheus**: http://localhost:9090 - Metrics
+- **Grafana**: http://localhost:3001 (admin/admin) - Dashboards, Logs, Traces
+- **Jaeger UI**: http://localhost:16686 - Trace exploration
+- **Loki**: http://localhost:3100 - Log aggregation (query via Grafana)
 
 #### Docker Compose Commands
 
@@ -263,8 +286,11 @@ REDIS_URL=redis://redis:6379
 # Backend URL for Frontend
 VITE_BACKEND_URL=http://localhost:3000
 
-# OpenTelemetry Configuration
+# Observability Configuration
 OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318/v1/traces
+LOKI_URL=http://localhost:3100
+LOG_LEVEL=info
+NODE_ENV=production
 
 # Metrics Ports
 ENGINE_METRICS_PORT=3000
@@ -282,8 +308,9 @@ All services communicate through a custom bridge network (`nen-network`). Servic
 Docker volumes ensure data persistence across container restarts:
 - `postgres_data` - Database files
 - `redis_data` - Redis persistence files
-- `prometheus_data` - Prometheus time-series data
+- `prometheus_data` - Prometheus metrics time-series data
 - `grafana_data` - Grafana dashboards and settings
+- `loki_data` - Loki log storage
 
 #### Health Checks
 
@@ -341,21 +368,16 @@ docker build -t nen/frontend:latest -f docker/frontend.Dockerfile .
 - **Triggers**: Gmail monitoring, webhooks, scheduled tasks
 - **Actions**: Multi-step workflow execution with conditional logic
 - **Real-time Monitoring**: Live workflow execution tracking via WebSockets
-- **Observability**: Complete monitoring stack with metrics, logs, and traces
-  - Prometheus for metrics collection
-  - Grafana dashboards for visualization
-  - Jaeger for distributed tracing
-  - OpenTelemetry instrumentation
-- **Queue Management**: Reliable job processing with BullMQ
+- **Complete Observability**: Full monitoring stack with the three pillars
+  - **Metrics**: Prometheus for metrics collection and alerting
+  - **Traces**: Jaeger with OpenTelemetry for distributed tracing
+  - **Logs**: Winston + Loki for structured logging with correlation IDs
+  - **Visualization**: Grafana for unified dashboards
+- **Queue Management**: Reliable job processing with BullMQ and Redis
 - **Credential Management**: Secure OAuth integration with Google services
 - **RESTful API**: Full-featured API with JWT authentication
 - **Responsive UI**: Modern React interface with TailwindCSS
 
-## Documentation
-
-- [MONITORING.md](./MONITORING.md) - Complete guide to observability stack
-- [API Documentation](#) - API endpoints and usage (Coming soon)
-- [Architecture Guide](#) - Detailed architecture documentation (Coming soon)
 
 ## License
 

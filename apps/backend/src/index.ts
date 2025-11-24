@@ -6,6 +6,8 @@ import cookieParser from "cookie-parser";
 import express, { urlencoded } from "express";
 import cors from "cors";
 import { httpRequestCounter, httpRequestDuration } from "./utils/metrics";
+import { correlationIdMiddleware } from "./middlewares/correlationId.middleware";
+import logger from "./utils/logger";
 
 const app = express();
 const PORT = process.env.BACKEND_PORT || 8080
@@ -23,7 +25,10 @@ app.use(cookieParser());
 app.use(urlencoded({ extended: true }));
 app.use(express.json());
 
-// HTTP metrics middleware
+// Correlation ID middleware
+app.use(correlationIdMiddleware);
+
+// Metrics middleware
 app.use((req, res, next) => {
   const start = Date.now();
   res.on("finish", () => {
@@ -44,5 +49,5 @@ app.use("/", metricsRouter);
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log("app is listening on port ", PORT);
+  logger.info(`Backend server listening on port ${PORT}`);
 });
