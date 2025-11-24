@@ -36,14 +36,17 @@ flowchart LR
         M4[Loki<br/>Logs]
     end
     
+    subgraph Nodes["Available Nodes"]
+        N1[Gmail API]
+        N2[Webhooks]
+        N3[Telegram API]
+        N4[OpenAI API]
+        N5[OpenRouter API]
+        N6[Resend API]
+    end
+    
     subgraph External["External Integrations"]
         H[Google OAuth]
-        I[Gmail API]
-        J[Webhooks]
-        K[Telegram API]
-        L[OpenAI API]
-        M[OpenRouter API]
-        N[Resend API]
     end
     
     A -->|HTTPS| B
@@ -52,15 +55,14 @@ flowchart LR
     D --> F
     D -->|Add Jobs| Q
     D -.->|Authentication| H
-    D -.->|Fetch/Send| I
-    J -.->|Trigger| D
     Q -->|Process Jobs| E
     E --> F
-    E -->|Execute Actions| I
-    E -->|Send Messages| K
-    E -->|LLM Requests| L
-    E -->|LLM Requests| M
-    E -->|Send Emails| N
+    E -->|Execute| N1
+    E -->|Execute| N2
+    E -->|Execute| N3
+    E -->|Execute| N4
+    E -->|Execute| N5
+    E -->|Execute| N6
     
     D -->|Metrics| M1
     E -->|Metrics| M1
