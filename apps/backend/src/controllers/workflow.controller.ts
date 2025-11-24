@@ -7,7 +7,10 @@ import { createClient } from "redis";
 import {} from "../utils/queueWorker";
 import { v4 as uuidv4 } from "uuid";
 import { workflowQueue } from "../utils/queue";
+import { queueJobsCounter, workflowExecutionCounter } from "../utils/metrics";
+import { trace } from "@opentelemetry/api";
 
+const tracer = trace.getTracer("nen-backend");
 const publisherRedis = createClient({ url: "redis://localhost:6379" });
 
 const connectRedis = async () => {
@@ -195,6 +198,7 @@ export const executeFlow = asyncHandler(async (req, res) => {
 
   try {
     const executionId = uuidv4();
+    const span = tracer.startSpan("workflow.queue");
 
     const executionJob = {
       executionId: executionId,
@@ -218,11 +222,21 @@ export const executeFlow = asyncHandler(async (req, res) => {
       },
     };
 
+    span.setAttributes({
+      "workflow.id": workflow.id,
+      "workflow.name": workflow.name,
+      "execution.id": executionId,
+      "triggered.by": "manual",
+    });
+
     await workflowQueue.add("execute-workflow", executionJob, {
       jobId: executionId,
       removeOnComplete: 1000, // Keep last 1000 completed jobs
       removeOnFail: 5000, // Keep last 5000 failed jobs
     });
+
+    queueJobsCounter.inc({ queue_name: "workflow:execution", status: "queued" });
+    workflowExecutionCounter.inc({ status: "queued", workflow_id: workflow.id, triggered_by: "manual" });
 
     await publisherRedis.hSet(`execution:${executionId}`, {
       status: "queued",
@@ -236,6 +250,8 @@ export const executeFlow = asyncHandler(async (req, res) => {
     console.log(
       `Workflow ${workflowId} queued for execution with ID: ${executionId}`
     );
+
+    span.end();
 
     res.status(200).json(
       new ApiResponse(200, "Workflow queued for execution successfully", {

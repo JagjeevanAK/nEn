@@ -20,9 +20,19 @@ flowchart LR
         E[Workflow Engine]
     end
     
+    subgraph Queue["Message Queue"]
+        Q[BullMQ/Redis]
+    end
+    
     subgraph Storage["Data Storage"]
         F[(PostgreSQL)]
-        G[(Redis Queue)]
+        G[(Redis)]
+    end
+    
+    subgraph Monitoring["Observability Stack"]
+        M1[Prometheus]
+        M2[Grafana]
+        M3[Jaeger]
     end
     
     subgraph External["External Integrations"]
@@ -35,13 +45,20 @@ flowchart LR
     B --> C
     C -->|API Requests| D
     D --> F
-    D --> G
+    D -->|Add Jobs| Q
     D -.->|Authentication| H
     D -.->|Fetch/Send| I
     J -.->|Trigger| D
-    G -->|Process Jobs| E
+    Q -->|Process Jobs| E
     E --> F
     E -->|Execute Actions| I
+    
+    D -->|Metrics| M1
+    E -->|Metrics| M1
+    D -->|Traces| M3
+    E -->|Traces| M3
+    M1 -->|Visualize| M2
+    M3 -->|Traces UI| M2
 ```
 
 ### Monorepo Structure
@@ -65,7 +82,8 @@ This project uses Turborepo to manage a monorepo with three main applications:
 - **Frontend**: React, Vite, TailwindCSS, Shadcn UI
 - **Backend**: Express.js, Prisma ORM
 - **Database**: PostgreSQL
-- **Queue**: Redis with Bull
+- **Queue**: Redis with BullMQ
+- **Monitoring**: Prometheus, Grafana, Jaeger, OpenTelemetry
 - **Deployment**: Docker, Docker Compose, Nginx
 
 
@@ -82,7 +100,7 @@ nEn/
 │   ├── eslint-config/   # Shared ESLint configurations
 │   └── typescript-config/ # Shared TypeScript configurations
 ├── docker/              # Dockerfiles for each service
-├── conf/                # Nginx configuration files
+├── conf/                # Monetring and Nginx configuration files
 └── scripts/             # Utility scripts
 ```
 
@@ -128,6 +146,31 @@ This will start all applications concurrently:
 - Backend: http://localhost:3000
 - Engine: Running in background
 
+### Monitoring Stack
+
+The application includes a complete observability stack for monitoring, metrics, and distributed tracing:
+
+1. **Access Monitoring Dashboards**:
+
+- **Prometheus**: http://localhost:9090 - Metrics collection and querying
+- **Grafana**: http://localhost:3001 - Visualization dashboards (admin/admin)
+- **Jaeger**: http://localhost:16686 - Distributed tracing UI
+
+2. **Metrics Endpoints**:
+
+- Backend: http://localhost:3000/metrics
+- Engine: http://localhost:3000/metrics
+
+3. **Available Metrics**:
+
+- Workflow execution counts and durations
+- Queue job processing rates
+- HTTP request latencies
+- Node execution performance
+- Error rates by component
+
+For detailed monitoring setup and usage, see [MONITORING.md](./MONITORING.md).
+
 ### Individual Application Commands
 
 Start specific applications:
@@ -151,6 +194,17 @@ docker-compose up -d
 ```
 
 Access the application at http://localhost:80
+
+#### Monitoring URLs
+
+When using Docker Compose, the monitoring stack is automatically deployed:
+
+- **Application**: http://localhost:80
+- **Backend API**: http://localhost:3000
+- **Prometheus**: http://localhost:9090
+- **Grafana**: http://localhost:3001 (admin/admin)
+- **Jaeger UI**: http://localhost:16686
+
 #### Docker Compose Commands
 
 ```bash
@@ -208,6 +262,12 @@ REDIS_URL=redis://redis:6379
 
 # Backend URL for Frontend
 VITE_BACKEND_URL=http://localhost:3000
+
+# OpenTelemetry Configuration
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318/v1/traces
+
+# Metrics Ports
+ENGINE_METRICS_PORT=3000
 ```
 
 #### Docker Networking
@@ -222,6 +282,8 @@ All services communicate through a custom bridge network (`nen-network`). Servic
 Docker volumes ensure data persistence across container restarts:
 - `postgres_data` - Database files
 - `redis_data` - Redis persistence files
+- `prometheus_data` - Prometheus time-series data
+- `grafana_data` - Grafana dashboards and settings
 
 #### Health Checks
 
@@ -275,14 +337,25 @@ docker build -t nen/frontend:latest -f docker/frontend.Dockerfile .
 
 ## Features
 
-- Workflow creation and management
-- Trigger-based automation (Gmail, webhooks, scheduled tasks)
-- Action execution with multiple integrations
-- Real-time workflow monitoring
-- Credential management with OAuth support
-- Queue-based task processing
-- RESTful API with authentication
-- Responsive web interface
+- **Workflow Automation**: Create and manage complex workflows with visual builder
+- **Triggers**: Gmail monitoring, webhooks, scheduled tasks
+- **Actions**: Multi-step workflow execution with conditional logic
+- **Real-time Monitoring**: Live workflow execution tracking via WebSockets
+- **Observability**: Complete monitoring stack with metrics, logs, and traces
+  - Prometheus for metrics collection
+  - Grafana dashboards for visualization
+  - Jaeger for distributed tracing
+  - OpenTelemetry instrumentation
+- **Queue Management**: Reliable job processing with BullMQ
+- **Credential Management**: Secure OAuth integration with Google services
+- **RESTful API**: Full-featured API with JWT authentication
+- **Responsive UI**: Modern React interface with TailwindCSS
+
+## Documentation
+
+- [MONITORING.md](./MONITORING.md) - Complete guide to observability stack
+- [API Documentation](#) - API endpoints and usage (Coming soon)
+- [Architecture Guide](#) - Detailed architecture documentation (Coming soon)
 
 ## License
 
