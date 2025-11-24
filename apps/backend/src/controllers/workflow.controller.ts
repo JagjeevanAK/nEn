@@ -123,6 +123,16 @@ export const updateWorkflow = asyncHandler(async (req, res) => {
 
     console.log("Workflow updated successfully:", updatedWorkflow.id);
 
+    // Notify engine to refresh schedules for this workflow
+    try {
+      await publisherRedis.publish(
+        "workflow:schedule:refresh",
+        JSON.stringify({ workflowId: updatedWorkflow.id })
+      );
+    } catch (error) {
+      logger.warn("Failed to publish schedule refresh event", { error, workflowId });
+    }
+
     res.status(200).json(
       new ApiResponse(200, "Workflow updated successfully", {
         workflowId: updatedWorkflow.id,

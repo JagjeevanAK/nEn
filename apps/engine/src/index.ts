@@ -9,6 +9,7 @@ import { Worker } from "bullmq";
 import { queueJobsCounter, queueProcessingDuration, activeWorkflowsGauge } from "./utils/metrics";
 import { trace } from "@opentelemetry/api";
 import logger, { createChildLogger } from "./utils/logger";
+import { scheduleService } from "./services/scheduleService";
 
 const tracer = trace.getTracer("nen-engine");
 
@@ -88,6 +89,26 @@ worker.on("completed", (job) => {
 
 worker.on("failed", (job, err) => {
   logger.error("Job failed", { jobId: job?.id, error: err.message });
+});
+
+// Initialize schedule service
+scheduleService.initialize().catch((error) => {
+  logger.error("Failed to initialize schedule service:", error);
+});
+
+// Graceful shutdown
+process.on("SIGTERM", () => {
+  logger.info("SIGTERM received, shutting down gracefully...");
+  scheduleService.shutdown();
+  worker.close();
+  process.exit(0);
+});
+
+process.on("SIGINT", () => {
+  logger.info("SIGINT received, shutting down gracefully...");
+  scheduleService.shutdown();
+  worker.close();
+  process.exit(0);
 });
 
 logger.info("Workflow engine worker started");
