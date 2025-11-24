@@ -3,6 +3,7 @@ import { simpleParser } from "mailparser";
 import { prisma } from "@nen/db";
 import { createClient } from "redis";
 import { v4 as uuidv4 } from "uuid";
+import { workflowQueue } from "./queue";
 
 const publisherRedis = createClient({ url: "redis://localhost:6379" });
 publisherRedis.connect();
@@ -192,9 +193,11 @@ class GmailMonitor {
       priority: "high",
     };
 
-    await publisherRedis.zAdd("workflow:execution", {
-      score: Date.now(),
-      value: JSON.stringify(job),
+    await workflowQueue.add("execute-workflow", job, {
+      jobId: executionId,
+      priority: 1,
+      removeOnComplete: 1000,
+      removeOnFail: 5000,
     });
 
     console.log(`Queued workflow execution: ${executionId}`);

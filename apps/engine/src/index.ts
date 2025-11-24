@@ -1,41 +1,42 @@
 import "dotenv/config";
 import { Workflow } from "./workflow";
-import { createClient } from "redis";
+import { Worker } from "bullmq";
 
-const subscriberRedis = createClient({ url: "redis://localhost:6379" });
+const worker = new Worker(
+  "workflow:execution",
+  async (job) => {
+    console.log("inside Engine");
+    const exectionData = job.data;
+    console.log("ExecutionDATA====>>>", exectionData);
+    console.log("Nodes===> ", exectionData.workflow.nodes);
+    console.log("EDGES===> ", exectionData.workflow.edges);
 
-const connectRedis = async () => {
-  try {
-    await subscriberRedis.connect();
-    console.log("connected to redis");
-  } catch (error) {
-    console.log("subRedis not connected", error);
+    const workflowObj = new Workflow(exectionData);
+
+    workflowObj.buildGraph();
+    if (workflowObj.detectCycle()) {
+      console.error("Cycle detected in workflow", exectionData.workflow.id);
+      return;
+    }
+    workflowObj.getExecutionOrder();
+
+    console.log("executing the workflow ", exectionData.workflow.id);
+    await workflowObj.execute();
+  },
+  {
+    connection: {
+      host: "localhost",
+      port: 6379,
+    },
   }
-};
-connectRedis();
+);
 
-const main = async () => {
-  console.log("inside Engine");
-  const res = await subscriberRedis.zPopMin("workflow:execution");
-  if (!res) return;
-  
-  const exectionData = JSON.parse(res.value);
-  console.log("ExecutionDATA====>>>", exectionData);
-  console.log("Nodes===> ",exectionData.workflow.nodes)
-  console.log("EDGES===> ",exectionData.workflow.edges)
+worker.on("completed", (job) => {
+  console.log(`${job.id} has completed!`);
+});
 
-  const workflowObj = new Workflow(exectionData);
+worker.on("failed", (job, err) => {
+  console.log(`${job?.id} has failed with ${err.message}`);
+});
 
-  workflowObj.buildGraph();
-  if (workflowObj.detectCycle()) {
-    return;
-  }
-  workflowObj.getExecutionOrder();
-
-  console.log("executing the workflow ", exectionData.workflow.id);
-  await workflowObj.execute();
-};
-
-setInterval(async () => {
-  await main();
-}, 3000);
+console.log("Worker started");
