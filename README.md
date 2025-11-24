@@ -10,6 +10,10 @@ flowchart LR
         A[User Browser]
     end
     
+    subgraph External["External Integrations"]
+        H[Google OAuth]
+    end
+    
     subgraph Frontend["Frontend Layer"]
         B[Nginx]
         C[React App]
@@ -17,16 +21,19 @@ flowchart LR
     
     subgraph Backend["Backend Layer"]
         D[Express API]
-        E[Workflow Engine]
+    end
+    
+    subgraph Storage["Data Storage"]
+        F[(PostgreSQL)]
+        G[(Redis)]
     end
     
     subgraph Queue["Message Queue"]
         Q[BullMQ/Redis]
     end
     
-    subgraph Storage["Data Storage"]
-        F[(PostgreSQL)]
-        G[(Redis)]
+    subgraph Engine["Workflow Engine"]
+        E[Engine Worker]
     end
     
     subgraph Monitoring["Observability Stack"]
@@ -43,10 +50,6 @@ flowchart LR
         N4[OpenAI API]
         N5[OpenRouter API]
         N6[Resend API]
-    end
-    
-    subgraph External["External Integrations"]
-        H[Google OAuth]
     end
     
     A -->|HTTPS| B
