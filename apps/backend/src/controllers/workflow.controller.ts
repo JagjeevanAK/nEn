@@ -12,7 +12,7 @@ import { trace } from "@opentelemetry/api";
 import logger, { createChildLogger } from "../utils/logger";
 
 const tracer = trace.getTracer("nen-backend");
-const publisherRedis = createClient({ url: "redis://localhost:6379" });
+const publisherRedis = createClient({ url: process.env.REDIS_URL || "redis://localhost:6379" });
 
 const connectRedis = async () => {
   try {

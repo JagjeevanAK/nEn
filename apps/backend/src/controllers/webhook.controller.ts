@@ -4,7 +4,7 @@ import asyncHandler from "../utils/asyncHandler";
 import { createClient } from "redis";
 import { workflowQueue } from "../utils/queue";
 
-const publisherRedis = createClient({ url: "redis://localhost:6379" });
+const publisherRedis = createClient({ url: process.env.REDIS_URL || "redis://localhost:6379" });
 
 const connectRedis = async () => {
   try {

@@ -9,11 +9,25 @@ import { correlationIdMiddleware } from "./middlewares/correlationId.middleware"
 import logger from "./utils/logger";
 
 const app = express();
-const PORT = process.env.BACKEND_PORT || 8080
+const PORT = process.env.BACKEND_PORT || 3000
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://nen.jagjeevan.me",
+  "https://nen.jagjeevan.me",
+  process.env.FRONTEND_URL
+].filter(Boolean);
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
