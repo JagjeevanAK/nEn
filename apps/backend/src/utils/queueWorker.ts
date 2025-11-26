@@ -21,7 +21,7 @@ wss.on("connection", (ws, req) => {
   });
 });
 
-const subscriberRedis = createClient({ url: "redis://localhost:6379" });
+const subscriberRedis = createClient({ url: process.env.REDIS_URL || "redis://localhost:6379" });
 
 const connectRedis = async () => {
   try {

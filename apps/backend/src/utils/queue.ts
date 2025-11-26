@@ -1,8 +1,11 @@
 import { Queue } from "bullmq";
 
-export const workflowQueue = new Queue("workflow:execution", {
+const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
+const redisConfig = new URL(redisUrl);
+
+export const workflowQueue = new Queue("workflow-execution", {
   connection: {
-    host: "localhost",
-    port: 6379,
+    host: redisConfig.hostname,
+    port: parseInt(redisConfig.port) || 6379,
   },
 });
