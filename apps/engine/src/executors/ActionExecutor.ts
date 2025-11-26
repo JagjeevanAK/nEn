@@ -14,7 +14,7 @@ export class ActionExecutor {
   constructor() {
     this.credentials = new Map();
     this.nodeOutputs = new Map();
-    this.redis = createClient({url: "redis://localhost:6379"});
+    this.redis = createClient({url: process.env.REDIS_URL || "redis://localhost:6379"});
   }
 
    async init() {

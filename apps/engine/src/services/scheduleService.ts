@@ -14,7 +14,7 @@ interface ScheduledJob {
 
 class ScheduleService {
   private scheduledJobs: Map<string, ScheduledJob> = new Map();
-  private subscriber = createClient({ url: "redis://localhost:6379" });
+  private subscriber = createClient({ url: process.env.REDIS_URL || "redis://localhost:6379" });
 
   async initialize() {
     logger.info("Initializing schedule service...");
