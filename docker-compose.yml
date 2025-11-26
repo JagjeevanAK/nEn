@@ -55,6 +55,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    command: sh -c "cd packages/db && bunx prisma migrate deploy && cd ../.. && bun start:backend"
     networks:
       - nen-network
 
