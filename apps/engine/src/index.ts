@@ -1,4 +1,3 @@
-import "dotenv/config";
 import { startTracing } from "./utils/tracing";
 startTracing();
 

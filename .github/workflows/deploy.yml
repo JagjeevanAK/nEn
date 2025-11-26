@@ -110,20 +110,26 @@ jobs:
             
             # Create .env file from GitHub secrets
             cat > .env << EOF
-            # Database
+            # Database (docker-compose handles DATABASE_URL construction)
             POSTGRES_USER=${{ secrets.POSTGRES_USER }}
             POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
             POSTGRES_DB=${{ secrets.POSTGRES_DB }}
             POSTGRES_PORT=5432
             
-            # Redis
+            # Redis (docker-compose handles REDIS_URL)
             REDIS_PORT=6379
             
             # Backend
             BACKEND_PORT=${{ secrets.BACKEND_PORT }}
+            WS_PORT=${{ secrets.BACKEND_PORT }}
             
-            # Frontend
-            FRONTEND_PORT=${{ secrets.FRONTEND_PORT }}
+            # Public URLs (needed for OAuth and redirects)
+            PUBLIC_API_URL=${{ secrets.PUBLIC_API_URL }}
+            FRONTEND_URL=${{ secrets.FRONTEND_URL }}
+            
+            # Frontend build-time variables
+            VITE_BACKEND_URL=${{ secrets.VITE_BACKEND_URL }}
+            VITE_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
             
             # JWT Configuration
             ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }}
