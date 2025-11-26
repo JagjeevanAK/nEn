@@ -8,7 +8,7 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { Input } from "../ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { useWorkflowStore } from "@/store/workflowStore";
 import { BACKEND_URL } from "@/config/api";
@@ -16,6 +16,7 @@ import { toast } from "sonner";
 
 export function WebhookTriggerNode({ data, id }: { data: any, id: string }) {
   const [webhookName, setWebhookName] = useState<string>(data?.webhookName || "");
+  const [isOpen, setIsOpen] = useState(false);
   const { workflowId } = useWorkflowStore();
   
   const webhookUrl = workflowId 
@@ -24,6 +25,13 @@ export function WebhookTriggerNode({ data, id }: { data: any, id: string }) {
 
   const updateNodeData = useWorkflowStore((state) => state.updateNodeData);
   const isUrlReady = Boolean(workflowId);
+
+  useEffect(() => {
+    if (data?.autoOpen && !data?.configured) {
+      setIsOpen(true);
+      updateNodeData(id, { autoOpen: false });
+    }
+  }, [data?.autoOpen, data?.configured, id, updateNodeData]);
 
   const handleSave = () => {
     if (!webhookName.trim()) {
@@ -35,6 +43,7 @@ export function WebhookTriggerNode({ data, id }: { data: any, id: string }) {
       webhookUrl,
       configured: true
     });
+    setIsOpen(false);
   };
 
   const copyUrl = () => {
@@ -48,7 +57,7 @@ export function WebhookTriggerNode({ data, id }: { data: any, id: string }) {
 
   return (
     <div className="border border-l rounded-l-3xl bg-cyan-900 relative">
-      <Dialog>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
           <Settings className="absolute opacity-80 w-3 h-3 -top-2 bg-neutral-100 text-black rounded-full right-0 cursor-pointer p-0.5" />
         </DialogTrigger>

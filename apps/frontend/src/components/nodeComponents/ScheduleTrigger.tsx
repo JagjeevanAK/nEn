@@ -8,7 +8,7 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { Input } from "../ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { useWorkflowStore } from "@/store/workflowStore";
 import { toast } from "sonner";
@@ -16,7 +16,15 @@ import { toast } from "sonner";
 export function ScheduledTriggerNode({ data, id }: { data: any; id: string }) {
   const [scheduleName, setScheduleName] = useState<string>(data?.scheduleName || "");
   const [cronExpression, setCronExpression] = useState<string>(data?.cronExpression || "");
+  const [isOpen, setIsOpen] = useState(false);
   const updateNodeData = useWorkflowStore((state) => state.updateNodeData);
+
+  useEffect(() => {
+    if (data?.autoOpen && !data?.configured) {
+      setIsOpen(true);
+      updateNodeData(id, { autoOpen: false });
+    }
+  }, [data?.autoOpen, data?.configured, id, updateNodeData]);
 
   const handleSave = () => {
     if (!scheduleName.trim()) {
@@ -41,6 +49,7 @@ export function ScheduledTriggerNode({ data, id }: { data: any; id: string }) {
       configured: true,
     });
     toast.success("Schedule configured successfully");
+    setIsOpen(false);
   };
 
   const cronPresets = [
@@ -54,7 +63,7 @@ export function ScheduledTriggerNode({ data, id }: { data: any; id: string }) {
 
   return (
     <div className="bg-linear-to-r from-purple-500 to-purple-600 text-white rounded-lg shadow-lg border-2 border-purple-400 relative">
-      <Dialog>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
           <Settings className="absolute opacity-80 w-3 h-3 -top-2 bg-neutral-100 text-black rounded-full right-0 cursor-pointer p-0.5" />
         </DialogTrigger>
@@ -93,7 +102,7 @@ export function ScheduledTriggerNode({ data, id }: { data: any; id: string }) {
                     variant="outline"
                     size="sm"
                     onClick={() => setCronExpression(preset.value)}
-                    className="text-xs"
+                    className={`text-xs ${cronExpression === preset.value ? 'bg-teal-100 border-teal-400 hover:bg-teal-200' : ''}`}
                   >
                     {preset.label}
                   </Button>

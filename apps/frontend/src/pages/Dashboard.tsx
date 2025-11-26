@@ -15,6 +15,7 @@ const Home = () => {
   const [credApis, setCredApis] = useState<CredentialsI[]>([]);
   const [credName, setCredName] = useState<string>("");
   const [currCredApi, setCredCurrApi] = useState<CredentialsI | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   console.log(credApis, credName, currCredApi);
 
@@ -34,7 +35,7 @@ const Home = () => {
                 Create Workflow
               </Button>
             </Link>
-            <Dialog>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button
                   onClick={async () => {
@@ -58,6 +59,7 @@ const Home = () => {
                 currCredApi={currCredApi}
                 setCredName={setCredName}
                 setCredCurrApi={setCredCurrApi}
+                onSuccess={() => setIsDialogOpen(false)}
               />
             </Dialog>
           </div>

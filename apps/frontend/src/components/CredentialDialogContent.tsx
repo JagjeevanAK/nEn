@@ -28,6 +28,7 @@ type CredentialDialogContentProps = {
   currCredApi: CredentialsI | null;
   setCredName: (val: string) => void;
   setCredCurrApi: (val: CredentialsI) => void;
+  onSuccess?: () => void;
 };
 
 export function CredentialDialogContent({
@@ -36,8 +37,10 @@ export function CredentialDialogContent({
   currCredApi,
   setCredName,
   setCredCurrApi,
+  onSuccess,
 }: CredentialDialogContentProps) {
   const [formValues, setFormValues] = useState<Record<string, string>>({});
+  const [isInnerDialogOpen, setIsInnerDialogOpen] = useState(false);
 
   useEffect(() => {
     if (currCredApi) {
@@ -76,7 +79,11 @@ export function CredentialDialogContent({
         { withCredentials: true }
       );
       console.log("saved", res.data);
-      if (res) toast.success("Credentials created successfully");
+      if (res) {
+        toast.success("Credentials created successfully");
+        setIsInnerDialogOpen(false);
+        if (onSuccess) onSuccess();
+      }
     } catch (error) {
       console.error("Error saving credential:", error);
     }
@@ -115,7 +122,7 @@ export function CredentialDialogContent({
           <Button variant="outline">Cancel</Button>
         </DialogClose>
 
-        <Dialog>
+        <Dialog open={isInnerDialogOpen} onOpenChange={setIsInnerDialogOpen}>
           <DialogTrigger asChild>
             <Button
               className="cursor-pointer bg-teal-500 "

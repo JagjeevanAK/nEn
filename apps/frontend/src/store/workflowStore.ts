@@ -189,6 +189,8 @@ export const useWorkflowStore = create<WorkflowState>()(
       addTriggerNode: (trigger) => {
         const { nodes } = get();
 
+        const needsConfiguration = trigger.type === 'schedule' || trigger.type === 'webhook';
+
         const newNode: Node = {
           id: `trigger-${nodes.length}`,
           type: getNodeType(trigger.type),
@@ -198,6 +200,8 @@ export const useWorkflowStore = create<WorkflowState>()(
             description: trigger.description,
             triggerType: trigger.type,
             triggerId: trigger.id,
+            autoOpen: needsConfiguration,
+            configured: !needsConfiguration,
           },
         };
 

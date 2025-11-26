@@ -85,6 +85,8 @@ class ScheduleService {
       await this.triggerScheduledWorkflow(workflowId, nodeId, userId);
     });
 
+    task.start();
+
     this.scheduledJobs.set(jobKey, {
       workflowId,
       nodeId,
