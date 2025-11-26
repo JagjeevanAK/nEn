@@ -126,7 +126,7 @@ jobs:
             
             # Backend
             BACKEND_PORT=${{ secrets.BACKEND_PORT }}
-            WS_PORT=${{ secrets.BACKEND_PORT }}
+            WS_PORT=${{ secrets.WS_PORT }}
             
             # Public URLs (needed for OAuth and redirects)
             PUBLIC_API_URL=${{ secrets.PUBLIC_API_URL }}
