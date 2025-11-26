@@ -12,6 +12,9 @@ import { scheduleService } from "./services/scheduleService";
 
 const tracer = trace.getTracer("nen-engine");
 
+const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
+const redisConfig = new URL(redisUrl);
+
 const worker = new Worker(
   "workflow-execution",
   async (job) => {
@@ -76,8 +79,8 @@ const worker = new Worker(
   },
   {
     connection: {
-      host: "localhost",
-      port: 6379,
+      host: redisConfig.hostname,
+      port: parseInt(redisConfig.port) || 6379,
     },
   }
 );
