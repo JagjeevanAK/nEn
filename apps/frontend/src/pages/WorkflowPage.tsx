@@ -56,6 +56,7 @@ const WorkflowPage = () => {
     setIsWorkflowActive,
     loadWorkflow,
     loadUserCredentials,
+    loadTriggers,
     isSaving,
     isLoading,
   } = useWorkflowStore();
@@ -111,8 +112,9 @@ const WorkflowPage = () => {
       // loading  the specific workflow when component aata h
       loadWorkflow(workflowId);
       loadUserCredentials();
+      loadTriggers();
     }
-  }, [workflowId, loadWorkflow, loadUserCredentials]);
+  }, [workflowId, loadWorkflow, loadUserCredentials, loadTriggers]);
 
   const handleSave = async () => {
     try {

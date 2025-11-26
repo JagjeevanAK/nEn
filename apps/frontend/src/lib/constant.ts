@@ -46,7 +46,7 @@ export const actionSchemas: Record<string, any> = {
         label: "Model",
         type: "select",
         required: true,
-        options: ["gpt-3.5-turbo", "gpt-4", "gpt-4-turbo"],
+        options: ["gpt-5-mini", "gpt-5", "gpt-5.1"],
       },
       {
         name: "maxTokens",
@@ -76,15 +76,13 @@ export const actionSchemas: Record<string, any> = {
         type: "select",
         required: true,
         options: [
-          "openai/gpt-4-turbo",
-          "openai/gpt-4",
+          "openai/gpt-5-mini",
+          "openai/gpt-5",
           "openai/gpt-3.5-turbo",
-          "anthropic/claude-3-opus",
-          "anthropic/claude-3-sonnet",
-          "anthropic/claude-3-haiku",
-          "google/gemini-pro",
-          "meta-llama/llama-3-70b-instruct",
-          "mistralai/mistral-large"
+          "anthropic/claude-4.5-opus",
+          "anthropic/claude-4-sonnet",
+          "anthropic/claude-4.5-haiku",
+          "google/gemini-",
         ],
       },
       {
