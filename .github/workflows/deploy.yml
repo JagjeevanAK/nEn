@@ -108,8 +108,11 @@ jobs:
             # Navigate to app directory
             cd /home/deploy/nEn || exit 1
             
-            # Create .env file from GitHub secrets
-            cat > .env << EOF
+            # Remove old .env file if it exists
+            rm -f .env
+            
+            # Create .env file from GitHub secrets with proper permissions
+            cat > .env << 'EOF'
             # Database (docker-compose handles DATABASE_URL construction)
             POSTGRES_USER=${{ secrets.POSTGRES_USER }}
             POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
@@ -145,6 +148,7 @@ jobs:
             NODE_ENV=production
             EOF
             
+            chmod 600 .env
             echo ".env file created successfully"
 
       - name: Deploy to Digital Ocean Droplet
