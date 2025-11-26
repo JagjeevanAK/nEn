@@ -13,7 +13,7 @@ import { scheduleService } from "./services/scheduleService";
 const tracer = trace.getTracer("nen-engine");
 
 const worker = new Worker(
-  "workflow:execution",
+  "workflow-execution",
   async (job) => {
     const span = tracer.startSpan("workflow.execute");
     const start = Date.now();
