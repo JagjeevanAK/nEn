@@ -1,52 +1,38 @@
 import asyncHandler from "../utils/asyncHandler";
 import { ApiResponse } from "../utils/ApiResponse";
-import { prisma } from "@nen/db";
 import { CustomError } from "../utils/CustomError";
 
 const wbId = new Set();
+
+const AVAILABLE_TRIGGERS = [
+  {
+    id: "manual-trigger",
+    name: "Manual Trigger",
+    type: "manual",
+    description: "Manually trigger your workflow when needed",
+  },
+  {
+    id: "webhook-trigger",
+    name: "Webhook Trigger",
+    type: "webhook",
+    description: "Trigger workflow via HTTP webhook endpoint",
+  },
+  {
+    id: "schedule-trigger",
+    name: "Schedule Trigger",
+    type: "schedule",
+    description: "Run workflow on a scheduled interval (cron)",
+  },
+];
 
 export const getAllTriggers = asyncHandler(async (req, res) => {
   const userId = req.user.id;
   if (!userId) throw new CustomError(400, "user does not exits");
 
-  const allTriggers = await prisma.availabeTriggers.findMany({
-    select: {
-      id: true,
-      name: true,
-      type: true,
-      description: true,
-    },
-  });
-  if (!allTriggers) {
-    throw new CustomError(400, "No triggers found");
-  }
-  res.status(200).json(new ApiResponse(200, "triggers returned", allTriggers));
+  res.status(200).json(new ApiResponse(200, "triggers returned", AVAILABLE_TRIGGERS));
 });
 
 export const createTrigger = asyncHandler(async (req, res) => {
-  const { name, type, description } = req.body;
-
-  if (!name || !type || !description) {
-    res
-      .status(403)
-      .json(
-        new ApiResponse(200, "Some properties does not exits", {
-          name,
-          type,
-          description,
-        })
-      );
-    return;
-  }
-
-  const newTrigger = await prisma.availabeTriggers.create({
-    data: {
-      name,
-      type,
-      description,
-    },
-  });
-
-  res.status(200).json(new ApiResponse(200, "new trigger created", newTrigger));
+  res.status(501).json(new ApiResponse(501, "Triggers are now hardcoded in the system", null));
 });
 
