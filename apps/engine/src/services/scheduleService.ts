@@ -16,6 +16,16 @@ class ScheduleService {
   private scheduledJobs: Map<string, ScheduledJob> = new Map();
   private subscriber = createClient({ url: process.env.REDIS_URL || "redis://localhost:6379" });
 
+  constructor() {
+    // Debug heartbeat to monitor active schedules
+    setInterval(() => {
+      logger.info(`[ScheduleService Heartbeat] Active jobs: ${this.scheduledJobs.size}`);
+      this.scheduledJobs.forEach((job, key) => {
+        logger.info(`- Job ${key}: ${job.cronExpression}`);
+      });
+    }, 60000);
+  }
+
   async initialize() {
     logger.info("Initializing schedule service...");
     
@@ -86,8 +96,12 @@ class ScheduleService {
     const task = cron.schedule(
       cronExpression, 
       async (now) => {
-        logger.info(`[CRON TICK] Executing scheduled workflow ${workflowId} at ${new Date().toISOString()}, trigger time: ${now}`);
-        await this.triggerScheduledWorkflow(workflowId, nodeId, userId);
+        try {
+          logger.info(`[CRON TICK] Executing scheduled workflow ${workflowId} at ${new Date().toISOString()}, trigger time: ${now}`);
+          await this.triggerScheduledWorkflow(workflowId, nodeId, userId);
+        } catch (error) {
+          logger.error(`[CRON ERROR] Error in cron task for workflow ${workflowId}:`, error);
+        }
       }
     );
 
@@ -117,7 +131,7 @@ class ScheduleService {
       });
 
       if (!workflow || !workflow.active) {
-        logger.warn(`Workflow ${workflowId} not found or inactive, unscheduling`);
+        logger.warn(`[CRON CHECK] Workflow ${workflowId} not found or inactive (active=${workflow?.active}), unscheduling`);
         this.unscheduleWorkflow(workflowId, nodeId);
         return;
       }
@@ -164,9 +178,12 @@ class ScheduleService {
     const job = this.scheduledJobs.get(jobKey);
 
     if (job) {
+      logger.info(`Stopping schedule for ${jobKey}`);
       job.task.stop();
       this.scheduledJobs.delete(jobKey);
       logger.info(`Unscheduled workflow ${workflowId} node ${nodeId}`);
+    } else {
+      logger.debug(`Attempted to unschedule non-existent job ${jobKey}`);
     }
   }
 
