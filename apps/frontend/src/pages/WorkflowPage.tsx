@@ -167,24 +167,44 @@ const WorkflowPage = () => {
         </ReactFlow>
 
         {executionEvents.length > 0 && (
-          <div className="absolute bottom-4 left-4 max-w-sm bg-white border rounded-lg shadow-lg p-4 max-h-40 overflow-y-auto">
-            <h4 className="font-medium mb-2">Execution Log:</h4>
-            {executionEvents.slice(-5).map((event, index) => (
-              <div key={index} className="text-xs text-gray-600 mb-1">
-                <span
-                  className={`font-medium ${
-                    event.status === "started"
-                      ? "text-orange-600"
-                      : event.status === "completed"
-                        ? "text-green-600"
-                        : "text-red-600"
-                  }`}
-                >
-                  {event.status.toUpperCase()}
-                </span>
-                : {event.nodeId}
-              </div>
-            ))}
+          <div className="absolute bottom-4 left-4 max-w-md bg-white border-2 border-teal-200 rounded-lg shadow-xl p-4 max-h-60 overflow-y-auto">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-semibold text-gray-800">Execution Log</h4>
+              <span className="text-xs bg-teal-100 text-teal-700 px-2 py-1 rounded-full font-medium">
+                {executionEvents.length} events
+              </span>
+            </div>
+            <div className="space-y-2">
+              {executionEvents.slice(-10).reverse().map((event, index) => (
+                <div key={index} className="text-xs border-l-2 pl-3 py-1 border-gray-200">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`font-semibold ${
+                        event.status === "started"
+                          ? "text-orange-600"
+                          : event.status === "completed"
+                            ? "text-green-600"
+                            : "text-red-600"
+                      }`}
+                    >
+                      {event.status === "started" ? "▶" : event.status === "completed" ? "✓" : "✗"}
+                    </span>
+                    <span className="text-gray-600 font-medium">{event.nodeId}</span>
+                    <span
+                      className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                        event.status === "started"
+                          ? "bg-orange-100 text-orange-700"
+                          : event.status === "completed"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {event.status.toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

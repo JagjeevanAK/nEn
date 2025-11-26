@@ -409,9 +409,9 @@ export const useWorkflowStore = create<WorkflowState>()(
                   (status) => status === "failed"
                 );
                 if (hasFailed) {
-                  toast.error("Workflow execution failed");
+                  toast.error("Workflow execution failed", { duration: 3000 });
                 } else {
-                  toast.success("Workflow executed successfully");
+                  toast.success("Workflow executed successfully", { duration: 3000 });
                 }
               }
 
@@ -424,11 +424,13 @@ export const useWorkflowStore = create<WorkflowState>()(
           };
 
           websocket.onclose = () => {
+            toast.dismiss("workflow-execution");
             set({ ws: null, currExecutionId: null });
           };
 
           websocket.onerror = (error) => {
             console.log("WebSocket Error ", error);
+            toast.dismiss("workflow-execution");
             set({ isExecuting: false });
           };
         } catch (error) {
