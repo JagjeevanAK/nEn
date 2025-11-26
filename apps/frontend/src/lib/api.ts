@@ -10,7 +10,6 @@ const api = axios.create({
   },
 });
 
-// Auth API
 export const authApi = {
   signup: async (data: { email: string; password: string }) => {
     const response = await api.post('/api/v1/auth/signup', data);
