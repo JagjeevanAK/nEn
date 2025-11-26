@@ -81,10 +81,17 @@ class ScheduleService {
       throw new Error(`Invalid cron expression: ${cronExpression}`);
     }
 
-    const task = cron.schedule(cronExpression, async () => {
-      await this.triggerScheduledWorkflow(workflowId, nodeId, userId);
-    });
+    logger.info(`Creating cron schedule for workflow ${workflowId} with expression: ${cronExpression}`);
 
+    const task = cron.schedule(
+      cronExpression, 
+      async (now) => {
+        logger.info(`[CRON TICK] Executing scheduled workflow ${workflowId} at ${new Date().toISOString()}, trigger time: ${now}`);
+        await this.triggerScheduledWorkflow(workflowId, nodeId, userId);
+      }
+    );
+
+    // Ensure task is started
     task.start();
 
     this.scheduledJobs.set(jobKey, {
@@ -94,7 +101,7 @@ class ScheduleService {
       task,
     });
 
-    logger.info(`Scheduled workflow ${workflowId} with cron: ${cronExpression}`);
+    logger.info(`Successfully scheduled workflow ${workflowId} with cron: ${cronExpression}`);
   }
 
   private async triggerScheduledWorkflow(
