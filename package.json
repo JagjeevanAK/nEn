@@ -28,7 +28,6 @@
     "packages/*"
   ],
   "dependencies": {
-    "dotenv": "^17.2.3",
-    "nEn": "."
+    "dotenv": "^17.2.3"
   }
 }
