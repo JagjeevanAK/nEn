@@ -95,18 +95,19 @@ class ScheduleService {
 
     const task = cron.schedule(
       cronExpression, 
-      async (now) => {
+      async (context) => {
         try {
-          logger.info(`[CRON TICK] Executing scheduled workflow ${workflowId} at ${new Date().toISOString()}, trigger time: ${now}`);
+          logger.info(`[CRON TICK] Executing scheduled workflow ${workflowId} at ${new Date().toISOString()}, trigger time: ${context.date}`);
           await this.triggerScheduledWorkflow(workflowId, nodeId, userId);
         } catch (error) {
           logger.error(`[CRON ERROR] Error in cron task for workflow ${workflowId}:`, error);
         }
+      },
+      {
+        timezone: "UTC",
+        name: `workflow-${workflowId}-${nodeId}`
       }
     );
-
-    // Ensure task is started
-    task.start();
 
     this.scheduledJobs.set(jobKey, {
       workflowId,
