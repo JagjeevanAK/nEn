@@ -114,14 +114,14 @@ export class Workflow {
       return;
     }
 
-    if( this.detectCycle()){
+    if (this.detectCycle()) {
       this.eventPublisher.publish("workflow.event", {
-      executionId: this.executionData.executionId,
-      workflow: this.executionData.workflow.id,
-      nodeId: node.id,
-      timeStamp: new Date(Date.now()),
-      status: "started",
-    });
+        executionId: this.executionData.executionId,
+        workflow: this.executionData.workflow.id,
+        nodeId: node.id,
+        timeStamp: new Date(Date.now()),
+        status: "started",
+      });
     }
 
     console.log(`Executing node ${node.id} of type ${node.type}`);
@@ -168,6 +168,20 @@ export class Workflow {
         };
 
         this.nodeOutputs.set(nodeId, output);
+      } else if (node.type === "scheduleTrigger") {
+        console.log("Schedule trigger executed");
+
+        const triggerData = (this.executionData as any).metadata;
+
+        output = {
+          triggeredBy: "schedule",
+          timestamp: new Date().toISOString(),
+          executionId: this.executionData.executionId,
+          scheduledTime: triggerData?.scheduledTime,
+          nodeId: triggerData?.nodeId,
+        };
+
+        this.nodeOutputs.set(nodeId, output);
       } else if (node.type === "action") {
         if (!this.actionExecutor) {
           await this.loadCredentials();
@@ -181,14 +195,13 @@ export class Workflow {
 
         // store the output for subsequent nodes
         this.nodeOutputs.set(nodeId, output);
-        
+
         console.log()
-        console.log("NODE OUTPUTS ==>",this.nodeOutputs)
+        console.log("NODE OUTPUTS ==>", this.nodeOutputs)
         console.log()
 
         console.log(`Action ${node.data.actionType} completed:`, output);
       } else {
-        // handling the unknown node types
         console.log(`Unknown node type: ${node.type}`);
         output = {
           error: `Unknown node type: ${node.type}`,
