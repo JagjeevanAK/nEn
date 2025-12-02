@@ -26,6 +26,14 @@ export function ScheduledTriggerNode({ data, id }: { data: any; id: string }) {
     }
   }, [data?.autoOpen, data?.configured, id, updateNodeData]);
 
+  // Sync state with node data when dialog opens or data changes
+  useEffect(() => {
+    if (isOpen) {
+      setScheduleName(data?.scheduleName || "");
+      setCronExpression(data?.cronExpression || "");
+    }
+  }, [isOpen, data?.scheduleName, data?.cronExpression]);
+
   const handleSave = () => {
     if (!scheduleName.trim()) {
       toast.warning("Please enter schedule name");
