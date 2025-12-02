@@ -149,6 +149,7 @@ export class Workflow {
 
         output = {
           webhookPayload: triggerData?.webhookPayload,
+          payload: triggerData?.webhookPayload,
           triggerSource: triggerData?.ip,
           method: triggerData?.method,
           queryParams: triggerData?.queryParams,
@@ -188,6 +189,31 @@ export class Workflow {
         }
         // preparing context from previous node outputs
         const previousOutputs = Object.fromEntries(this.nodeOutputs);
+        
+        console.log("\n╔════════════════════════════════════════════════════");
+        console.log("║ 🔗 DATA FLOW CONTEXT");
+        console.log("╠════════════════════════════════════════════════════");
+        console.log(`║ Current Node: ${node.id} (${node.data.actionType})`);
+        console.log("║ Available Data from Previous Nodes:");
+        
+        if (Object.keys(previousOutputs).length === 0) {
+          console.log("║   (No previous outputs available)");
+        } else {
+          for (const [nodeId, output] of Object.entries(previousOutputs)) {
+            console.log(`║   📦 ${nodeId}:`);
+            if (output && typeof output === 'object') {
+              const keys = Object.keys(output);
+              console.log(`║      Available fields: ${keys.join(', ')}`);
+              // Show preview of content if available
+              if ('content' in output) {
+                const preview = String(output.content).substring(0, 80);
+                console.log(`║      content: "${preview}${String(output.content).length > 80 ? '...' : ''}"`);
+              }
+            }
+          }
+        }
+        console.log("╚════════════════════════════════════════════════════\n");
+
         console.log(`Executing action: ${node.data.actionType}`);
 
         // execute the action using actionExecutor
@@ -196,9 +222,9 @@ export class Workflow {
         // store the output for subsequent nodes
         this.nodeOutputs.set(nodeId, output);
 
-        console.log()
-        console.log("NODE OUTPUTS ==>", this.nodeOutputs)
-        console.log()
+        console.log("\n✅ Action completed successfully");
+        console.log("📤 Output stored for node:", nodeId);
+        console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
         console.log(`Action ${node.data.actionType} completed:`, output);
       } else {

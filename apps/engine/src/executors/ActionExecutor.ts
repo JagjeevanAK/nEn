@@ -63,21 +63,57 @@ export class ActionExecutor {
     this.nodeOutputs.set(nodeId, output);
   }
 
-  // Resolve dynamic values like {{previousNode.output}}
+  // Resolve dynamic values like {{previousNode.output}} or {{nodeId.content}} or {{nodeId.data.body}}
   private resolveDynamicValue(value: any, context: any = {}): any {
     if (typeof value !== "string") return value;
 
-    // Simple template resolution
-    return value.replace(/\{\{([^}]+)\}\}/g, (match, path) => {
-      const keys = path.trim().split(".");
+    const originalValue = value;
+    let hasReplacements = false;
+
+    // Enhanced template resolution with better nested path handling
+    const resolved = value.replace(/\{\{([^}]+)\}\}/g, (match, path) => {
+      const trimmedPath = path.trim();
+      const keys = trimmedPath.split(".");
       let result = context;
 
+      // Navigate through the object path
       for (const key of keys) {
-        result = result?.[key];
+        if (result === null || result === undefined) {
+          break;
+        }
+        // Handle array indices like [0]
+        if (key.includes("[")) {
+          const arrayMatch = key.match(/(\w+)\[(\d+)\]/);
+          if (arrayMatch) {
+            result = result[arrayMatch[1]]?.[parseInt(arrayMatch[2])];
+          }
+        } else {
+          result = result[key];
+        }
       }
 
-      return result !== undefined ? result : match;
+      // If we found a value, return it
+      if (result !== undefined && result !== null) {
+        hasReplacements = true;
+        // If it's an object or array, stringify it for embedding in strings
+        if (typeof result === "object") {
+          console.log(`✅ Resolved {{${trimmedPath}}} -> [Object: ${JSON.stringify(result).substring(0, 100)}...]`);
+          return JSON.stringify(result);
+        }
+        console.log(`✅ Resolved {{${trimmedPath}}} -> "${String(result).substring(0, 100)}${String(result).length > 100 ? '...' : ''}"`);
+        return String(result);
+      }
+
+      // If path not found, log for debugging and return original
+      console.log(`⚠️  Could not resolve {{${trimmedPath}}} - Available keys in context:`, Object.keys(context));
+      return match;
     });
+
+    if (hasReplacements && originalValue !== resolved) {
+      console.log(`🔄 Template transformation:\n   Before: "${originalValue.substring(0, 150)}${originalValue.length > 150 ? '...' : ''}"\n   After:  "${resolved.substring(0, 150)}${resolved.length > 150 ? '...' : ''}"`);
+    }
+
+    return resolved;
   }
 
   async executeAction(
@@ -85,7 +121,13 @@ export class ActionExecutor {
     previousOutputs: Record<string, any> = {}
   ): Promise<any> {
     const { actionType, parameters, credentials: credConfig } = node.data;
-    console.log("Action type => ", node.data);
+    console.log("\n=== EXECUTING ACTION NODE ===");
+    console.log("Node ID:", node.id);
+    console.log("Action Type:", actionType);
+    console.log("Available Context (Previous Outputs):", Object.keys(previousOutputs));
+    console.log("Parameters:", parameters);
+    console.log("================================\n");
+    
     try {
       switch (actionType) {
         case "TelegramNodeType":
@@ -179,6 +221,7 @@ export class ActionExecutor {
         success: true,
         taskId,
         actionType: "openAiNodeType",
+        content: result.content,
         data: result,
         completedAt: new Date().toISOString(),
       };
@@ -235,6 +278,7 @@ export class ActionExecutor {
         success: true,
         taskId,
         actionType: "openRouterNodeType",
+        content: result.content,
         data: result,
         completedAt: new Date().toISOString(),
       };
@@ -342,6 +386,7 @@ export class ActionExecutor {
                     to: parsed.to?.text || "",
                     subject: parsed.subject || "",
                     body: parsed.text || "",
+                    html: parsed.html || "",
                     receivedAt: new Date().toISOString(),
                   };
 
@@ -353,6 +398,9 @@ export class ActionExecutor {
                     success: true,
                     sentAt: new Date().toISOString(),
                     actionType: "GmailTrigger",
+                    content: emailData.body,
+                    subject: emailData.subject,
+                    from: emailData.from,
                     data: emailData,
                     message: "Latest email received successfully",
                   });
