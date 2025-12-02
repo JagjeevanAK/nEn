@@ -4,22 +4,13 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { BACKEND_URL } from "@/config/api";
 import { 
-  CheckCircle2, 
   Clock, 
-  XCircle, 
-  PlayCircle, 
   ChevronRight, 
   ChevronDown,
   AlertCircle,
   Calendar
 } from "lucide-react";
 import { toast } from "sonner";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle 
-} from "@/components/ui/dialog";
 
 interface Execution {
   id: string;
@@ -58,11 +49,12 @@ interface WorkflowGroup {
 export const ExecutionsTabImproved = () => {
   const [workflowGroups, setWorkflowGroups] = useState<WorkflowGroup[]>([]);
   const [expandedWorkflows, setExpandedWorkflows] = useState<Set<string>>(new Set());
+  const [expandedExecutions, setExpandedExecutions] = useState<Set<string>>(new Set());
   const [hoveredWorkflow, setHoveredWorkflow] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
-  const [selectedExecution, setSelectedExecution] = useState<ExecutionDetails | null>(null);
-  const [detailsLoading, setDetailsLoading] = useState(false);
+  const [executionDetails, setExecutionDetails] = useState<Map<string, ExecutionDetails>>(new Map());
+  const [detailsLoading, setDetailsLoading] = useState<Set<string>>(new Set());
 
   const fetchExecutions = async () => {
     try {
@@ -127,19 +119,38 @@ export const ExecutionsTabImproved = () => {
   };
 
   const fetchExecutionDetails = async (executionId: string) => {
+    if (executionDetails.has(executionId)) {
+      return;
+    }
+
     try {
-      setDetailsLoading(true);
+      setDetailsLoading(prev => new Set(prev).add(executionId));
       const res = await axios.get(
         `${BACKEND_URL}/api/v1/workflow/executions/${executionId}`,
         { withCredentials: true }
       );
-      setSelectedExecution(res.data.data);
+      setExecutionDetails(prev => new Map(prev).set(executionId, res.data.data));
     } catch (error) {
       console.error("Failed to fetch execution details", error);
       toast.error("Failed to load execution details");
     } finally {
-      setDetailsLoading(false);
+      setDetailsLoading(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(executionId);
+        return newSet;
+      });
     }
+  };
+
+  const toggleExecution = async (executionId: string) => {
+    const newExpanded = new Set(expandedExecutions);
+    if (newExpanded.has(executionId)) {
+      newExpanded.delete(executionId);
+    } else {
+      newExpanded.add(executionId);
+      await fetchExecutionDetails(executionId);
+    }
+    setExpandedExecutions(newExpanded);
   };
 
   useEffect(() => {
@@ -155,26 +166,6 @@ export const ExecutionsTabImproved = () => {
       newExpanded.add(workflowId);
     }
     setExpandedWorkflows(newExpanded);
-  };
-
-  const getStatusBadge = (status: string, compact = false) => {
-    const statusConfig = {
-      COMPLETED: { color: "bg-green-100 text-green-700 border-green-300", icon: CheckCircle2 },
-      FAILED: { color: "bg-red-100 text-red-700 border-red-300", icon: XCircle },
-      RUNNING: { color: "bg-blue-100 text-blue-700 border-blue-300", icon: PlayCircle },
-      QUEUED: { color: "bg-yellow-100 text-yellow-700 border-yellow-300", icon: Clock },
-      CANCELLED: { color: "bg-gray-100 text-gray-700 border-gray-300", icon: XCircle },
-    };
-
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.QUEUED;
-    const Icon = config.icon;
-
-    return (
-      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${config.color}`}>
-        <Icon className="w-3 h-3" />
-        {!compact && status}
-      </span>
-    );
   };
 
   const formatDuration = (duration: number | null) => {
@@ -305,53 +296,184 @@ export const ExecutionsTabImproved = () => {
               {expandedWorkflows.has(group.workflowId) && (
                 <div className="border-t border-gray-200 bg-gray-50">
                   <div className="divide-y divide-gray-200">
-                    {group.executions.map((exec) => (
-                      <div
-                        key={exec.id}
-                        onClick={() => fetchExecutionDetails(exec.id)}
-                        className="p-3 hover:bg-white cursor-pointer transition-colors"
-                      >
-                        <div className="flex items-center justify-between gap-4">
-                          <div className="text-sm">
-                            <p className="text-gray-700">
-                              <span className="font-medium">
-                                {new Date(exec.startedAt).toLocaleString()}
-                              </span>
-                            </p>
-                            <p className="text-xs text-gray-500 mt-0.5">
-                              Triggered by: <span className="font-medium capitalize">{exec.triggeredBy}</span>
-                            </p>
-                          </div>
-                          
-                          <div className="flex items-center gap-4">
-                            {/* Status Label - Middle */}
-                            <span className={`px-2 py-1 rounded text-xs font-medium ${
-                              exec.status === 'COMPLETED' 
-                                ? 'bg-green-100 text-green-700' 
-                                : exec.status === 'FAILED'
-                                ? 'bg-red-100 text-red-700'
-                                : exec.status === 'RUNNING'
-                                ? 'bg-blue-100 text-blue-700'
-                                : exec.status === 'QUEUED'
-                                ? 'bg-yellow-100 text-yellow-700'
-                                : 'bg-gray-100 text-gray-700'
-                            }`}>
-                              {exec.status === 'COMPLETED' ? 'Success' : exec.status === 'FAILED' ? 'Failed' : exec.status}
-                            </span>
-                            
-                            {/* Duration - Right */}
-                            <div className="text-right">
-                              <p className="text-gray-500 text-xs">Duration</p>
-                              <p className="font-medium text-gray-700">{formatDuration(exec.duration)}</p>
+                    {group.executions.map((exec) => {
+                      const isExpanded = expandedExecutions.has(exec.id);
+                      const details = executionDetails.get(exec.id);
+                      const isLoadingDetails = detailsLoading.has(exec.id);
+
+                      return (
+                        <div key={exec.id}>
+                          <div
+                            onClick={() => toggleExecution(exec.id)}
+                            className="p-3 hover:bg-white cursor-pointer transition-colors"
+                          >
+                            <div className="flex items-center justify-between gap-4">
+                              <div className="flex items-center gap-2">
+                                {isExpanded ? (
+                                  <ChevronDown className="w-4 h-4 text-gray-600" />
+                                ) : (
+                                  <ChevronRight className="w-4 h-4 text-gray-600" />
+                                )}
+                                <div className="text-sm">
+                                  <p className="text-gray-700">
+                                    <span className="font-medium">
+                                      {new Date(exec.startedAt).toLocaleString()}
+                                    </span>
+                                  </p>
+                                  <p className="text-xs text-gray-500 mt-0.5">
+                                    Triggered by: <span className="font-medium capitalize">{exec.triggeredBy}</span>
+                                  </p>
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center gap-4">
+                                <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                  exec.status === 'COMPLETED' 
+                                    ? 'bg-green-100 text-green-700' 
+                                    : exec.status === 'FAILED'
+                                    ? 'bg-red-100 text-red-700'
+                                    : exec.status === 'RUNNING'
+                                    ? 'bg-blue-100 text-blue-700'
+                                    : exec.status === 'QUEUED'
+                                    ? 'bg-yellow-100 text-yellow-700'
+                                    : 'bg-gray-100 text-gray-700'
+                                }`}>
+                                  {exec.status === 'COMPLETED' ? 'Success' : exec.status === 'FAILED' ? 'Failed' : exec.status}
+                                </span>
+                                
+                                <div className="text-right">
+                                  <p className="text-gray-500 text-xs">Duration</p>
+                                  <p className="font-medium text-gray-700">{formatDuration(exec.duration)}</p>
+                                </div>
+                                
+                                {exec.error && (
+                                  <AlertCircle className="w-5 h-5 text-red-500" />
+                                )}
+                              </div>
                             </div>
-                            
-                            {exec.error && (
-                              <AlertCircle className="w-5 h-5 text-red-500" />
-                            )}
                           </div>
+
+                          {/* Execution Details (Expanded) */}
+                          {isExpanded && (
+                            <div className="bg-white border-t border-gray-200 p-4">
+                              {isLoadingDetails && (
+                                <div className="flex justify-center items-center py-8">
+                                  <div className="h-6 w-6 border-2 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+                                  <span className="ml-2 text-teal-600">Loading details...</span>
+                                </div>
+                              )}
+
+                              {!isLoadingDetails && details && (
+                                <div className="space-y-4">
+                                  {/* Overview */}
+                                  <Card className="border-gray-200">
+                                    <CardContent className="pt-4">
+                                      <div className="grid grid-cols-2 gap-4 text-sm">
+                                        <div>
+                                          <p className="text-gray-500 mb-1">Execution ID</p>
+                                          <p className="font-mono text-xs">{details.id}</p>
+                                        </div>
+                                        <div>
+                                          <p className="text-gray-500 mb-1">Duration</p>
+                                          <p className="font-medium">{formatDuration(details.duration)}</p>
+                                        </div>
+                                        <div>
+                                          <p className="text-gray-500 mb-1">Started At</p>
+                                          <p className="font-medium flex items-center gap-1">
+                                            <Calendar className="w-3 h-3" />
+                                            {new Date(details.startedAt).toLocaleString()}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <p className="text-gray-500 mb-1">Finished At</p>
+                                          <p className="font-medium">
+                                            {details.finishedAt 
+                                              ? new Date(details.finishedAt).toLocaleString()
+                                              : "In progress"}
+                                          </p>
+                                        </div>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+
+                                  {/* Error Display */}
+                                  {details.error && (
+                                    <Card className="border-red-200 bg-red-50">
+                                      <CardContent className="pt-4">
+                                        <div className="flex items-start gap-2">
+                                          <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+                                          <div>
+                                            <h4 className="font-semibold text-red-900 mb-1">Error</h4>
+                                            <p className="text-sm text-red-800 whitespace-pre-wrap font-mono">
+                                              {details.error}
+                                            </p>
+                                          </div>
+                                        </div>
+                                      </CardContent>
+                                    </Card>
+                                  )}
+
+                                  {/* Node Results */}
+                                  {details.nodeResults && details.nodeResults.length > 0 && (
+                                    <div>
+                                      <h4 className="font-semibold text-gray-900 mb-3">Node Execution Results</h4>
+                                      <div className="space-y-2">
+                                        {details.nodeResults.map((nodeResult: any, index: number) => (
+                                          <Card key={index} className="border border-gray-200">
+                                            <CardContent className="pt-4">
+                                              <div className="flex items-start justify-between mb-2">
+                                                <div>
+                                                  <p className="font-medium text-gray-900">
+                                                    {nodeResult.nodeId || `Node ${index + 1}`}
+                                                  </p>
+                                                  <p className="text-xs text-gray-500">
+                                                    {nodeResult.executedAt && new Date(nodeResult.executedAt).toLocaleString()}
+                                                  </p>
+                                                </div>
+                                                {nodeResult.status && (
+                                                  <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                                    nodeResult.status === 'completed' 
+                                                      ? 'bg-green-100 text-green-700' 
+                                                      : 'bg-red-100 text-red-700'
+                                                  }`}>
+                                                    {nodeResult.status}
+                                                  </span>
+                                                )}
+                                              </div>
+                                              {nodeResult.output && (
+                                                <div className="mt-2 p-2 bg-gray-50 rounded border border-gray-200">
+                                                  <pre className="text-xs overflow-x-auto">
+                                                    {JSON.stringify(nodeResult.output, null, 2)}
+                                                  </pre>
+                                                </div>
+                                              )}
+                                            </CardContent>
+                                          </Card>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Metadata */}
+                                  {details.metadata && Object.keys(details.metadata).length > 0 && (
+                                    <div>
+                                      <h4 className="font-semibold text-gray-900 mb-3">Metadata</h4>
+                                      <Card className="border border-gray-200">
+                                        <CardContent className="pt-4">
+                                          <pre className="text-xs overflow-x-auto bg-gray-50 p-3 rounded">
+                                            {JSON.stringify(details.metadata, null, 2)}
+                                          </pre>
+                                        </CardContent>
+                                      </Card>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -360,139 +482,6 @@ export const ExecutionsTabImproved = () => {
         </div>
       )}
 
-      {/* Execution Details Dialog */}
-      <Dialog open={!!selectedExecution} onOpenChange={() => setSelectedExecution(null)}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              Execution Details
-              {selectedExecution && getStatusBadge(selectedExecution.status)}
-            </DialogTitle>
-          </DialogHeader>
-
-          {detailsLoading && (
-            <div className="flex justify-center items-center py-8">
-              <div className="h-6 w-6 border-2 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
-              <span className="ml-2 text-teal-600">Loading details...</span>
-            </div>
-          )}
-
-          {!detailsLoading && selectedExecution && (
-            <div className="space-y-4">
-              {/* Overview */}
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-gray-500 mb-1">Workflow</p>
-                      <p className="font-medium">{selectedExecution.workflowName}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500 mb-1">Execution ID</p>
-                      <p className="font-mono text-xs">{selectedExecution.id}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500 mb-1">Triggered By</p>
-                      <p className="font-medium capitalize">{selectedExecution.triggeredBy}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500 mb-1">Duration</p>
-                      <p className="font-medium">{formatDuration(selectedExecution.duration)}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500 mb-1">Started At</p>
-                      <p className="font-medium flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {new Date(selectedExecution.startedAt).toLocaleString()}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500 mb-1">Finished At</p>
-                      <p className="font-medium">
-                        {selectedExecution.finishedAt 
-                          ? new Date(selectedExecution.finishedAt).toLocaleString()
-                          : "In progress"}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Error Display */}
-              {selectedExecution.error && (
-                <Card className="border-red-200 bg-red-50">
-                  <CardContent className="pt-6">
-                    <div className="flex items-start gap-2">
-                      <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-                      <div>
-                        <h4 className="font-semibold text-red-900 mb-1">Error</h4>
-                        <p className="text-sm text-red-800 whitespace-pre-wrap font-mono">
-                          {selectedExecution.error}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Node Results */}
-              {selectedExecution.nodeResults && selectedExecution.nodeResults.length > 0 && (
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-3">Node Execution Results</h4>
-                  <div className="space-y-2">
-                    {selectedExecution.nodeResults.map((nodeResult: any, index: number) => (
-                      <Card key={index} className="border border-gray-200">
-                        <CardContent className="pt-4">
-                          <div className="flex items-start justify-between mb-2">
-                            <div>
-                              <p className="font-medium text-gray-900">
-                                {nodeResult.nodeId || `Node ${index + 1}`}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {nodeResult.executedAt && new Date(nodeResult.executedAt).toLocaleString()}
-                              </p>
-                            </div>
-                            {nodeResult.status && (
-                              <span className={`px-2 py-1 rounded text-xs font-medium ${
-                                nodeResult.status === 'completed' 
-                                  ? 'bg-green-100 text-green-700' 
-                                  : 'bg-red-100 text-red-700'
-                              }`}>
-                                {nodeResult.status}
-                              </span>
-                            )}
-                          </div>
-                          {nodeResult.output && (
-                            <div className="mt-2 p-2 bg-gray-50 rounded border border-gray-200">
-                              <pre className="text-xs overflow-x-auto">
-                                {JSON.stringify(nodeResult.output, null, 2)}
-                              </pre>
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Metadata */}
-              {selectedExecution.metadata && (
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-3">Metadata</h4>
-                  <Card className="border border-gray-200">
-                    <CardContent className="pt-4">
-                      <pre className="text-xs overflow-x-auto bg-gray-50 p-3 rounded">
-                        {JSON.stringify(selectedExecution.metadata, null, 2)}
-                      </pre>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

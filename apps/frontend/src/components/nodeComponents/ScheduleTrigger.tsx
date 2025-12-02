@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Handle, Position } from "@xyflow/react";
-import { Clock, Settings } from "lucide-react";
+import { Clock, Settings, Trash } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -17,6 +17,7 @@ export function ScheduledTriggerNode({ data, id }: { data: any; id: string }) {
   const [cronExpression, setCronExpression] = useState<string>(data?.cronExpression || "");
   const [isOpen, setIsOpen] = useState(false);
   const updateNodeData = useWorkflowStore((state) => state.updateNodeData);
+  const deleteNode = useWorkflowStore((state) => state.deleteNode);
 
   useEffect(() => {
     if (data?.autoOpen && !data?.configured) {
@@ -132,6 +133,11 @@ export function ScheduledTriggerNode({ data, id }: { data: any; id: string }) {
           </div>
         </DialogContent>
       </Dialog>
+
+      <Trash 
+        className="absolute w-3 h-3 -top-2 bg-neutral-100 text-black rounded-full right-4 cursor-pointer p-0.5 hover:bg-red-100" 
+        onClick={() => deleteNode(id)}
+      />
 
       <div className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3">
         <div className="text-xs truncate" title={data.label}>

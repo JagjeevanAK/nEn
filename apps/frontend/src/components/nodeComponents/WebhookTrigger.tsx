@@ -24,6 +24,7 @@ export function WebhookTriggerNode({ data, id }: { data: any, id: string }) {
     : `${BACKEND_URL}/api/v1/webhook/[WORKFLOW_ID]/${id}`;
 
   const updateNodeData = useWorkflowStore((state) => state.updateNodeData);
+  const deleteNode = useWorkflowStore((state) => state.deleteNode);
   const isUrlReady = Boolean(workflowId);
 
   useEffect(() => {
@@ -98,7 +99,10 @@ export function WebhookTriggerNode({ data, id }: { data: any, id: string }) {
         </DialogContent>
       </Dialog>
 
-      <Trash className="absolute w-3 h-3 -top-2 bg-neutral-100 text-black rounded-full right-4 cursor-pointer p-0.5" />
+      <Trash 
+        className="absolute w-3 h-3 -top-2 bg-neutral-100 text-black rounded-full right-4 cursor-pointer p-0.5 hover:bg-red-100" 
+        onClick={() => deleteNode(id)}
+      />
       
       <div className="p-4 text-center">
         <Webhook className="w-6 h-6 text-white mx-auto mb-2" />

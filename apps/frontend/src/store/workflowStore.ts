@@ -62,6 +62,7 @@ export interface WorkflowState {
   resetWorkflow: () => void; // reset to initial state, will use this later as well 
 
   updateNodeData: (id: string, data: any) => void; // nodes mai new data ko append krdeta hai - spread and override the existisng vals 
+  deleteNode: (nodeId: string) => void; // delete node and its connected edges
 
   // Actions for triggers
   setTriggers: (triggers: TriggerI[]) => void; // this is used for sheets mai triggers dikhane ke liye AND ek addtrigger node bhi dalne ke liye
@@ -223,6 +224,14 @@ export const useWorkflowStore = create<WorkflowState>()(
             )
           }
         })
+      },
+
+      deleteNode: (nodeId: string) => {
+        set((state) => ({
+          nodes: state.nodes.filter(node => node.id !== nodeId),
+          edges: state.edges.filter(edge => edge.source !== nodeId && edge.target !== nodeId)
+        }));
+        toast.success("Node deleted successfully");
       },
 
       // Action node management

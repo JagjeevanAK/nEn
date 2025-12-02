@@ -9,7 +9,7 @@ import {
 } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { useState } from "react";
-// import { useWorkflowStore } from "@/store/workflowStore";
+import { useWorkflowStore } from "@/store/workflowStore";
 
 const getActionIcon = (actionType: string) => {
   switch (actionType) {
@@ -77,7 +77,7 @@ const getActionDisplayName = (actionType: string) => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function ActionNode({ data, id }: { data: any; id: string }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  //   const updateNodeData = useWorkflowStore((state) => state.updateNodeData);
+  const deleteNode = useWorkflowStore((state) => state.deleteNode);
 
   const actionType = data.actionType || data.type;
   const actionColor = getActionColor(actionType);
@@ -85,7 +85,8 @@ export function ActionNode({ data, id }: { data: any; id: string }) {
   const displayName = getActionDisplayName(actionType);
 
   const handleDelete = () => {
-    console.log(`Delete node ${id}`);
+    deleteNode(id);
+    setIsDialogOpen(false);
   };
 
   return (
