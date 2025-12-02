@@ -3,9 +3,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { BACKEND_URL } from "@/config/api";
-import { 
-  Clock, 
-  ChevronRight, 
+import {
+  Clock,
+  ChevronRight,
   ChevronDown,
   AlertCircle,
   Calendar
@@ -74,7 +74,7 @@ export const ExecutionsTabImproved = () => {
       );
 
       const executions: Execution[] = res.data.data.executions;
-      
+
       const grouped = executions.reduce((acc: { [key: string]: WorkflowGroup }, exec) => {
         if (!acc[exec.workflowId]) {
           acc[exec.workflowId] = {
@@ -94,11 +94,11 @@ export const ExecutionsTabImproved = () => {
 
         acc[exec.workflowId].executions.push(exec);
         acc[exec.workflowId].stats.total++;
-        
+
         if (exec.status === "COMPLETED") acc[exec.workflowId].stats.completed++;
         if (exec.status === "FAILED") acc[exec.workflowId].stats.failed++;
         if (exec.status === "RUNNING") acc[exec.workflowId].stats.running++;
-        
+
         if (new Date(exec.startedAt) > new Date(acc[exec.workflowId].lastRun)) {
           acc[exec.workflowId].lastRun = exec.startedAt;
         }
@@ -257,17 +257,16 @@ export const ExecutionsTabImproved = () => {
                       Last run: {formatRelativeTime(group.lastRun)}
                     </p>
                   </div>
-                  
+
                   <div className="flex items-center gap-4">
                     {/* Active Status Label - Middle */}
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      group.isActive 
-                        ? 'bg-green-100 text-green-700' 
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${group.isActive
+                        ? 'bg-green-100 text-green-700'
                         : 'bg-gray-100 text-gray-700'
-                    }`}>
+                      }`}>
                       {group.isActive ? 'Active' : 'Not Active'}
                     </span>
-                    
+
                     {/* Stats Badges */}
                     <div className="flex items-center gap-2">
                       <span className="px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700">
@@ -328,27 +327,26 @@ export const ExecutionsTabImproved = () => {
                                   Triggered by: <span className="font-medium capitalize">{exec.triggeredBy}</span>
                                 </p>
                               </div>
-                              
+
                               <div className="flex items-center gap-4 shrink-0">
-                                <span className={`px-2 py-1 rounded text-xs font-medium ${
-                                  exec.status === 'COMPLETED' 
-                                    ? 'bg-green-100 text-green-700' 
+                                <span className={`px-2 py-1 rounded text-xs font-medium ${exec.status === 'COMPLETED'
+                                    ? 'bg-green-100 text-green-700'
                                     : exec.status === 'FAILED'
-                                    ? 'bg-red-100 text-red-700'
-                                    : exec.status === 'RUNNING'
-                                    ? 'bg-blue-100 text-blue-700'
-                                    : exec.status === 'QUEUED'
-                                    ? 'bg-yellow-100 text-yellow-700'
-                                    : 'bg-gray-100 text-gray-700'
-                                }`}>
+                                      ? 'bg-red-100 text-red-700'
+                                      : exec.status === 'RUNNING'
+                                        ? 'bg-blue-100 text-blue-700'
+                                        : exec.status === 'QUEUED'
+                                          ? 'bg-yellow-100 text-yellow-700'
+                                          : 'bg-gray-100 text-gray-700'
+                                  }`}>
                                   {exec.status === 'COMPLETED' ? 'Success' : exec.status === 'FAILED' ? 'Failed' : exec.status}
                                 </span>
-                                
+
                                 <div className="text-right">
                                   <p className="text-gray-500 text-xs">Duration</p>
                                   <p className="font-medium text-gray-700">{formatDuration(exec.duration)}</p>
                                 </div>
-                                
+
                                 {exec.error && (
                                   <AlertCircle className="w-5 h-5 text-red-500" />
                                 )}
@@ -390,7 +388,7 @@ export const ExecutionsTabImproved = () => {
                                         <div>
                                           <p className="text-gray-500 mb-1">Finished At</p>
                                           <p className="font-medium">
-                                            {details.finishedAt 
+                                            {details.finishedAt
                                               ? new Date(details.finishedAt).toLocaleString()
                                               : "In progress"}
                                           </p>
@@ -423,7 +421,7 @@ export const ExecutionsTabImproved = () => {
                                       <div className="space-y-2 min-w-0">
                                         {details.nodeResults.map((nodeResult: any, index: number) => (
                                           <Card key={index} className="border border-gray-200 min-w-0 max-w-full">
-                                            <CardContent className="py-4 min-w-0 max-w-full">
+                                            <CardContent className="py-4 min-w-0 max-w-full grid grid-cols-1">
                                               <div className="flex items-start justify-between mb-2">
                                                 <div>
                                                   <p className="font-medium text-gray-900">
@@ -434,18 +432,17 @@ export const ExecutionsTabImproved = () => {
                                                   </p>
                                                 </div>
                                                 {nodeResult.status && (
-                                                  <span className={`px-2 py-1 rounded text-xs font-medium ${
-                                                    nodeResult.status === 'completed' 
-                                                      ? 'bg-green-100 text-green-700' 
+                                                  <span className={`px-2 py-1 rounded text-xs font-medium ${nodeResult.status === 'completed'
+                                                      ? 'bg-green-100 text-green-700'
                                                       : 'bg-red-100 text-red-700'
-                                                  }`}>
+                                                    }`}>
                                                     {nodeResult.status}
                                                   </span>
                                                 )}
                                               </div>
                                               {nodeResult.output && (
-                                                <div className="mt-2 min-w-0">
-                                                  <div className="p-2 bg-gray-50 rounded border border-gray-200 overflow-x-auto max-w-full">
+                                                <div className="mt-2 min-w-0 w-full">
+                                                  <div className="p-2 bg-gray-50 rounded border border-gray-200 overflow-x-auto w-full">
                                                     <pre className="text-xs whitespace-pre">
                                                       {JSON.stringify(nodeResult.output, null, 2)}
                                                     </pre>
