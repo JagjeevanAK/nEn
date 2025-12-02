@@ -296,7 +296,6 @@ export const ExecutionsTabImproved = () => {
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3 flex-1">
-                            {getStatusBadge(exec.status, true)}
                             <div className="text-sm">
                               <p className="text-gray-700">
                                 <span className="font-medium">
@@ -309,7 +308,21 @@ export const ExecutionsTabImproved = () => {
                             </div>
                           </div>
                           
-                          <div className="flex items-center gap-4 text-sm">
+                          <div className="flex items-center gap-3 text-sm">
+                            {/* Status Label */}
+                            <span className={`px-2 py-1 rounded text-xs font-medium ${
+                              exec.status === 'COMPLETED' 
+                                ? 'bg-green-100 text-green-700' 
+                                : exec.status === 'FAILED'
+                                ? 'bg-red-100 text-red-700'
+                                : exec.status === 'RUNNING'
+                                ? 'bg-blue-100 text-blue-700'
+                                : exec.status === 'QUEUED'
+                                ? 'bg-yellow-100 text-yellow-700'
+                                : 'bg-gray-100 text-gray-700'
+                            }`}>
+                              {exec.status === 'COMPLETED' ? 'Success' : exec.status === 'FAILED' ? 'Failed' : exec.status}
+                            </span>
                             <div className="text-right">
                               <p className="text-gray-500 text-xs">Duration</p>
                               <p className="font-medium text-gray-700">{formatDuration(exec.duration)}</p>

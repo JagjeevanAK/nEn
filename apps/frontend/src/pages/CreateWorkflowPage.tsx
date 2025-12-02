@@ -55,8 +55,12 @@ const CreateWorkflowPage = () => {
   } = useWorkflowStore();
 
   useEffect(() => {
-    // Reset workflow to initial state and load necessary data on mount
-    resetWorkflow();
+    // Only reset if there's no work in progress (just the initial trigger node)
+    // This prevents losing work on page refresh
+    const hasOnlyInitialNode = nodes.length <= 1 && nodes[0]?.type === 'addTrigger';
+    if (hasOnlyInitialNode) {
+      resetWorkflow();
+    }
     loadTriggers();
     loadUserCredentials();
     // eslint-disable-next-line react-hooks/exhaustive-deps

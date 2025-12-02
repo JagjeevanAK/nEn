@@ -14,7 +14,6 @@ import { useWorkflowStore } from "@/store/workflowStore";
 import { toast } from "sonner";
 
 export function ScheduledTriggerNode({ data, id }: { data: any; id: string }) {
-  const [scheduleName, setScheduleName] = useState<string>(data?.scheduleName || "");
   const [cronExpression, setCronExpression] = useState<string>(data?.cronExpression || "");
   const [isOpen, setIsOpen] = useState(false);
   const updateNodeData = useWorkflowStore((state) => state.updateNodeData);
@@ -29,34 +28,25 @@ export function ScheduledTriggerNode({ data, id }: { data: any; id: string }) {
   // Sync state with node data ONLY when dialog opens
   useEffect(() => {
     if (isOpen) {
-      setScheduleName(data?.scheduleName || "");
       setCronExpression(data?.cronExpression || "");
     }
   }, [isOpen]);
   // Auto-save changes to store with debounce
   useEffect(() => {
     const timer = setTimeout(() => {
-      // Only update if values are different and valid-ish to avoid constant updates
-      if (
-        (scheduleName !== data?.scheduleName || cronExpression !== data?.cronExpression) &&
-        (scheduleName || cronExpression)
-      ) {
+      // Only update if values are different and valid
+      if (cronExpression !== data?.cronExpression && cronExpression) {
         updateNodeData(id, {
-          scheduleName: scheduleName.trim(),
           cronExpression: cronExpression.trim(),
-          configured: !!(scheduleName && cronExpression)
+          configured: !!cronExpression
         });
       }
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [scheduleName, cronExpression, id, updateNodeData, data?.scheduleName, data?.cronExpression]);
+  }, [cronExpression, id, updateNodeData, data?.cronExpression]);
 
   const handleSave = () => {
-    if (!scheduleName.trim()) {
-      toast.warning("Please enter schedule name");
-      return;
-    }
     if (!cronExpression.trim()) {
       toast.warning("Please enter cron expression");
       return;
@@ -70,7 +60,6 @@ export function ScheduledTriggerNode({ data, id }: { data: any; id: string }) {
     }
 
     updateNodeData(id, {
-      scheduleName: scheduleName.trim(),
       cronExpression: cronExpression.trim(),
       configured: true,
     });
@@ -97,16 +86,6 @@ export function ScheduledTriggerNode({ data, id }: { data: any; id: string }) {
         <DialogContent className="max-w-md">
           <DialogTitle>Configure Schedule Trigger</DialogTitle>
           <div className="space-y-4 mt-4">
-            <div>
-              <label className="text-sm font-medium">Schedule Name</label>
-              <Input
-                placeholder="e.g., Daily report"
-                value={scheduleName}
-                onChange={(e) => setScheduleName(e.target.value)}
-                className="mt-1"
-              />
-            </div>
-
             <div>
               <label className="text-sm font-medium">Cron Expression</label>
               <Input
@@ -155,8 +134,8 @@ export function ScheduledTriggerNode({ data, id }: { data: any; id: string }) {
       </Dialog>
 
       <div className="px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3">
-        <div className="text-xs truncate" title={data?.scheduleName || data.label}>
-          {data?.scheduleName || data.label}
+        <div className="text-xs truncate" title={data.label}>
+          {data.label}
         </div>
         <div className="flex justify-center items-center mt-1">
           <Clock className="w-6 h-6" />
