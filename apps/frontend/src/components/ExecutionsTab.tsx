@@ -233,9 +233,9 @@ export const ExecutionsTabImproved = () => {
 
       {/* Workflow Groups */}
       {!loading && workflowGroups.length > 0 && (
-        <div className="space-y-3">
+        <div className="space-y-3 min-w-0">
           {workflowGroups.map((group) => (
-            <Card key={group.workflowId} className="border border-gray-200 overflow-hidden py-0 gap-0">
+            <Card key={group.workflowId} className="border border-gray-200 overflow-hidden py-0 gap-0 min-w-0">
               {/* Workflow Header */}
               <div
                 onClick={() => toggleWorkflow(group.workflowId)}
@@ -295,24 +295,24 @@ export const ExecutionsTabImproved = () => {
 
               {/* Executions List (Expanded) */}
               {expandedWorkflows.has(group.workflowId) && (
-                <div className="border-t border-gray-200 bg-gray-50">
-                  <div className="divide-y divide-gray-200">
+                <div className="border-t border-gray-200 bg-gray-50 min-w-0">
+                  <div className="divide-y divide-gray-200 min-w-0">
                     {group.executions.map((exec) => {
                       const isExpanded = expandedExecutions.has(exec.id);
                       const details = executionDetails.get(exec.id);
                       const isLoadingDetails = detailsLoading.has(exec.id);
 
                       return (
-                        <div key={exec.id}>
+                        <div key={exec.id} className="min-w-0">
                           <div
                             onClick={() => toggleExecution(exec.id)}
                             onMouseEnter={() => setHoveredExecution(exec.id)}
                             onMouseLeave={() => setHoveredExecution(null)}
-                            className="p-3 hover:bg-white cursor-pointer transition-colors"
+                            className="p-3 hover:bg-white cursor-pointer transition-colors min-w-0"
                           >
-                            <div className="flex items-center justify-between gap-4">
-                              <div className="flex items-center gap-2 text-sm">
-                                <p className="text-gray-700">
+                            <div className="flex items-center justify-between gap-4 min-w-0">
+                              <div className="flex items-center gap-2 text-sm min-w-0">
+                                <p className="text-gray-700 truncate">
                                   <span className="font-medium">
                                     {new Date(exec.startedAt).toLocaleString()}
                                   </span>
@@ -329,7 +329,7 @@ export const ExecutionsTabImproved = () => {
                                 </p>
                               </div>
                               
-                              <div className="flex items-center gap-4">
+                              <div className="flex items-center gap-4 shrink-0">
                                 <span className={`px-2 py-1 rounded text-xs font-medium ${
                                   exec.status === 'COMPLETED' 
                                     ? 'bg-green-100 text-green-700' 

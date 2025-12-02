@@ -246,8 +246,11 @@ export const useWorkflowStore = create<WorkflowState>()(
             node.type === 'scheduleTrigger'
           );
           
-          // If a trigger was deleted and no triggers remain, add back the "Add Trigger" node
-          if (isTriggerNode && !hasRemainingTriggers) {
+          // Check if there's already an addTrigger node
+          const hasAddTriggerNode = updatedNodes.some(node => node.type === 'addTrigger');
+          
+          // If a trigger was deleted and no triggers remain and no addTrigger node exists, add it back
+          if (isTriggerNode && !hasRemainingTriggers && !hasAddTriggerNode) {
             const addTriggerNode: Node = {
               id: "1",
               type: "addTrigger",
