@@ -36,7 +36,7 @@ const nodeTypes = {
 
 const CreateWorkflowPage = () => {
   const navigate = useNavigate();
-  
+
   const {
     nodes,
     edges,
@@ -51,18 +51,20 @@ const CreateWorkflowPage = () => {
     loadTriggers,
     loadUserCredentials,
     isSaving,
-    resetWorkflow, 
+    resetWorkflow,
   } = useWorkflowStore();
 
   useEffect(() => {
+    // Reset workflow to initial state and load necessary data on mount
     resetWorkflow();
     loadTriggers();
     loadUserCredentials();
-  }, [resetWorkflow, loadTriggers, loadUserCredentials]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount, not when function references change
 
   const handleSave = async () => {
     try {
-      const workflowId = await saveWorkflow(); 
+      const workflowId = await saveWorkflow();
       if (workflowId) {
         navigate(`/workflow/${workflowId}`);
       }
@@ -97,7 +99,7 @@ const CreateWorkflowPage = () => {
         >
           <Controls>
             <ControlButton
-              onClick={() => {}}
+              onClick={() => { }}
             />
           </Controls>
           <Background />

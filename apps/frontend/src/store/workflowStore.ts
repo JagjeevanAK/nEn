@@ -61,7 +61,7 @@ export interface WorkflowState {
   setProjectDescription: (description: string) => void;
   resetWorkflow: () => void; // reset to initial state, will use this later as well 
 
-  updateNodeData : (id: string, data: any ) => void; // nodes mai new data ko append krdeta hai - spread and override the existisng vals 
+  updateNodeData: (id: string, data: any) => void; // nodes mai new data ko append krdeta hai - spread and override the existisng vals 
 
   // Actions for triggers
   setTriggers: (triggers: TriggerI[]) => void; // this is used for sheets mai triggers dikhane ke liye AND ek addtrigger node bhi dalne ke liye
@@ -77,7 +77,7 @@ export interface WorkflowState {
   loadUserCredentials: () => Promise<void>; // loading the user credentials 
 
   addActionNode: (actionData: any) => void; // add Action Node with action id 
-  
+
 
   ws: WebSocket | null;
   currExecutionId: string | null;
@@ -121,7 +121,7 @@ export const useWorkflowStore = create<WorkflowState>()(
       nodes: initialNodes,
       edges: [],
       workflowId: undefined,
-      isWorkflowActive: false,
+      isWorkflowActive: true,
       projectName: "My Workflow",
       projectDescription: "",
       triggers: [],
@@ -129,7 +129,6 @@ export const useWorkflowStore = create<WorkflowState>()(
       isLoading: false,
       isSaving: false,
 
-      // Node and edge handlers
       onNodesChange: (changes) => {
         set((state) => ({
           nodes: applyNodeChanges(changes, state.nodes),
@@ -161,7 +160,7 @@ export const useWorkflowStore = create<WorkflowState>()(
           nodes: initialNodes,
           edges: [],
           workflowId: undefined,
-          isWorkflowActive: false,
+          isWorkflowActive: true,
           projectName: "My Workflow",
           projectDescription: "",
         });
@@ -174,13 +173,13 @@ export const useWorkflowStore = create<WorkflowState>()(
           nodes: state.nodes.map((node) =>
             node.id === "1"
               ? {
-                  ...node,
-                  data: {
-                    ...node.data,
-                    triggers,
-                    onSelectTrigger: get().addTriggerNode,
-                  },
-                }
+                ...node,
+                data: {
+                  ...node.data,
+                  triggers,
+                  onSelectTrigger: get().addTriggerNode,
+                },
+              }
               : node
           ),
         }));
@@ -216,11 +215,11 @@ export const useWorkflowStore = create<WorkflowState>()(
         set({ userCredentials: credentials });
       },
 
-      updateNodeData : (nodeId: string, newData: any) =>{
+      updateNodeData: (nodeId: string, newData: any) => {
         set((state) => {
           return {
-            nodes: state.nodes.map(node => 
-              node.id === nodeId ? { ...node , data:{...node.data , ...newData } } : node
+            nodes: state.nodes.map(node =>
+              node.id === nodeId ? { ...node, data: { ...node.data, ...newData } } : node
             )
           }
         })
@@ -487,8 +486,8 @@ export const useWorkflowStore = create<WorkflowState>()(
           toast.dismiss("workflow-execution");
           toast.error("Failed to execute workflow");
           set({ isExecuting: false });
-         
-            get().disconnectWebSocket();
+
+          get().disconnectWebSocket();
         }
       },
     }),

@@ -8,6 +8,7 @@ import { BACKEND_URL } from "@/config/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Pencil, Save, Trash } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ExecutionsTab } from "@/components/ExecutionsTab";
 import {
   Dialog,
   DialogContent,
@@ -127,7 +128,7 @@ export const DashboardTabs = () => {
           <TabsList className="gap py-5.5 bg-neutral-100">
             <TabsTrigger className="p-4" value="workflows">WorkFlows</TabsTrigger>
             <TabsTrigger className="p-4" value="credentials">Credentials</TabsTrigger>
-            {/* <TabsTrigger value="executions">Executions</TabsTrigger> */}
+            <TabsTrigger className="p-4" value="executions">Executions</TabsTrigger>
           </TabsList>
         </div>
 
@@ -376,7 +377,7 @@ export const DashboardTabs = () => {
 
         {/* Executions */}
         <TabsContent value="executions">
-          <div>Executions</div>
+          <ExecutionsTab />
         </TabsContent>
       </Tabs>
     </div>

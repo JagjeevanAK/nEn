@@ -10,6 +10,7 @@ import { trace } from "@opentelemetry/api";
 import logger, { createChildLogger } from "./utils/logger";
 import { scheduleService } from "./services/scheduleService";
 import { createAIWorker } from "./workers/ai-worker";
+import { prisma } from "@nen/db";
 
 const tracer = trace.getTracer("nen-engine");
 
@@ -26,6 +27,20 @@ const worker = new Worker(
     const jobLogger = createChildLogger(exectionData.executionId);
 
     try {
+      // Create execution record in database
+      await prisma.workflowExecution.create({
+        data: {
+          id: exectionData.executionId,
+          workflowId: exectionData.workflow.id,
+          workflowName: exectionData.workflow.name,
+          userId: exectionData.userId,
+          status: "RUNNING",
+          triggeredBy: exectionData.triggeredBy,
+          metadata: exectionData.metadata || {},
+          nodeResults: [],
+        },
+      });
+
       jobLogger.info("Starting workflow execution", {
         workflowId: exectionData.workflow.id,
         workflowName: exectionData.workflow.name,
@@ -54,16 +69,48 @@ const worker = new Worker(
       jobLogger.info("Executing workflow", { workflowId: exectionData.workflow.id });
       await workflowObj.execute();
 
-      const duration = (Date.now() - start) / 1000;
-      queueProcessingDuration.observe({ queue_name: "workflow:execution" }, duration);
+      const duration = Date.now() - start;
+
+      // Update execution record on completion
+      await prisma.workflowExecution.update({
+        where: { id: exectionData.executionId },
+        data: {
+          status: "COMPLETED",
+          finishedAt: new Date(),
+          duration: duration,
+          nodeResults: Array.from(workflowObj.nodeOutputs.entries()).map(([nodeId, output]) => ({
+            nodeId,
+            status: "completed",
+            output,
+            executedAt: new Date(),
+          })),
+        },
+      });
+
+      queueProcessingDuration.observe({ queue_name: "workflow:execution" }, duration / 1000);
       queueJobsCounter.inc({ queue_name: "workflow:execution", status: "completed" });
       jobLogger.info("Workflow execution completed", {
         workflowId: exectionData.workflow.id,
-        duration
+        duration: duration / 1000
       });
       span.setStatus({ code: 1 }); // OK
       span.end();
     } catch (error: any) {
+      // Update execution record on failure
+      try {
+        await prisma.workflowExecution.update({
+          where: { id: exectionData.executionId },
+          data: {
+            status: "FAILED",
+            finishedAt: new Date(),
+            duration: Date.now() - start,
+            error: error.message || String(error),
+          },
+        });
+      } catch (dbError) {
+        jobLogger.error("Failed to update execution record", { error: dbError });
+      }
+
       jobLogger.error("Workflow execution failed", {
         workflowId: exectionData.workflow.id,
         error: error.message,
