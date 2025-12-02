@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   ReactFlow,
+  ReactFlowProvider,
+  useReactFlow,
   type FitViewOptions,
   type OnNodeDrag,
   type DefaultEdgeOptions,
@@ -34,9 +36,16 @@ const nodeTypes = {
   webhookTrigger: WebhookTriggerNode,
 };
 
-const CreateWorkflowPage = () => {
+const CreateWorkflowContent = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { screenToFlowPosition } = useReactFlow();
+
+  const getViewportCenter = () => {
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    return screenToFlowPosition({ x: centerX, y: centerY });
+  };
 
   const {
     nodes,
@@ -89,6 +98,7 @@ const CreateWorkflowPage = () => {
         onActiveToggle={setIsWorkflowActive}
         onNameChange={setProjectName}
         isSaving={isSaving}
+        getViewportCenter={getViewportCenter}
       />
       <div className="flex-1">
         <ReactFlow
@@ -114,6 +124,14 @@ const CreateWorkflowPage = () => {
         </ReactFlow>
       </div>
     </div>
+  );
+};
+
+const CreateWorkflowPage = () => {
+  return (
+    <ReactFlowProvider>
+      <CreateWorkflowContent />
+    </ReactFlowProvider>
   );
 };
 

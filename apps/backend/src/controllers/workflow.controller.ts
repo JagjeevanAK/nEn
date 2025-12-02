@@ -47,6 +47,15 @@ export const saveWorkflow = asyncHandler(async (req, res) => {
       correlationId: req.correlationId
     });
 
+    try {
+      await publisherRedis.publish(
+        "workflow:schedule:refresh",
+        JSON.stringify({ workflowId: savedWorkflow.id })
+      );
+    } catch (error) {
+      logger.warn("Failed to publish schedule refresh event", { error, workflowId: savedWorkflow.id });
+    }
+
     res.status(201).json(
       new ApiResponse(201, "workflow created successfully", {
         workflowId: savedWorkflow.id,

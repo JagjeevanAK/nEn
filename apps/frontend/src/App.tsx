@@ -9,6 +9,7 @@ import { AppSidebar } from "./components/AppSidebar";
 import WorkflowPage from "./pages/WorkflowPage";
 import CreateWorkflowPage from "./pages/CreateWorkflowPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { PublicRoute } from "./components/PublicRoute";
 import Landing from "./pages/Landing";
 
 function App() {
@@ -18,9 +19,9 @@ function App() {
         {/* Public landing page */}
         <Route element={<Landing />} path="/" />
         
-        {/* Auth routes without sidebar */}
-        <Route element={<SignIn />} path="/signin" />
-        <Route element={<Signup />} path="/signup" />
+        {/* Auth routes - redirect to dashboard if already logged in */}
+        <Route element={<PublicRoute><SignIn /></PublicRoute>} path="/signin" />
+        <Route element={<PublicRoute><Signup /></PublicRoute>} path="/signup" />
 
         {/* Protected dashboard route with sidebar */}
         <Route

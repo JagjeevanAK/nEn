@@ -59,7 +59,7 @@ export interface WorkflowState {
   deleteNode: (nodeId: string) => void;
 
   setTriggers: (triggers: TriggerI[]) => void;
-  addTriggerNode: (trigger: TriggerI) => void;
+  addTriggerNode: (trigger: TriggerI, position?: { x: number; y: number }) => void;
 
   setUserCredentials: (credentials: UserCredentials[]) => void;
 
@@ -68,7 +68,7 @@ export interface WorkflowState {
   loadTriggers: () => Promise<void>;
   loadUserCredentials: () => Promise<void>;
 
-  addActionNode: (actionData: any) => void; 
+  addActionNode: (actionData: any, position?: { x: number; y: number }) => void; 
 
 
   ws: WebSocket | null;
@@ -177,15 +177,18 @@ export const useWorkflowStore = create<WorkflowState>()(
         }));
       },
 
-      addTriggerNode: (trigger) => {
+      addTriggerNode: (trigger, position) => {
         const { nodes } = get();
 
         const needsConfiguration = trigger.type === 'schedule' || trigger.type === 'webhook';
 
+        const defaultPosition = { x: 100 + nodes.length * 50, y: 100 };
+        const nodePosition = position || defaultPosition;
+
         const newNode: Node = {
           id: `trigger-${nodes.length}`,
           type: getNodeType(trigger.type),
-          position: { x: 0 + nodes.length * 150, y: 10 },
+          position: nodePosition,
           data: {
             label: trigger.name,
             description: trigger.description,
@@ -267,13 +270,16 @@ export const useWorkflowStore = create<WorkflowState>()(
       },
 
       // Action node management
-      addActionNode: (actionData) => {
+      addActionNode: (actionData, position) => {
         const { nodes } = get();
+
+        const defaultPosition = { x: 100 + nodes.length * 50, y: 250 };
+        const nodePosition = position || defaultPosition;
 
         const newNode: Node = {
           id: `action-${nodes.length}`,
           type: "action",
-          position: { x: 0 + nodes.length * 150, y: 200 },
+          position: nodePosition,
           data: {
             label: actionData.name || "Action",
             actionType: actionData.type,

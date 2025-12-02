@@ -23,6 +23,7 @@ interface CreateWorkflowNavbarProps {
   onActiveToggle?: (active: boolean) => void;
   onNameChange?: (newName: string) => void;
   isSaving?: boolean;
+  getViewportCenter?: () => { x: number; y: number };
 }
 
 export function CreateWorkflowNavbar({
@@ -32,6 +33,7 @@ export function CreateWorkflowNavbar({
   onActiveToggle,
   onNameChange,
   isSaving = false,
+  getViewportCenter,
 }: CreateWorkflowNavbarProps) {
   const [dialogState, setDialogState] = useState("actions");
   const [selectedAction, setSelectedAction] = useState<ActionI | null>(null);
@@ -74,6 +76,7 @@ export function CreateWorkflowNavbar({
   }) => {
     console.log("Form submitted:", data);
 
+    const position = getViewportCenter?.();
     addActionNode({
       name: data.action.name,
       type: data.action.type,
@@ -82,7 +85,7 @@ export function CreateWorkflowNavbar({
       credentials: data.credentials,
       metadata: data.metadata,
       actionDefinition: data.action,
-    });
+    }, position);
 
     setDialogState("actions");
     setSelectedAction(null);

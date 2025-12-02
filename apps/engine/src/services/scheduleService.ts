@@ -50,13 +50,18 @@ class ScheduleService {
         where: { active: true },
       });
 
+      logger.info(`Found ${activeWorkflows.length} active workflows to check for schedules`);
+
       for (const workflow of activeWorkflows) {
         const nodes = workflow.nodes as unknown as Array<{ id: string; type: string; data?: Record<string, unknown> }>;
         const scheduleTriggers = nodes.filter(
           (node) => node.type === "scheduleTrigger"
         );
 
+        logger.debug(`Workflow ${workflow.id}: found ${scheduleTriggers.length} schedule triggers`);
+
         for (const trigger of scheduleTriggers) {
+          logger.debug(`Checking trigger ${trigger.id}, data: ${JSON.stringify(trigger.data)}`);
           if (trigger.data && typeof trigger.data.cronExpression === 'string') {
             this.scheduleWorkflow(
               workflow.id,
@@ -64,6 +69,8 @@ class ScheduleService {
               trigger.data.cronExpression,
               workflow.userId
             );
+          } else {
+            logger.warn(`Trigger ${trigger.id} in workflow ${workflow.id} missing cronExpression. Data: ${JSON.stringify(trigger.data)}`);
           }
         }
       }
@@ -190,14 +197,11 @@ class ScheduleService {
   async refreshWorkflowSchedules(workflowId: string) {
     try {
       const existingJobs = Array.from(this.scheduledJobs.entries()).filter(
-        ([key]) => key.startsWith(workflowId)
+        ([, job]) => job.workflowId === workflowId
       );
 
-      for (const [key] of existingJobs) {
-        const parts = key.split("-");
-        if (parts.length >= 2 && parts[0] && parts[1]) {
-          this.unscheduleWorkflow(parts[0], parts[1]);
-        }
+      for (const [, job] of existingJobs) {
+        this.unscheduleWorkflow(job.workflowId, job.nodeId);
       }
 
       const workflow = await prisma.workflow.findUnique({

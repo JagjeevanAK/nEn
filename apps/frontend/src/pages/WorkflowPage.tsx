@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import {
   ReactFlow,
+  ReactFlowProvider,
+  useReactFlow,
   type FitViewOptions,
   type OnNodeDrag,
   type DefaultEdgeOptions,
@@ -37,8 +39,15 @@ const nodeTypes = {
   action: ActionNode,
 };
 
-const WorkflowPage = () => {
+const WorkflowContent = () => {
   const { workflowId } = useParams();
+  const { screenToFlowPosition } = useReactFlow();
+
+  const getViewportCenter = () => {
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    return screenToFlowPosition({ x: centerX, y: centerY });
+  };
 
   const {
     nodes,
@@ -143,6 +152,7 @@ const WorkflowPage = () => {
         onNameChange={useWorkflowStore.getState().setProjectName}
         isSaving={isSaving}
         isViewMode={true}
+        getViewportCenter={getViewportCenter}
       />
       <div className="flex-1 relative">
         <ReactFlow
@@ -208,6 +218,14 @@ const WorkflowPage = () => {
         )}
       </div>
     </div>
+  );
+};
+
+const WorkflowPage = () => {
+  return (
+    <ReactFlowProvider>
+      <WorkflowContent />
+    </ReactFlowProvider>
   );
 };
 

@@ -16,6 +16,7 @@ interface WorkflowNavbarProps {
   onNameChange?: (newName: string) => void;
   isSaving?: boolean;
   isViewMode?: boolean;
+  getViewportCenter?: () => { x: number; y: number };
 }
 
 export function WorkflowNavbar({
@@ -26,6 +27,7 @@ export function WorkflowNavbar({
   onNameChange,
   isSaving = false,
   isViewMode = false,
+  getViewportCenter,
 }: WorkflowNavbarProps) {
   const [dialogState, setDialogState] = useState("actions");
   const [selectedAction, setSelectedAction] = useState<ActionI | null>(null);
@@ -61,6 +63,7 @@ export function WorkflowNavbar({
   }) => {
     console.log("Form submitted:", data);
 
+    const position = getViewportCenter?.();
     addActionNode({
       name: data.action.name,
       type: data.action.type,
@@ -69,7 +72,7 @@ export function WorkflowNavbar({
       credentials: data.credentials,
       metadata: data.metadata,
       actionDefinition: data.action,
-    });
+    }, position);
 
     setDialogState("actions");
     setSelectedAction(null);
