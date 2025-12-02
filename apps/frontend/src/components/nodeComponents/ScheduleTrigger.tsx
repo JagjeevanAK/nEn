@@ -26,13 +26,31 @@ export function ScheduledTriggerNode({ data, id }: { data: any; id: string }) {
     }
   }, [data?.autoOpen, data?.configured, id, updateNodeData]);
 
-  // Sync state with node data when dialog opens or data changes
+  // Sync state with node data ONLY when dialog opens
   useEffect(() => {
     if (isOpen) {
       setScheduleName(data?.scheduleName || "");
       setCronExpression(data?.cronExpression || "");
     }
-  }, [isOpen, data?.scheduleName, data?.cronExpression]);
+  }, [isOpen]);
+  // Auto-save changes to store with debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Only update if values are different and valid-ish to avoid constant updates
+      if (
+        (scheduleName !== data?.scheduleName || cronExpression !== data?.cronExpression) &&
+        (scheduleName || cronExpression)
+      ) {
+        updateNodeData(id, {
+          scheduleName: scheduleName.trim(),
+          cronExpression: cronExpression.trim(),
+          configured: !!(scheduleName && cronExpression)
+        });
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [scheduleName, cronExpression, id, updateNodeData, data?.scheduleName, data?.cronExpression]);
 
   const handleSave = () => {
     if (!scheduleName.trim()) {
@@ -45,7 +63,7 @@ export function ScheduledTriggerNode({ data, id }: { data: any; id: string }) {
     }
 
     // Basic cron validation
-    const parts = cronExpression.split(" ");
+    const parts = cronExpression.trim().split(" ");
     if (parts.length < 5 || parts.length > 6) {
       toast.error("Invalid cron expression. Use format: * * * * * or * * * * * *");
       return;
@@ -56,6 +74,7 @@ export function ScheduledTriggerNode({ data, id }: { data: any; id: string }) {
       cronExpression: cronExpression.trim(),
       configured: true,
     });
+
     toast.success("Schedule configured successfully");
     setIsOpen(false);
   };

@@ -35,9 +35,9 @@ export const UserCredentialsSchema = z.object({
   appIcon: z.string(),
   apiName: z.string(),
   application: z.string(),
-   type: z.string().nullable().optional(),
+  type: z.string().nullable().optional(),
   userId: z.string(),
-  createdAt: z.coerce.date().optional(), 
+  createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   data: z.any()
 });
@@ -64,7 +64,11 @@ export const NodeDataSchema = z.object({
   name: z.string().optional(),
   type: z.string().optional(),
   parameters: z.any().optional(),
-  actionDefination: z.any().optional()
+  actionDefination: z.any().optional(),
+  cronExpression: z.string().optional(),
+  scheduleName: z.string().optional(),
+  configured: z.boolean().optional(),
+  autoOpen: z.boolean().optional(),
 });
 
 export const INodeSchema = z.object({
