@@ -3,6 +3,16 @@ export const actionSchemas: Record<string, any> = {
   Telegram: {
     fields: [
       {
+        name: "useOutputFromPreviousNode",
+        label: "Use Output from Previous Node",
+        type: "toggle",
+        required: false,
+        defaultValue: false,
+        description: "Automatically use the output from the previous node as the message content",
+        autoPopulateField: "message",
+        autoPopulateTemplate: "{{previousNode.content}}"
+      },
+      {
         name: "chatId",
         label: "Chat ID",
         type: "text",
@@ -15,8 +25,8 @@ export const actionSchemas: Record<string, any> = {
         label: "Message",
         type: "textarea",
         required: true,
-        placeholder: "Enter your message here...",
-        description: "The message content to send"
+        placeholder: "Enter your message here... Or use {{previousNode.content}} for dynamic data",
+        description: "The message content to send. Supports dynamic templates like {{previousNode.content}}"
       },
       {
         name: "parseMode",
@@ -29,18 +39,29 @@ export const actionSchemas: Record<string, any> = {
       }
     ]
   },
-  GmailTrigger:{
-    fields:[]
+  GmailTrigger: {
+    fields: []
   },
-  
+
   OpenAi: {
     fields: [
+      {
+        name: "useOutputFromPreviousNode",
+        label: "Use Output from Previous Node",
+        type: "toggle",
+        required: false,
+        defaultValue: false,
+        description: "Use the previous node's output as the prompt (useful for processing emails, webhooks, etc.)",
+        autoPopulateField: "prompt",
+        autoPopulateTemplate: "{{previousNode.content}}"
+      },
       {
         name: "prompt",
         label: "Prompt",
         type: "textarea",
         required: true,
-        placeholder: "Enter your prompt...",
+        placeholder: "Enter your prompt... Or use {{previousNode.content}} to reference previous output",
+        description: "The prompt for the AI. Supports dynamic templates like {{previousNode.content}} or {{previousNode.data.body}}"
       },
       {
         name: "model",
@@ -55,11 +76,22 @@ export const actionSchemas: Record<string, any> = {
   OpenRouter: {
     fields: [
       {
+        name: "useOutputFromPreviousNode",
+        label: "Use Output from Previous Node",
+        type: "toggle",
+        required: false,
+        defaultValue: false,
+        description: "Use the previous node's output as the prompt (useful for processing emails, webhooks, etc.)",
+        autoPopulateField: "prompt",
+        autoPopulateTemplate: "{{previousNode.content}}"
+      },
+      {
         name: "prompt",
         label: "Prompt",
         type: "textarea",
         required: true,
-        placeholder: "Enter your prompt...",
+        placeholder: "Enter your prompt... Or use {{previousNode.content}} to reference previous output",
+        description: "The prompt for the AI. Supports dynamic templates like {{previousNode.content}} or {{previousNode.data}}"
       },
       {
         name: "model",
@@ -115,6 +147,16 @@ export const actionSchemas: Record<string, any> = {
   Resend: {
     fields: [
       {
+        name: "useOutputFromPreviousNode",
+        label: "Use Output from Previous Node",
+        type: "toggle",
+        required: false,
+        defaultValue: false,
+        description: "Automatically use the output from the previous node as the email content",
+        autoPopulateField: "html",
+        autoPopulateTemplate: "<p>{{previousNode.content}}</p>"
+      },
+      {
         name: "from",
         label: "From",
         type: "text",
@@ -135,16 +177,16 @@ export const actionSchemas: Record<string, any> = {
         label: "Subject",
         type: "text",
         required: true,
-        placeholder: "Your email subject",
-        description: "Email subject line"
+        placeholder: "Your email subject... Or use {{previousNode.subject}} for email threads",
+        description: "Email subject line. Supports templates like Re: {{previousNode.subject}}"
       },
       {
         name: "html",
         label: "HTML Content",
         type: "textarea",
         required: true,
-        placeholder: "<h1>Hello</h1><p>Your email content here...</p>",
-        description: "Email body in HTML format"
+        placeholder: "<h1>Hello</h1><p>Your email content here...</p> Or use {{previousNode.content}}",
+        description: "Email body in HTML format. Supports dynamic templates like <p>{{previousNode.content}}</p>"
       },
       {
         name: "text",

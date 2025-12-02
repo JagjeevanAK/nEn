@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button } from "@/components/ui/button";
 import { DialogTitle } from "@radix-ui/react-dialog";
+import { Switch } from "@/components/ui/switch";
 import {
   ArrowLeft,
   Database,
@@ -39,7 +40,7 @@ export const availableActions: ActionI[] = [
     id: "email-trigger",
     name: "GmailTrigger",
     type: "GmailTrigger",
-    application:"google",
+    application: "google",
     description: "When a mail hits your Inbox",
     icon: <Mail className="w-5 h-5" />,
     category: "Communication",
@@ -101,6 +102,21 @@ export const ActionForm = ({
       ...prev,
       [fieldName]: value,
     }));
+  };
+
+  // Handle toggle changes and auto-populate target field
+  const handleToggleChange = (toggleField: any, isEnabled: boolean) => {
+    const newFormData = {
+      ...formData,
+      [toggleField.name]: isEnabled,
+    };
+
+    // If toggle is enabled and has auto-populate config, fill the target field
+    if (isEnabled && toggleField.autoPopulateField && toggleField.autoPopulateTemplate) {
+      newFormData[toggleField.autoPopulateField] = toggleField.autoPopulateTemplate;
+    }
+
+    setFormData(newFormData);
   };
 
   const userCredentials = useWorkflowStore((state) => state.userCredentials);
@@ -282,7 +298,7 @@ export const ActionForm = ({
                 required={field.required}
               >
                 <option value="">Select {field.label}</option>
-                {field.options?.map((option:any) => (
+                {field.options?.map((option: any) => (
                   <option key={option} value={option}>
                     {option}
                   </option>
@@ -302,6 +318,27 @@ export const ActionForm = ({
                 step={field.step}
                 placeholder={field.placeholder}
               />
+            )}
+
+            {field.type === "toggle" && (
+              <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                <Switch
+                  checked={formData[field.name] || field.defaultValue || false}
+                  onCheckedChange={(checked) => handleToggleChange(field, checked)}
+                  className="data-[state=checked]:bg-teal-500"
+                />
+                <div className="flex-1">
+                  <p className="text-sm text-blue-800">
+                    {formData[field.name]
+                      ? `✅ Using: ${field.autoPopulateTemplate}`
+                      : "Use manual input"}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {field.description && (
+              <p className="text-xs text-gray-500 mt-1">{field.description}</p>
             )}
           </div>
         ))}
