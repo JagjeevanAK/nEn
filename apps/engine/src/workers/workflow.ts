@@ -187,20 +187,36 @@ export class Workflow {
         if (!this.actionExecutor) {
           await this.loadCredentials();
         }
-        // preparing context from previous node outputs
+        // Prepare context from previous node outputs
         const previousOutputs = Object.fromEntries(this.nodeOutputs);
-        
+
+        // Find the parent node(s) connected to this node via edges
+        // and add as 'previousNode' alias for template resolution
+        const parentEdges = this.executionData.workflow.edges.filter(
+          edge => edge.target === nodeId
+        );
+
+        if (parentEdges.length > 0) {
+          const parentNodeId = parentEdges[0]!.source;
+          const parentOutput = this.nodeOutputs.get(parentNodeId);
+
+          if (parentOutput) {
+            previousOutputs.previousNode = parentOutput;
+            console.log(`Added previousNode alias: ${parentNodeId} -> previousNode`);
+          }
+        }
+
         console.log("\n╔════════════════════════════════════════════════════");
-        console.log("║ 🔗 DATA FLOW CONTEXT");
+        console.log("║ DATA FLOW CONTEXT");
         console.log("╠════════════════════════════════════════════════════");
         console.log(`║ Current Node: ${node.id} (${node.data.actionType})`);
         console.log("║ Available Data from Previous Nodes:");
-        
+
         if (Object.keys(previousOutputs).length === 0) {
           console.log("║   (No previous outputs available)");
         } else {
           for (const [nodeId, output] of Object.entries(previousOutputs)) {
-            console.log(`║   📦 ${nodeId}:`);
+            console.log(`║    ${nodeId}:`);
             if (output && typeof output === 'object') {
               const keys = Object.keys(output);
               console.log(`║      Available fields: ${keys.join(', ')}`);
@@ -222,8 +238,8 @@ export class Workflow {
         // store the output for subsequent nodes
         this.nodeOutputs.set(nodeId, output);
 
-        console.log("\n✅ Action completed successfully");
-        console.log("📤 Output stored for node:", nodeId);
+        console.log("\nAction completed successfully");
+        console.log(" Output stored for node:", nodeId);
         console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
         console.log(`Action ${node.data.actionType} completed:`, output);

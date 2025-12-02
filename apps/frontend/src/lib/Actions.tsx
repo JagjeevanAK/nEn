@@ -330,7 +330,7 @@ export const ActionForm = ({
                 <div className="flex-1">
                   <p className="text-sm text-blue-800">
                     {formData[field.name]
-                      ? `✅ Using: ${field.autoPopulateTemplate}`
+                      ? `Using: ${field.autoPopulateTemplate}`
                       : "Use manual input"}
                   </p>
                 </div>
