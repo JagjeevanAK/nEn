@@ -439,9 +439,16 @@ export class ActionExecutor {
     console.log("CONTEXTT===>>", context);
     console.log();
     const botToken = credConfig?.data?.accessToken;
-    const chatId = this.resolveDynamicValue(params.chatId, context);
+    let chatId = this.resolveDynamicValue(params.chatId, context);
     const message = this.resolveDynamicValue(params.message, context);
     const parseMode = params.parseMode;
+
+    if (chatId) {
+      chatId = chatId.toString().trim();
+      if (chatId && !chatId.startsWith('@') && isNaN(Number(chatId))) {
+        chatId = `@${chatId}`;
+      }
+    }
 
     console.log("Bot token:", botToken);
     console.log("Chat ID:", chatId);
@@ -453,10 +460,14 @@ export class ActionExecutor {
 
     console.log("Telegram URL:", telegramUrl);
 
-    const payload = {
+    const payload: any = {
       chat_id: chatId,
       text: message,
     };
+
+    if (parseMode && parseMode !== 'None' && parseMode !== '') {
+      payload.parse_mode = parseMode;
+    }
 
     console.log("Payload:", JSON.stringify(payload, null, 2));
 

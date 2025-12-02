@@ -7,8 +7,8 @@ export const actionSchemas: Record<string, any> = {
         label: "Chat ID",
         type: "text",
         required: true,
-        placeholder: "Enter Telegram chat ID or @username",
-        description: "The chat ID or username to send message to"
+        placeholder: "Enter chat ID (e.g., 123456789) or username (e.g., @username or username)",
+        description: "Numeric chat ID or username (@ is optional, will be added automatically)"
       },
       {
         name: "message",
@@ -23,8 +23,9 @@ export const actionSchemas: Record<string, any> = {
         label: "Parse Mode",
         type: "select",
         required: false,
-        options: ["HTML", "Markdown", "MarkdownV2"],
-        placeholder: "Select parse mode (optional)"
+        options: ["None", "HTML", "Markdown", "MarkdownV2"],
+        placeholder: "Select parse mode (optional)",
+        description: "Format for the message text. None = plain text, HTML/Markdown for rich formatting"
       }
     ]
   },
