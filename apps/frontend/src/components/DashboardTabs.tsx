@@ -8,7 +8,7 @@ import { BACKEND_URL } from "@/config/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Pencil, Save, Trash } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { ExecutionsTab } from "@/components/ExecutionsTab";
+import { ExecutionsTabImproved } from "@/components/ExecutionsTab";
 import {
   Dialog,
   DialogContent,
@@ -377,7 +377,7 @@ export const DashboardTabs = () => {
 
         {/* Executions */}
         <TabsContent value="executions">
-          <ExecutionsTab />
+          <ExecutionsTabImproved />
         </TabsContent>
       </Tabs>
     </div>

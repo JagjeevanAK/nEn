@@ -47,16 +47,6 @@ export const actionSchemas: Record<string, any> = {
         type: "select",
         required: true,
         options: ["gpt-5-mini", "gpt-5", "gpt-5.1"],
-      },
-      {
-        name: "maxTokens",
-        label: "Max Tokens",
-        type: "number",
-        required: false,
-        min: 1,
-        max: 4000,
-        step: 1,
-        placeholder: "2000"
       }
     ]
   },
@@ -82,28 +72,8 @@ export const actionSchemas: Record<string, any> = {
           "anthropic/claude-4.5-opus",
           "anthropic/claude-4-sonnet",
           "anthropic/claude-4.5-haiku",
-          "google/gemini-",
+          "google/gemini-3",
         ],
-      },
-      {
-        name: "maxTokens",
-        label: "Max Tokens",
-        type: "number",
-        required: false,
-        min: 1,
-        max: 8000,
-        step: 1,
-        placeholder: "2000"
-      },
-      {
-        name: "temperature",
-        label: "Temperature",
-        type: "number",
-        required: false,
-        min: 0,
-        max: 2,
-        step: 0.1,
-        placeholder: "0.7"
       }
     ]
   },
