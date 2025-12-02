@@ -56,18 +56,18 @@ const CreateWorkflowPage = () => {
   } = useWorkflowStore();
 
   useEffect(() => {
-    // Check if we're coming from a fresh navigation (not a refresh)
-    // Reset workflow when explicitly navigating to /create route
-    const shouldReset = location.state?.resetWorkflow !== false;
-    
-    if (shouldReset) {
+    // Only reset if explicitly navigating (location.state.resetWorkflow === true)
+    // This preserves work on page refresh but resets on button clicks
+    if (location.state?.resetWorkflow === true) {
       resetWorkflow();
+      // Clear the navigation state to prevent reset on subsequent renders
+      window.history.replaceState({}, document.title);
     }
     
     loadTriggers();
     loadUserCredentials();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname]); // Reset when route changes
+  }, [location.key]); // Trigger on navigation changes
 
   const handleSave = async () => {
     try {

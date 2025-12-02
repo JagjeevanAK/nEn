@@ -155,7 +155,7 @@ export const DashboardTabs = () => {
                   onClick={() => {
                     navigate(`/workflow/${wf.id}`);
                   }}
-                  className=" bg-teal-100/20 shadow-sm cursor-pointer py-0 px-0 hover:shadow-md transition rounded-lg gap-2 border border-gray-200"
+                  className=" bg-teal-100/20 shadow-sm cursor-pointer py-4 px-0 hover:shadow-md transition rounded-lg gap-2 border border-gray-200"
                 >
                   <CardHeader className="flex flex-row items-center justify-between px-3 gap-2">
                     <CardTitle className=" flw text-base">{wf.name}</CardTitle>

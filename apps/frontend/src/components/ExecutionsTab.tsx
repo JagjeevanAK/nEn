@@ -31,6 +31,9 @@ interface Execution {
   finishedAt: string | null;
   duration: number | null;
   error: string | null;
+  workflow?: {
+    active: boolean;
+  };
 }
 
 interface ExecutionDetails extends Execution {
@@ -49,11 +52,13 @@ interface WorkflowGroup {
     running: number;
   };
   lastRun: string;
+  isActive: boolean;
 }
 
 export const ExecutionsTabImproved = () => {
   const [workflowGroups, setWorkflowGroups] = useState<WorkflowGroup[]>([]);
   const [expandedWorkflows, setExpandedWorkflows] = useState<Set<string>>(new Set());
+  const [hoveredWorkflow, setHoveredWorkflow] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
   const [selectedExecution, setSelectedExecution] = useState<ExecutionDetails | null>(null);
@@ -90,6 +95,7 @@ export const ExecutionsTabImproved = () => {
               running: 0,
             },
             lastRun: exec.startedAt,
+            isActive: exec.workflow?.active ?? true,
           };
         }
 
@@ -241,45 +247,56 @@ export const ExecutionsTabImproved = () => {
               {/* Workflow Header */}
               <div
                 onClick={() => toggleWorkflow(group.workflowId)}
+                onMouseEnter={() => setHoveredWorkflow(group.workflowId)}
+                onMouseLeave={() => setHoveredWorkflow(null)}
                 className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 flex-1">
-                    <div className="shrink-0">
-                      {expandedWorkflows.has(group.workflowId) ? (
-                        <ChevronDown className="w-5 h-5 text-gray-600" />
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-semibold text-gray-900">{group.workflowName}</h4>
+                    {hoveredWorkflow === group.workflowId && (
+                      expandedWorkflows.has(group.workflowId) ? (
+                        <ChevronDown className="w-[1em] h-[1em] text-gray-600" />
                       ) : (
-                        <ChevronRight className="w-5 h-5 text-gray-600" />
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900">{group.workflowName}</h4>
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        Last run: {formatRelativeTime(group.lastRun)}
-                      </p>
-                    </div>
+                        <ChevronRight className="w-[1em] h-[1em] text-gray-600" />
+                      )
+                    )}
+                    <p className="text-xs text-gray-500">
+                      Last run: {formatRelativeTime(group.lastRun)}
+                    </p>
                   </div>
                   
-                  {/* Stats Badges */}
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700">
-                      {group.stats.total} total
+                  <div className="flex items-center gap-4">
+                    {/* Active Status Label - Middle */}
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${
+                      group.isActive 
+                        ? 'bg-green-100 text-green-700' 
+                        : 'bg-gray-100 text-gray-700'
+                    }`}>
+                      {group.isActive ? 'Active' : 'Not Active'}
                     </span>
-                    {group.stats.completed > 0 && (
-                      <span className="px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-700">
-                        ✓ {group.stats.completed}
+                    
+                    {/* Stats Badges */}
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700">
+                        {group.stats.total} total
                       </span>
-                    )}
-                    {group.stats.failed > 0 && (
-                      <span className="px-2 py-1 rounded-md text-xs font-medium bg-red-100 text-red-700">
-                        ✕ {group.stats.failed}
-                      </span>
-                    )}
-                    {group.stats.running > 0 && (
-                      <span className="px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-700 animate-pulse">
-                        ▶ {group.stats.running}
-                      </span>
-                    )}
+                      {group.stats.completed > 0 && (
+                        <span className="px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-700">
+                          ✓ {group.stats.completed}
+                        </span>
+                      )}
+                      {group.stats.failed > 0 && (
+                        <span className="px-2 py-1 rounded-md text-xs font-medium bg-red-100 text-red-700">
+                          ✕ {group.stats.failed}
+                        </span>
+                      )}
+                      {group.stats.running > 0 && (
+                        <span className="px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-700 animate-pulse">
+                          ▶ {group.stats.running}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -294,22 +311,20 @@ export const ExecutionsTabImproved = () => {
                         onClick={() => fetchExecutionDetails(exec.id)}
                         className="p-3 hover:bg-white cursor-pointer transition-colors"
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3 flex-1">
-                            <div className="text-sm">
-                              <p className="text-gray-700">
-                                <span className="font-medium">
-                                  {new Date(exec.startedAt).toLocaleString()}
-                                </span>
-                              </p>
-                              <p className="text-xs text-gray-500 mt-0.5">
-                                Triggered by: <span className="font-medium capitalize">{exec.triggeredBy}</span>
-                              </p>
-                            </div>
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="text-sm">
+                            <p className="text-gray-700">
+                              <span className="font-medium">
+                                {new Date(exec.startedAt).toLocaleString()}
+                              </span>
+                            </p>
+                            <p className="text-xs text-gray-500 mt-0.5">
+                              Triggered by: <span className="font-medium capitalize">{exec.triggeredBy}</span>
+                            </p>
                           </div>
                           
-                          <div className="flex items-center gap-3 text-sm">
-                            {/* Status Label */}
+                          <div className="flex items-center gap-4">
+                            {/* Status Label - Middle */}
                             <span className={`px-2 py-1 rounded text-xs font-medium ${
                               exec.status === 'COMPLETED' 
                                 ? 'bg-green-100 text-green-700' 
@@ -323,10 +338,13 @@ export const ExecutionsTabImproved = () => {
                             }`}>
                               {exec.status === 'COMPLETED' ? 'Success' : exec.status === 'FAILED' ? 'Failed' : exec.status}
                             </span>
+                            
+                            {/* Duration - Right */}
                             <div className="text-right">
                               <p className="text-gray-500 text-xs">Duration</p>
                               <p className="font-medium text-gray-700">{formatDuration(exec.duration)}</p>
                             </div>
+                            
                             {exec.error && (
                               <AlertCircle className="w-5 h-5 text-red-500" />
                             )}

@@ -5,17 +5,29 @@ import type { CredentialsI } from "@nen/db";
 
 // import { DialogClose } from "@radix-ui/react-dialog";
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BACKEND_URL } from "@/config/api";
 import { CredentialDialogContent } from "@/components/CredentialDialogContent";
 import { DashboardTabs } from "@/components/DashboardTabs";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { useWorkflowStore } from "@/store/workflowStore";
 
 const Home = () => {
+  const location = useLocation();
+  const resetWorkflow = useWorkflowStore((state) => state.resetWorkflow);
   const [credApis, setCredApis] = useState<CredentialsI[]>([]);
   const [credName, setCredName] = useState<string>("");
   const [currCredApi, setCredCurrApi] = useState<CredentialsI | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // Reset workflow when navigating to dashboard with reset flag
+  useEffect(() => {
+    if (location.state?.resetWorkflow === true) {
+      resetWorkflow();
+      // Clear the navigation state
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, resetWorkflow]);
 
   console.log(credApis, credName, currCredApi);
 

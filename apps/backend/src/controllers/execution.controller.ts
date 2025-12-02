@@ -38,6 +38,11 @@ export const getUserExecutions = asyncHandler(async (req, res) => {
                 finishedAt: true,
                 duration: true,
                 error: true,
+                workflow: {
+                    select: {
+                        active: true,
+                    },
+                },
             },
         });
 
