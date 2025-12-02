@@ -51,6 +51,7 @@ export const ExecutionsTabImproved = () => {
   const [expandedWorkflows, setExpandedWorkflows] = useState<Set<string>>(new Set());
   const [expandedExecutions, setExpandedExecutions] = useState<Set<string>>(new Set());
   const [hoveredWorkflow, setHoveredWorkflow] = useState<string | null>(null);
+  const [hoveredExecution, setHoveredExecution] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
   const [executionDetails, setExecutionDetails] = useState<Map<string, ExecutionDetails>>(new Map());
@@ -305,25 +306,27 @@ export const ExecutionsTabImproved = () => {
                         <div key={exec.id}>
                           <div
                             onClick={() => toggleExecution(exec.id)}
+                            onMouseEnter={() => setHoveredExecution(exec.id)}
+                            onMouseLeave={() => setHoveredExecution(null)}
                             className="p-3 hover:bg-white cursor-pointer transition-colors"
                           >
                             <div className="flex items-center justify-between gap-4">
-                              <div className="flex items-center gap-2">
-                                {isExpanded ? (
-                                  <ChevronDown className="w-4 h-4 text-gray-600" />
-                                ) : (
-                                  <ChevronRight className="w-4 h-4 text-gray-600" />
+                              <div className="flex items-center gap-2 text-sm">
+                                <p className="text-gray-700">
+                                  <span className="font-medium">
+                                    {new Date(exec.startedAt).toLocaleString()}
+                                  </span>
+                                </p>
+                                {hoveredExecution === exec.id && (
+                                  isExpanded ? (
+                                    <ChevronDown className="w-[1em] h-[1em] text-gray-600" />
+                                  ) : (
+                                    <ChevronRight className="w-[1em] h-[1em] text-gray-600" />
+                                  )
                                 )}
-                                <div className="text-sm">
-                                  <p className="text-gray-700">
-                                    <span className="font-medium">
-                                      {new Date(exec.startedAt).toLocaleString()}
-                                    </span>
-                                  </p>
-                                  <p className="text-xs text-gray-500 mt-0.5">
-                                    Triggered by: <span className="font-medium capitalize">{exec.triggeredBy}</span>
-                                  </p>
-                                </div>
+                                <p className="text-xs text-gray-500">
+                                  Triggered by: <span className="font-medium capitalize">{exec.triggeredBy}</span>
+                                </p>
                               </div>
                               
                               <div className="flex items-center gap-4">
@@ -355,7 +358,7 @@ export const ExecutionsTabImproved = () => {
 
                           {/* Execution Details (Expanded) */}
                           {isExpanded && (
-                            <div className="bg-white border-t border-gray-200 p-4">
+                            <div className="bg-white border-t border-gray-200 p-4 overflow-hidden">
                               {isLoadingDetails && (
                                 <div className="flex justify-center items-center py-8">
                                   <div className="h-6 w-6 border-2 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
@@ -367,11 +370,11 @@ export const ExecutionsTabImproved = () => {
                                 <div className="space-y-4">
                                   {/* Overview */}
                                   <Card className="border-gray-200">
-                                    <CardContent className="pt-4">
+                                    <CardContent className="py-4">
                                       <div className="grid grid-cols-2 gap-4 text-sm">
                                         <div>
                                           <p className="text-gray-500 mb-1">Execution ID</p>
-                                          <p className="font-mono text-xs">{details.id}</p>
+                                          <p className="font-mono text-xs break-all">{details.id}</p>
                                         </div>
                                         <div>
                                           <p className="text-gray-500 mb-1">Duration</p>
@@ -402,9 +405,9 @@ export const ExecutionsTabImproved = () => {
                                       <CardContent className="pt-4">
                                         <div className="flex items-start gap-2">
                                           <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-                                          <div>
+                                          <div className="overflow-hidden">
                                             <h4 className="font-semibold text-red-900 mb-1">Error</h4>
-                                            <p className="text-sm text-red-800 whitespace-pre-wrap font-mono">
+                                            <p className="text-sm text-red-800 whitespace-pre-wrap font-mono wrap-break-word overflow-x-auto">
                                               {details.error}
                                             </p>
                                           </div>
@@ -420,7 +423,7 @@ export const ExecutionsTabImproved = () => {
                                       <div className="space-y-2">
                                         {details.nodeResults.map((nodeResult: any, index: number) => (
                                           <Card key={index} className="border border-gray-200">
-                                            <CardContent className="pt-4">
+                                            <CardContent className="py-4">
                                               <div className="flex items-start justify-between mb-2">
                                                 <div>
                                                   <p className="font-medium text-gray-900">
@@ -441,8 +444,8 @@ export const ExecutionsTabImproved = () => {
                                                 )}
                                               </div>
                                               {nodeResult.output && (
-                                                <div className="mt-2 p-2 bg-gray-50 rounded border border-gray-200">
-                                                  <pre className="text-xs overflow-x-auto">
+                                                <div className="mt-2 p-2 bg-gray-50 rounded border border-gray-200 overflow-hidden">
+                                                  <pre className="text-xs overflow-x-auto max-w-full">
                                                     {JSON.stringify(nodeResult.output, null, 2)}
                                                   </pre>
                                                 </div>
@@ -451,20 +454,6 @@ export const ExecutionsTabImproved = () => {
                                           </Card>
                                         ))}
                                       </div>
-                                    </div>
-                                  )}
-
-                                  {/* Metadata */}
-                                  {details.metadata && Object.keys(details.metadata).length > 0 && (
-                                    <div>
-                                      <h4 className="font-semibold text-gray-900 mb-3">Metadata</h4>
-                                      <Card className="border border-gray-200">
-                                        <CardContent className="pt-4">
-                                          <pre className="text-xs overflow-x-auto bg-gray-50 p-3 rounded">
-                                            {JSON.stringify(details.metadata, null, 2)}
-                                          </pre>
-                                        </CardContent>
-                                      </Card>
                                     </div>
                                   )}
                                 </div>
