@@ -358,7 +358,7 @@ export const ExecutionsTabImproved = () => {
 
                           {/* Execution Details (Expanded) */}
                           {isExpanded && (
-                            <div className="bg-white border-t border-gray-200 p-4 overflow-hidden">
+                            <div className="bg-white border-t border-gray-200 p-4 min-w-0 overflow-hidden">
                               {isLoadingDetails && (
                                 <div className="flex justify-center items-center py-8">
                                   <div className="h-6 w-6 border-2 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
@@ -367,9 +367,9 @@ export const ExecutionsTabImproved = () => {
                               )}
 
                               {!isLoadingDetails && details && (
-                                <div className="space-y-4">
+                                <div className="space-y-4 min-w-0">
                                   {/* Overview */}
-                                  <Card className="border-gray-200">
+                                  <Card className="border-gray-200 min-w-0">
                                     <CardContent className="py-4">
                                       <div className="grid grid-cols-2 gap-4 text-sm">
                                         <div>
@@ -401,13 +401,13 @@ export const ExecutionsTabImproved = () => {
 
                                   {/* Error Display */}
                                   {details.error && (
-                                    <Card className="border-red-200 bg-red-50">
-                                      <CardContent className="pt-4">
+                                    <Card className="border-red-200 bg-red-50 min-w-0">
+                                      <CardContent className="pt-4 min-w-0">
                                         <div className="flex items-start gap-2">
                                           <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-                                          <div className="overflow-hidden">
+                                          <div className="min-w-0 overflow-hidden">
                                             <h4 className="font-semibold text-red-900 mb-1">Error</h4>
-                                            <p className="text-sm text-red-800 whitespace-pre-wrap font-mono wrap-break-word overflow-x-auto">
+                                            <p className="text-sm text-red-800 wrap-break-word font-mono overflow-wrap-anywhere">
                                               {details.error}
                                             </p>
                                           </div>
@@ -418,12 +418,12 @@ export const ExecutionsTabImproved = () => {
 
                                   {/* Node Results */}
                                   {details.nodeResults && details.nodeResults.length > 0 && (
-                                    <div>
+                                    <div className="min-w-0">
                                       <h4 className="font-semibold text-gray-900 mb-3">Node Execution Results</h4>
-                                      <div className="space-y-2">
+                                      <div className="space-y-2 min-w-0">
                                         {details.nodeResults.map((nodeResult: any, index: number) => (
-                                          <Card key={index} className="border border-gray-200">
-                                            <CardContent className="py-4">
+                                          <Card key={index} className="border border-gray-200 min-w-0">
+                                            <CardContent className="py-4 min-w-0">
                                               <div className="flex items-start justify-between mb-2">
                                                 <div>
                                                   <p className="font-medium text-gray-900">
@@ -444,10 +444,12 @@ export const ExecutionsTabImproved = () => {
                                                 )}
                                               </div>
                                               {nodeResult.output && (
-                                                <div className="mt-2 p-2 bg-gray-50 rounded border border-gray-200 overflow-hidden">
-                                                  <pre className="text-xs overflow-x-auto max-w-full">
-                                                    {JSON.stringify(nodeResult.output, null, 2)}
-                                                  </pre>
+                                                <div className="mt-2 min-w-0">
+                                                  <div className="p-2 bg-gray-50 rounded border border-gray-200 overflow-x-auto">
+                                                    <pre className="text-xs whitespace-pre">
+                                                      {JSON.stringify(nodeResult.output, null, 2)}
+                                                    </pre>
+                                                  </div>
                                                 </div>
                                               )}
                                             </CardContent>

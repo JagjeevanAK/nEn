@@ -227,10 +227,49 @@ export const useWorkflowStore = create<WorkflowState>()(
       },
 
       deleteNode: (nodeId: string) => {
-        set((state) => ({
-          nodes: state.nodes.filter(node => node.id !== nodeId),
-          edges: state.edges.filter(edge => edge.source !== nodeId && edge.target !== nodeId)
-        }));
+        set((state) => {
+          const updatedNodes = state.nodes.filter(node => node.id !== nodeId);
+          const updatedEdges = state.edges.filter(edge => edge.source !== nodeId && edge.target !== nodeId);
+          
+          // Check if the deleted node was a trigger
+          const deletedNode = state.nodes.find(node => node.id === nodeId);
+          const isTriggerNode = deletedNode && (
+            deletedNode.type === 'manualTrigger' || 
+            deletedNode.type === 'webhookTrigger' || 
+            deletedNode.type === 'scheduleTrigger'
+          );
+          
+          // Check if there are any remaining trigger nodes
+          const hasRemainingTriggers = updatedNodes.some(node => 
+            node.type === 'manualTrigger' || 
+            node.type === 'webhookTrigger' || 
+            node.type === 'scheduleTrigger'
+          );
+          
+          // If a trigger was deleted and no triggers remain, add back the "Add Trigger" node
+          if (isTriggerNode && !hasRemainingTriggers) {
+            const addTriggerNode: Node = {
+              id: "1",
+              type: "addTrigger",
+              data: {
+                label: "Add Trigger",
+                triggers: state.triggers,
+                onSelectTrigger: get().addTriggerNode,
+              },
+              position: { x: 0, y: 50 },
+            };
+            
+            return {
+              nodes: [...updatedNodes, addTriggerNode],
+              edges: updatedEdges
+            };
+          }
+          
+          return {
+            nodes: updatedNodes,
+            edges: updatedEdges
+          };
+        });
         toast.success("Node deleted successfully");
       },
 
