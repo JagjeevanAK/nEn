@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Card, CardContent } from "@/components/ui/card";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { BACKEND_URL } from "@/config/api";
 import {
@@ -8,9 +8,13 @@ import {
   ChevronRight,
   ChevronDown,
   AlertCircle,
-  Calendar
+  Calendar,
+  Wifi,
+  WifiOff
 } from "lucide-react";
 import { toast } from "sonner";
+import JsonViewer from "./JsonViewer";
+import { useExecutionUpdates } from "@/hooks/useExecutionUpdates";
 
 interface Execution {
   id: string;
@@ -57,7 +61,7 @@ export const ExecutionsTabImproved = () => {
   const [executionDetails, setExecutionDetails] = useState<Map<string, ExecutionDetails>>(new Map());
   const [detailsLoading, setDetailsLoading] = useState<Set<string>>(new Set());
 
-  const fetchExecutions = async () => {
+  const fetchExecutions = useCallback(async () => {
     try {
       setLoading(true);
       const params: any = { limit: 500 };
@@ -117,7 +121,16 @@ export const ExecutionsTabImproved = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]);
+
+  const { connected } = useExecutionUpdates({
+    onNewExecution: () => {
+      fetchExecutions();
+    },
+    onExecutionComplete: () => {
+      fetchExecutions();
+    }
+  });
 
   const fetchExecutionDetails = async (executionId: string) => {
     if (executionDetails.has(executionId)) {
@@ -197,7 +210,23 @@ export const ExecutionsTabImproved = () => {
     <div>
       {/* Header with Filter */}
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-800">Workflow Executions</h3>
+        <div className="flex items-center gap-3">
+          <h3 className="text-lg font-semibold text-gray-800">Workflow Executions</h3>
+          <div 
+            className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+              connected 
+                ? 'bg-green-100 text-green-700' 
+                : 'bg-gray-100 text-gray-500'
+            }`}
+            title={connected ? "Live updates active" : "Connecting..."}
+          >
+            {connected ? (
+              <><Wifi className="w-3 h-3" /> Live</>
+            ) : (
+              <><WifiOff className="w-3 h-3" /> Offline</>
+            )}
+          </div>
+        </div>
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-gray-700">Filter:</span>
           <select
@@ -442,11 +471,7 @@ export const ExecutionsTabImproved = () => {
                                               </div>
                                               {nodeResult.output && (
                                                 <div className="mt-2 min-w-0 w-full">
-                                                  <div className="p-2 bg-gray-50 rounded border border-gray-200 overflow-x-auto w-full">
-                                                    <pre className="text-xs whitespace-pre">
-                                                      {JSON.stringify(nodeResult.output, null, 2)}
-                                                    </pre>
-                                                  </div>
+                                                  <JsonViewer data={nodeResult.output} initialExpanded={true} />
                                                 </div>
                                               )}
                                             </CardContent>

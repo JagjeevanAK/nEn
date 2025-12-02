@@ -80,6 +80,7 @@ jobs:
           build-args: |
             DATABASE_URL=postgresql://placeholder:placeholder@localhost:5432/placeholder
             VITE_BACKEND_URL=${{ secrets.VITE_BACKEND_URL }}
+            VITE_WS_URL=${{ secrets.VITE_WS_URL }}
             VITE_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
           tags: |
             ${{ env.REGISTRY }}/${{ steps.image-name.outputs.IMAGE_NAME_LOWER }}/frontend:latest
@@ -134,6 +135,7 @@ jobs:
             
             # Frontend build-time variables
             VITE_BACKEND_URL=${{ secrets.VITE_BACKEND_URL }}
+            VITE_WS_URL=${{ secrets.VITE_WS_URL }}
             VITE_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
             
             # JWT Configuration

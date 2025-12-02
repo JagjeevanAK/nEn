@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { authApi, credentialsApi, triggersApi, workflowsApi } from '@/lib/api';
 
-// Auth hooks
 export const useSignup = () => {
   return useMutation({
     mutationFn: authApi.signup,
@@ -22,7 +21,6 @@ export const useUser = () => {
   });
 };
 
-// Credentials hooks
 export const useCredentials = () => {
   return useQuery({
     queryKey: ['credentials'],
@@ -41,7 +39,6 @@ export const useCreateCredential = () => {
   });
 };
 
-// Triggers hooks
 export const useTriggers = () => {
   return useQuery({
     queryKey: ['triggers'],
@@ -60,7 +57,6 @@ export const useCreateTrigger = () => {
   });
 };
 
-// Workflows hooks
 export const useWorkflows = () => {
   return useQuery({
     queryKey: ['workflows'],

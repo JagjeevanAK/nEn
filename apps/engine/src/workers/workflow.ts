@@ -117,7 +117,9 @@ export class Workflow {
     if (this.detectCycle()) {
       this.eventPublisher.publish("workflow.event", {
         executionId: this.executionData.executionId,
-        workflow: this.executionData.workflow.id,
+        workflowId: this.executionData.workflow.id,
+        workflowName: this.executionData.workflow.name,
+        userId: this.executionData.userId,
         nodeId: node.id,
         timeStamp: new Date(Date.now()),
         status: "started",
@@ -128,7 +130,9 @@ export class Workflow {
 
     this.eventPublisher.publish("workflow.event", {
       executionId: this.executionData.executionId,
-      workflow: this.executionData.workflow.id,
+      workflowId: this.executionData.workflow.id,
+      workflowName: this.executionData.workflow.name,
+      userId: this.executionData.userId,
       nodeId: node.id,
       timeStamp: new Date(Date.now()),
       status: "started",
@@ -227,7 +231,6 @@ export class Workflow {
 
         console.log("\nAction completed successfully");
         console.log(" Output stored for node:", nodeId);
-        console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
         console.log(`Action ${node.data.actionType} completed:`, output);
       } else {
@@ -240,7 +243,9 @@ export class Workflow {
 
       this.eventPublisher.publish("workflow.event", {
         executionId: this.executionData.executionId,
-        workflow: this.executionData.workflow.id,
+        workflowId: this.executionData.workflow.id,
+        workflowName: this.executionData.workflow.name,
+        userId: this.executionData.userId,
         nodeId: node.id,
         timeStamp: new Date(Date.now()),
         status: "completed",
@@ -259,7 +264,9 @@ export class Workflow {
 
       this.eventPublisher.publish("workflow.event", {
         executionId: this.executionData.executionId,
-        workflow: this.executionData.workflow.id,
+        workflowId: this.executionData.workflow.id,
+        workflowName: this.executionData.workflow.name,
+        userId: this.executionData.userId,
         nodeId: node.id,
         timeStamp: new Date(Date.now()),
         status: "failed",
@@ -280,18 +287,40 @@ export class Workflow {
       return;
     }
 
+    this.eventPublisher.publish("workflow.event", {
+      executionId: this.executionData.executionId,
+      workflowId: this.executionData.workflow.id,
+      workflowName: this.executionData.workflow.name,
+      userId: this.executionData.userId,
+      nodeId: "workflow",
+      timeStamp: new Date(Date.now()),
+      status: "started",
+    });
+
     await this.loadCredentials();
     const executionOrder = this.getExecutionOrder();
     console.log(executionOrder);
 
+    let hasError = false;
     for (let nodeId of executionOrder) {
       try {
         await this.executeNode(nodeId);
         await new Promise((resolve) => setTimeout(resolve, 100));
       } catch (error) {
+        hasError = true;
         console.error(`Workflow execution stopped at node ${nodeId}:`, error);
         break;
       }
     }
+
+    this.eventPublisher.publish("workflow.event", {
+      executionId: this.executionData.executionId,
+      workflowId: this.executionData.workflow.id,
+      workflowName: this.executionData.workflow.name,
+      userId: this.executionData.userId,
+      nodeId: "workflow",
+      timeStamp: new Date(Date.now()),
+      status: hasError ? "failed" : "completed",
+    });
   }
 }
