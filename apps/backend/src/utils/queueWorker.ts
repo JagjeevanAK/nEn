@@ -1,7 +1,7 @@
 import { createClient } from "redis";
 import WebSocket, { WebSocketServer } from "ws";
 
-const WS_PORT = parseInt(process.env.WS_PORT || "3001", 10);
+const WS_PORT = parseInt(process.env.WS_PORT || "3002", 10);
 const wss = new WebSocketServer({ port: WS_PORT });
 
 const executionClients = new Map<string, WebSocket[]>();
