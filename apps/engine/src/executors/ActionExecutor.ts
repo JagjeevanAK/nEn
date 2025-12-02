@@ -3,6 +3,7 @@ import Imap from "imap";
 import { v4 as uuidv4 } from "uuid";
 import { createClient } from "redis";
 import { Resend } from "resend";
+import { Queue, QueueEvents } from "bullmq";
 
 type RedisClientType = ReturnType<typeof createClient>;
 
@@ -10,20 +11,38 @@ export class ActionExecutor {
   private credentials: Map<string, any>;
   private nodeOutputs: Map<string, any>;
   private redis: RedisClientType;
+  private aiQueue: Queue;
+  private queueEvents: QueueEvents;
 
   constructor() {
     this.credentials = new Map();
     this.nodeOutputs = new Map();
-    this.redis = createClient({url: process.env.REDIS_URL || "redis://localhost:6379"});
+    this.redis = createClient({ url: process.env.REDIS_URL || "redis://localhost:6379" });
+
+    const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
+    const redisConfig = new URL(redisUrl);
+    this.aiQueue = new Queue("ai-tasks", {
+      connection: {
+        host: redisConfig.hostname,
+        port: parseInt(redisConfig.port) || 6379,
+      },
+    });
+
+    this.queueEvents = new QueueEvents("ai-tasks", {
+      connection: {
+        host: redisConfig.hostname,
+        port: parseInt(redisConfig.port) || 6379,
+      },
+    });
   }
 
-   async init() {
+  async init() {
     if (!this.redis.isOpen) {
       await this.redis.connect();
       console.log("Redis connected");
     }
   }
-  
+
 
   async close() {
     if (this.redis.isOpen) {
@@ -132,15 +151,12 @@ export class ActionExecutor {
     const taskId = uuidv4();
     console.log(`Generated task ID: ${taskId}`);
 
-    // Resolve dynamic values in prompt
     const resolvedPrompt = this.resolveDynamicValue(params.prompt, context);
 
-
-    // Prepare task payload for AI Agent service
     const taskPayload = {
       taskId,
       prompt: resolvedPrompt,
-      model: params.model || "gpt-4",
+      model: params.model || "gpt-5-mini",
       temperature: params.temperature || 0.7,
       maxTokens: params.maxTokens || 1000,
       tools: params.tools || [],
@@ -151,9 +167,14 @@ export class ActionExecutor {
 
 
     try {
-      await this.init();
-      await this.redis.lPush("ai-agent-tasks", JSON.stringify(taskPayload));
-      const result = await this.waitForAIResult(taskId, 120000); // 2 minutes timeout
+      const job = await this.aiQueue.add(taskId, taskPayload);
+
+      const result = await job.waitUntilFinished(this.queueEvents, 120000);
+
+      if (!result.success) {
+        throw new Error(result.error || "AI task failed");
+      }
+
       return {
         success: true,
         taskId,
@@ -161,18 +182,9 @@ export class ActionExecutor {
         data: result,
         completedAt: new Date().toISOString(),
       };
-    } catch (error:any) {
+    } catch (error: any) {
       throw new Error(`OpenAI action failed: ${error.message}`);
     }
-  }
-
-  private async waitForAIResult(taskId: string, timeout: number){
-    // subscribe to the redis queue or do polling 
-    // get the response from teh llm 
-    // return the response 
-
-    return {test: "this is text"}
-    
   }
 
   private async executeOpenRouterAction(
@@ -192,10 +204,8 @@ export class ActionExecutor {
     const taskId = uuidv4();
     console.log(`Generated task ID: ${taskId}`);
 
-    // Resolve dynamic values in prompt
     const resolvedPrompt = this.resolveDynamicValue(params.prompt, context);
 
-    // Prepare task payload for AI Agent service
     const taskPayload = {
       taskId,
       prompt: resolvedPrompt,
@@ -213,9 +223,14 @@ export class ActionExecutor {
     };
 
     try {
-      await this.init();
-      await this.redis.lPush("ai-agent-tasks", JSON.stringify(taskPayload));
-      const result = await this.waitForAIResult(taskId, 120000); // 2 minutes timeout
+      const job = await this.aiQueue.add(taskId, taskPayload);
+
+      const result = await job.waitUntilFinished(this.queueEvents, 120000);
+
+      if (!result.success) {
+        throw new Error(result.error || "AI task failed");
+      }
+
       return {
         success: true,
         taskId,

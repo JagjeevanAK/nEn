@@ -1,7 +1,7 @@
 import { startTracing } from "./utils/tracing";
 startTracing();
 
-import "./config/metricsServer"; 
+import "./config/metricsServer";
 
 import { Workflow } from "./workers/workflow";
 import { Worker } from "bullmq";
@@ -9,6 +9,7 @@ import { queueJobsCounter, queueProcessingDuration, activeWorkflowsGauge } from 
 import { trace } from "@opentelemetry/api";
 import logger, { createChildLogger } from "./utils/logger";
 import { scheduleService } from "./services/scheduleService";
+import { createAIWorker } from "./workers/ai-worker";
 
 const tracer = trace.getTracer("nen-engine");
 
@@ -56,17 +57,17 @@ const worker = new Worker(
       const duration = (Date.now() - start) / 1000;
       queueProcessingDuration.observe({ queue_name: "workflow:execution" }, duration);
       queueJobsCounter.inc({ queue_name: "workflow:execution", status: "completed" });
-      jobLogger.info("Workflow execution completed", { 
+      jobLogger.info("Workflow execution completed", {
         workflowId: exectionData.workflow.id,
-        duration 
+        duration
       });
       span.setStatus({ code: 1 }); // OK
       span.end();
     } catch (error: any) {
-      jobLogger.error("Workflow execution failed", { 
+      jobLogger.error("Workflow execution failed", {
         workflowId: exectionData.workflow.id,
         error: error.message,
-        stack: error.stack 
+        stack: error.stack
       });
       span.recordException(error);
       span.setStatus({ code: 2, message: error.message }); // ERROR
@@ -93,6 +94,14 @@ worker.on("failed", (job, err) => {
   logger.error("Job failed", { jobId: job?.id, error: err.message });
 });
 
+// Initialize AI worker
+const aiWorker = createAIWorker({
+  host: redisConfig.hostname,
+  port: parseInt(redisConfig.port) || 6379,
+});
+
+logger.info("AI worker started");
+
 // Initialize schedule service
 scheduleService.initialize().catch((error) => {
   logger.error("Failed to initialize schedule service:", error);
@@ -103,6 +112,7 @@ process.on("SIGTERM", () => {
   logger.info("SIGTERM received, shutting down gracefully...");
   scheduleService.shutdown();
   worker.close();
+  aiWorker.close();
   process.exit(0);
 });
 
@@ -110,6 +120,7 @@ process.on("SIGINT", () => {
   logger.info("SIGINT received, shutting down gracefully...");
   scheduleService.shutdown();
   worker.close();
+  aiWorker.close();
   process.exit(0);
 });
 
