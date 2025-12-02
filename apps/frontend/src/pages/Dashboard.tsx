@@ -30,7 +30,7 @@ const Home = () => {
             </h2>
           </div>{" "}
           <div className="flex gap-1">
-            <Link to={"/create"}>
+            <Link to={"/create"} state={{ resetWorkflow: true }}>
               <Button className='className="px-1 py-1 my-2 mx-2 md:cursor-pointer border-2 border-b-3 border-neutral-800 hover:bg-teal-50 bg-white text-black hover:text-black transition-colors items-center flex rounded-md'>
                 Create Workflow
               </Button>

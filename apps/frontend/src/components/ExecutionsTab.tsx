@@ -237,7 +237,7 @@ export const ExecutionsTabImproved = () => {
       {!loading && workflowGroups.length > 0 && (
         <div className="space-y-3">
           {workflowGroups.map((group) => (
-            <Card key={group.workflowId} className="border border-gray-200 overflow-hidden">
+            <Card key={group.workflowId} className="border border-gray-200 overflow-hidden py-0 gap-0">
               {/* Workflow Header */}
               <div
                 onClick={() => toggleWorkflow(group.workflowId)}

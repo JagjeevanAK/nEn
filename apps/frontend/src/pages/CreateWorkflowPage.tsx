@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   ReactFlow,
   type FitViewOptions,
@@ -36,6 +36,7 @@ const nodeTypes = {
 
 const CreateWorkflowPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const {
     nodes,
@@ -55,16 +56,18 @@ const CreateWorkflowPage = () => {
   } = useWorkflowStore();
 
   useEffect(() => {
-    // Only reset if there's no work in progress (just the initial trigger node)
-    // This prevents losing work on page refresh
-    const hasOnlyInitialNode = nodes.length <= 1 && nodes[0]?.type === 'addTrigger';
-    if (hasOnlyInitialNode) {
+    // Check if we're coming from a fresh navigation (not a refresh)
+    // Reset workflow when explicitly navigating to /create route
+    const shouldReset = location.state?.resetWorkflow !== false;
+    
+    if (shouldReset) {
       resetWorkflow();
     }
+    
     loadTriggers();
     loadUserCredentials();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run once on mount, not when function references change
+  }, [location.pathname]); // Reset when route changes
 
   const handleSave = async () => {
     try {
