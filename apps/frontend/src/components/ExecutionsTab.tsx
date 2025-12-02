@@ -235,7 +235,7 @@ export const ExecutionsTabImproved = () => {
       {!loading && workflowGroups.length > 0 && (
         <div className="space-y-3 min-w-0">
           {workflowGroups.map((group) => (
-            <Card key={group.workflowId} className="border border-gray-200 overflow-hidden py-0 gap-0 min-w-0">
+            <Card key={group.workflowId} className="border border-gray-200 overflow-hidden py-0 gap-0 min-w-0 max-w-full">
               {/* Workflow Header */}
               <div
                 onClick={() => toggleWorkflow(group.workflowId)}
@@ -295,7 +295,7 @@ export const ExecutionsTabImproved = () => {
 
               {/* Executions List (Expanded) */}
               {expandedWorkflows.has(group.workflowId) && (
-                <div className="border-t border-gray-200 bg-gray-50 min-w-0">
+                <div className="border-t border-gray-200 bg-gray-50 min-w-0 max-w-full">
                   <div className="divide-y divide-gray-200 min-w-0">
                     {group.executions.map((exec) => {
                       const isExpanded = expandedExecutions.has(exec.id);
@@ -422,8 +422,8 @@ export const ExecutionsTabImproved = () => {
                                       <h4 className="font-semibold text-gray-900 mb-3">Node Execution Results</h4>
                                       <div className="space-y-2 min-w-0">
                                         {details.nodeResults.map((nodeResult: any, index: number) => (
-                                          <Card key={index} className="border border-gray-200 min-w-0">
-                                            <CardContent className="py-4 min-w-0">
+                                          <Card key={index} className="border border-gray-200 min-w-0 max-w-full">
+                                            <CardContent className="py-4 min-w-0 max-w-full">
                                               <div className="flex items-start justify-between mb-2">
                                                 <div>
                                                   <p className="font-medium text-gray-900">
@@ -445,7 +445,7 @@ export const ExecutionsTabImproved = () => {
                                               </div>
                                               {nodeResult.output && (
                                                 <div className="mt-2 min-w-0">
-                                                  <div className="p-2 bg-gray-50 rounded border border-gray-200 overflow-x-auto">
+                                                  <div className="p-2 bg-gray-50 rounded border border-gray-200 overflow-x-auto max-w-full">
                                                     <pre className="text-xs whitespace-pre">
                                                       {JSON.stringify(nodeResult.output, null, 2)}
                                                     </pre>
