@@ -237,7 +237,7 @@ export const ActionForm = ({
       {action.type === "ResendNodeType" && (
         <div className="mb-4 p-3 bg-purple-50 border border-purple-200 rounded-md">
           <div className="text-sm">
-            <div className="font-semibold text-purple-900 mb-2">💡 Resend Tips:</div>
+            <div className="font-semibold text-purple-900 mb-2">Resend Tips:</div>
             <ul className="list-disc ml-4 space-y-1 text-purple-800">
               <li>Use dynamic values like <code className="bg-purple-100 px-1 rounded">{"{{previousNode.output}}"}</code></li>
               <li>From address must be from a verified domain</li>

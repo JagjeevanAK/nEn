@@ -63,25 +63,21 @@ export class ActionExecutor {
     this.nodeOutputs.set(nodeId, output);
   }
 
-  // Resolve dynamic values like {{previousNode.output}} or {{nodeId.content}} or {{nodeId.data.body}}
   private resolveDynamicValue(value: any, context: any = {}): any {
     if (typeof value !== "string") return value;
 
     const originalValue = value;
     let hasReplacements = false;
 
-    // Enhanced template resolution with better nested path handling
     const resolved = value.replace(/\{\{([^}]+)\}\}/g, (match, path) => {
       const trimmedPath = path.trim();
       const keys = trimmedPath.split(".");
       let result = context;
 
-      // Navigate through the object path
       for (const key of keys) {
         if (result === null || result === undefined) {
           break;
         }
-        // Handle array indices like [0]
         if (key.includes("[")) {
           const arrayMatch = key.match(/(\w+)\[(\d+)\]/);
           if (arrayMatch) {
@@ -92,25 +88,22 @@ export class ActionExecutor {
         }
       }
 
-      // If we found a value, return it
       if (result !== undefined && result !== null) {
         hasReplacements = true;
-        // If it's an object or array, stringify it for embedding in strings
         if (typeof result === "object") {
-          console.log(`✅ Resolved {{${trimmedPath}}} -> [Object: ${JSON.stringify(result).substring(0, 100)}...]`);
+          console.log(`Resolved {{${trimmedPath}}} -> [Object: ${JSON.stringify(result).substring(0, 100)}...]`);
           return JSON.stringify(result);
         }
-        console.log(`✅ Resolved {{${trimmedPath}}} -> "${String(result).substring(0, 100)}${String(result).length > 100 ? '...' : ''}"`);
+        console.log(`Resolved {{${trimmedPath}}} -> "${String(result).substring(0, 100)}${String(result).length > 100 ? '...' : ''}"`);
         return String(result);
       }
 
-      // If path not found, log for debugging and return original
-      console.log(`⚠️  Could not resolve {{${trimmedPath}}} - Available keys in context:`, Object.keys(context));
+      console.log(`Could not resolve {{${trimmedPath}}} - Available keys in context:`, Object.keys(context));
       return match;
     });
 
     if (hasReplacements && originalValue !== resolved) {
-      console.log(`🔄 Template transformation:\n   Before: "${originalValue.substring(0, 150)}${originalValue.length > 150 ? '...' : ''}"\n   After:  "${resolved.substring(0, 150)}${resolved.length > 150 ? '...' : ''}"`);
+      console.log(`Template transformation:\n   Before: "${originalValue.substring(0, 150)}${originalValue.length > 150 ? '...' : ''}"\n   After:  "${resolved.substring(0, 150)}${resolved.length > 150 ? '...' : ''}"`);
     }
 
     return resolved;
@@ -301,7 +294,6 @@ export class ActionExecutor {
     const accessToken = credConfig.data.access_token;
     console.log("ACCESS_TOKEN==> ", accessToken);
 
-    // Extract email from ID token
     const idToken = credConfig.data.id_token;
     const payload = JSON.parse(
       Buffer.from(idToken.split(".")[1], "base64").toString()
@@ -357,8 +349,6 @@ export class ActionExecutor {
 
             console.log("New email detected!");
 
-            // Get the latest (most recent) email using sequence number
-            // '*' represents the highest sequence number (newest email)
             const fetch = imap.seq.fetch("*", {
               bodies: "",
               struct: true,
@@ -473,9 +463,6 @@ export class ActionExecutor {
 
     try {
       const response = await axios.post(telegramUrl, payload, {
-        // headers: {
-        //   'Content-Type': 'application/json'
-        // },
         timeout: 10000,
       });
 

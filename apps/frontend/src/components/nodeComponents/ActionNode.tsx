@@ -1,4 +1,3 @@
-// components/nodeComponents/ActionNode.tsx
 import { Handle, Position } from "@xyflow/react";
 import { Settings, Trash, Mail, Database, Webhook, Send } from "lucide-react";
 import {
@@ -74,10 +73,13 @@ const getActionDisplayName = (actionType: string) => {
   }
 };
 
+import { DynamicActionForm } from "../DynamicActionForm";
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function ActionNode({ data, id }: { data: any; id: string }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const deleteNode = useWorkflowStore((state) => state.deleteNode);
+  const updateNodeData = useWorkflowStore((state) => state.updateNodeData);
 
   const actionType = data.actionType || data.type;
   const actionColor = getActionColor(actionType);
@@ -89,6 +91,11 @@ export function ActionNode({ data, id }: { data: any; id: string }) {
     setIsDialogOpen(false);
   };
 
+  const handleUpdate = (values: any) => {
+    updateNodeData(id, { parameters: values });
+    setIsDialogOpen(false);
+  };
+
   return (
     <div className={` rounded-l-4xl ${actionColor} relative `}>
       {/* settings icon  */}
@@ -96,7 +103,7 @@ export function ActionNode({ data, id }: { data: any; id: string }) {
         <DialogTrigger asChild>
           <Settings className="absolute opacity-80 w-3 h-3 -top-2 bg-neutral-100 text-black rounded-full right-0 cursor-pointer p-0.5" />
         </DialogTrigger>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogTitle>Action Configuration</DialogTitle>
           <div className="space-y-4">
             <div className="flex items-center gap-3">
@@ -105,20 +112,6 @@ export function ActionNode({ data, id }: { data: any; id: string }) {
                 <h3 className="font-semibold">{displayName}</h3>
                 <p className="text-sm text-gray-600">{data.application}</p>
               </div>
-            </div>
-
-            {/* config details */}
-            <div className="bg-gray-50 p-3 rounded-md">
-              <h4 className="font-medium mb-2">Configuration:</h4>
-              {data.parameters ? (
-                <pre className="text-xs bg-white p-2 rounded border overflow-auto max-h-40">
-                  {JSON.stringify(data.parameters, null, 2)}
-                </pre>
-              ) : (
-                <p className="text-sm text-gray-500">
-                  No parameters configured
-                </p>
-              )}
             </div>
 
             {/* cred info */}
@@ -139,12 +132,20 @@ export function ActionNode({ data, id }: { data: any; id: string }) {
                 </p>
               </div>
             )}
+
+            {/* Dynamic Form */}
+            <div className="bg-gray-50 p-3 rounded-md">
+              <h4 className="font-medium mb-2">Configuration:</h4>
+              <DynamicActionForm
+                actionType={actionType}
+                initialValues={data.parameters || {}}
+                onSubmit={handleUpdate}
+                onCancel={() => setIsDialogOpen(false)}
+              />
+            </div>
           </div>
 
           <div className="flex gap-2 pt-4 border-t">
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-              Close
-            </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}

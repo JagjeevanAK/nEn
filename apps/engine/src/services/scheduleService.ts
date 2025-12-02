@@ -17,7 +17,6 @@ class ScheduleService {
   private subscriber = createClient({ url: process.env.REDIS_URL || "redis://localhost:6379" });
 
   constructor() {
-    // Debug heartbeat to monitor active schedules
     setInterval(() => {
       logger.info(`[ScheduleService Heartbeat] Active jobs: ${this.scheduledJobs.size}`);
       this.scheduledJobs.forEach((job, key) => {
@@ -52,13 +51,13 @@ class ScheduleService {
       });
 
       for (const workflow of activeWorkflows) {
-        const nodes = workflow.nodes as any[];
+        const nodes = workflow.nodes as unknown as Array<{ id: string; type: string; data?: Record<string, unknown> }>;
         const scheduleTriggers = nodes.filter(
           (node) => node.type === "scheduleTrigger"
         );
 
         for (const trigger of scheduleTriggers) {
-          if (trigger.data?.cronExpression) {
+          if (trigger.data && typeof trigger.data.cronExpression === 'string') {
             this.scheduleWorkflow(
               workflow.id,
               trigger.id,
@@ -206,13 +205,13 @@ class ScheduleService {
       });
 
       if (workflow && workflow.active) {
-        const nodes = workflow.nodes as any[];
+        const nodes = workflow.nodes as unknown as Array<{ id: string; type: string; data?: Record<string, unknown> }>;
         const scheduleTriggers = nodes.filter(
           (node) => node.type === "scheduleTrigger"
         );
 
         for (const trigger of scheduleTriggers) {
-          if (trigger.data?.cronExpression) {
+          if (trigger.data && typeof trigger.data.cronExpression === 'string') {
             this.scheduleWorkflow(
               workflow.id,
               trigger.id,

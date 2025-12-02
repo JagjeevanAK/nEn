@@ -21,7 +21,6 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -37,11 +36,8 @@ app.use(
 app.use(cookieParser());
 app.use(urlencoded({ extended: true }));
 app.use(express.json());
-
-// Correlation ID middleware
 app.use(correlationIdMiddleware);
 
-// Metrics middleware
 app.use((req, res, next) => {
   const start = Date.now();
   res.on("finish", () => {

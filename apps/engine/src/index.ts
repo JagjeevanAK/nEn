@@ -27,7 +27,6 @@ const worker = new Worker(
     const jobLogger = createChildLogger(exectionData.executionId);
 
     try {
-      // Create execution record in database
       await prisma.workflowExecution.create({
         data: {
           id: exectionData.executionId,
@@ -71,7 +70,6 @@ const worker = new Worker(
 
       const duration = Date.now() - start;
 
-      // Update execution record on completion
       await prisma.workflowExecution.update({
         where: { id: exectionData.executionId },
         data: {
@@ -93,10 +91,9 @@ const worker = new Worker(
         workflowId: exectionData.workflow.id,
         duration: duration / 1000
       });
-      span.setStatus({ code: 1 }); // OK
+      span.setStatus({ code: 1 });
       span.end();
     } catch (error: any) {
-      // Update execution record on failure
       try {
         await prisma.workflowExecution.update({
           where: { id: exectionData.executionId },
@@ -117,7 +114,7 @@ const worker = new Worker(
         stack: error.stack
       });
       span.recordException(error);
-      span.setStatus({ code: 2, message: error.message }); // ERROR
+      span.setStatus({ code: 2, message: error.message });
       span.end();
       queueJobsCounter.inc({ queue_name: "workflow:execution", status: "failed" });
       throw error;
@@ -141,7 +138,6 @@ worker.on("failed", (job, err) => {
   logger.error("Job failed", { jobId: job?.id, error: err.message });
 });
 
-// Initialize AI worker
 const aiWorker = createAIWorker({
   host: redisConfig.hostname,
   port: parseInt(redisConfig.port) || 6379,
@@ -149,12 +145,10 @@ const aiWorker = createAIWorker({
 
 logger.info("AI worker started");
 
-// Initialize schedule service
 scheduleService.initialize().catch((error) => {
   logger.error("Failed to initialize schedule service:", error);
 });
 
-// Graceful shutdown
 process.on("SIGTERM", () => {
   logger.info("SIGTERM received, shutting down gracefully...");
   scheduleService.shutdown();

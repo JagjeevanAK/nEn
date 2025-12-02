@@ -35,9 +35,7 @@ export const getCredentialApis = asyncHandler(async (req, res) => {
 
 export const createCredentials = asyncHandler(async (req, res) => {
   const userId = req.user.id;
-  // console.log(req.body)
   const credData = createCredentialsSchema.safeParse(req.body);
-  // console.log("redData-> ", credData);
 
   if (!credData.data) throw new CustomError(403, "zod error in creting cred");
   const createdCred = await prisma.userCredentials.create({
@@ -52,7 +50,6 @@ export const createCredentials = asyncHandler(async (req, res) => {
       data: credData.data.data,
     },
   });
-  // console.log(createdCred);
 
   res
     .status(200)
@@ -83,7 +80,6 @@ const updateCredentialsSchema = z.object({
 
 export const updateCredential = asyncHandler(async (req, res) => {
   const userId = req.user.id;
-  // console.log(req.body)
   const credData = updateCredentialsSchema.safeParse(req.body);
   const { credId } = req.params;
   if (credData.error) {
@@ -108,7 +104,7 @@ export const updateCredential = asyncHandler(async (req, res) => {
       apiName: existingCred.apiName,
       data:
         credData.data && credData.data.data
-          ? { ...(existingCred.data as any), ...credData.data.data }
+          ? { ...(existingCred.data as Record<string, unknown>), ...credData.data.data }
           : existingCred.data,
       updatedAt: new Date(),
     },

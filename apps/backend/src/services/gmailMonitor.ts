@@ -11,8 +11,6 @@ publisherRedis.connect();
 class GmailMonitor {
   private connections: Map<string, Imap> = new Map();
 
-  // start the monitoring job - create hte imap obj add user and token to the obj
-  // when imap i sat ready start monitoring the inbox
   async startMonitoring(
     userId: string,
     access_token: string,
@@ -29,7 +27,6 @@ class GmailMonitor {
       password: "",
     });
 
-    // When IMAP connects successfully
     imap.once("ready", () => {
       console.log(`IMAP connected for: ${emailAddress}`);
       this.watchInbox(imap, userId);
@@ -43,7 +40,6 @@ class GmailMonitor {
     this.connections.set(userId, imap);
   }
 
-  // start openBox INBOX -> when on mail handler -> handle any new email
   private watchInbox(imap: Imap, userId: string) {
     imap.openBox("INBOX", true, (err, box) => {
       if (err) {
@@ -53,7 +49,6 @@ class GmailMonitor {
 
       console.log(`Watching inbox for user: ${userId}`);
 
-      // Listen for new emails
       imap.on("mail", (numNewMsgs: any) => {
         console.log(`New email detected for user: ${userId}`);
         this.handleNewEmail(imap, userId);
@@ -61,34 +56,24 @@ class GmailMonitor {
     });
   }
 
-  // fetch all the emails ->
   private handleNewEmail(imap: Imap, userId: string) {
-    // imap.seq.fetch('*', ...) means "get the most recent email"
-    // '*' = the last (newest) email in the inbox
-    // bodies: '' = get the full email content (headers + body)
-    // struct: true = also get email structure info (attachments, etc.)
-
     const fetch = imap.seq.fetch("*", {
       bodies: "",
       struct: true,
     });
 
-    // process when the message arrives
     fetch.on("message", (msg) => {
-      // email content bnao
       let emailContent = "";
 
-      // collect email body in chunks
       msg.on("body", (stream) => {
         stream.on("data", (chunk) => {
           emailContent += chunk.toString("utf8");
         });
       });
 
-      // Email is fully received, now process it
       msg.once("end", async () => {
         try {
-          const parsed = await simpleParser(emailContent); // simpleParser() converts raw email text into structured data
+          const parsed = await simpleParser(emailContent);
 
           const emailData = {
             from: parsed.from?.text || "",
@@ -101,7 +86,6 @@ class GmailMonitor {
             `Email from: ${emailData.from}, Subject: ${emailData.subject}`
           );
 
-          // Check if any workflows should trigger
           await this.checkForTriggers(userId, emailData);
         } catch (error) {
           console.error("Error parsing email:", error);
@@ -112,19 +96,17 @@ class GmailMonitor {
 
   private async checkForTriggers(userId: string, emailData: any) {
     try {
-      // Find user's active workflows
       const workflows = await prisma.workflow.findMany({
         where: { userId: userId, active: true },
       });
 
       for (const workflow of workflows) {
-        const nodes = workflow.nodes as any[];
+        const nodes = workflow.nodes as unknown as Array<{ id: string; type: string; data?: Record<string, unknown> }>;
         const emailTriggers = nodes.filter(
           (node) => node.type === "emailTrigger"
         );
 
         for (const trigger of emailTriggers) {
-          // Simple filter check
           if (this.emailMatches(emailData, trigger.data)) {
             await this.triggerWorkflow(workflow, emailData, trigger.id);
             console.log(`Triggered workflow: ${workflow.name}`);

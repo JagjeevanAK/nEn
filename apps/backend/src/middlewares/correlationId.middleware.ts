@@ -14,10 +14,7 @@ export const correlationIdMiddleware = (
   res: Response,
   next: NextFunction
 ) => {
-  // Use existing correlation ID from headers or generate new one
   req.correlationId = (req.headers["x-correlation-id"] as string) || uuidv4();
-
-  // Add to response headers for tracing
   res.setHeader("x-correlation-id", req.correlationId);
 
   next();

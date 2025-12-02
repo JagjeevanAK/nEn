@@ -41,7 +41,6 @@ worker.on("failed", (job, err) => {
 
 console.log("Test Worker started");
 
-// Graceful shutdown
 process.on("SIGINT", async () => {
   console.log("\n Shutting down...");
   await worker.close();

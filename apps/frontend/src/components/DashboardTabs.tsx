@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEffect, useState } from "react";
-import type { UserCredentials, Workflow } from "@nen/db";
+import type { UserCredentials, Workflow, INode } from "@nen/db";
 import axios from "axios";
 import { toast } from "sonner";
 import { BACKEND_URL } from "@/config/api";
@@ -18,6 +18,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
+interface CredentialFormData {
+  name?: string;
+  data?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
 export const DashboardTabs = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentTab = searchParams.get("tab") || "workflows";
@@ -30,7 +36,7 @@ export const DashboardTabs = () => {
   );
   const [userWorkflows, setUserWorkflows] = useState<Workflow[] | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState<any>({});
+  const [formData, setFormData] = useState<CredentialFormData>({});
 
   const navigate = useNavigate();
 
@@ -82,12 +88,12 @@ export const DashboardTabs = () => {
 
   const handleChange = (field: string, value: string, nested = false) => {
     if (nested) {
-      setFormData((prev: any) => ({
+      setFormData((prev: CredentialFormData) => ({
         ...prev,
         data: { ...prev.data, [field]: value },
       }));
     } else {
-      setFormData((prev: any) => ({ ...prev, [field]: value }));
+      setFormData((prev: CredentialFormData) => ({ ...prev, [field]: value }));
     }
   };
 
@@ -165,19 +171,19 @@ export const DashboardTabs = () => {
                   onClick={() => {
                     navigate(`/workflow/${wf.id}`);
                   }}
-                  className={`shadow-sm cursor-pointer py-4 px-0 hover:shadow-md transition rounded-lg gap-2 border border-gray-200 ${(wf as any).deletedAt ? "bg-red-50" : "bg-teal-100/20"
+                  className={`shadow-sm cursor-pointer py-4 px-0 hover:shadow-md transition rounded-lg gap-2 border border-gray-200 ${(wf as Workflow & { deletedAt?: Date }).deletedAt ? "bg-red-50" : "bg-teal-100/20"
                     }`}
                 >
                   <CardHeader className="flex flex-row items-center justify-between px-3 gap-2">
                     <div className="flex items-center gap-2">
                       <CardTitle className=" flw text-base">{wf.name}</CardTitle>
-                      {(wf as any).deletedAt && (
+                      {(wf as Workflow & { deletedAt?: Date }).deletedAt && (
                         <span className="px-2 py-0.5 rounded text-xs bg-red-100 text-red-800 border border-red-200 font-medium">
                           Deleted
                         </span>
                       )}
                     </div>
-                    {!(wf as any).deletedAt && (
+                    {!(wf as Workflow & { deletedAt?: Date }).deletedAt && (
                       <Trash
                         width={20}
                         onClick={(e) => {
@@ -190,7 +196,7 @@ export const DashboardTabs = () => {
                   </CardHeader>
                   <CardContent className="text-sm px-3 space-y-2">
                     <p className="text-gray-600 text-sm line-clamp-2 mb-3">
-                      {(wf as any).description || "No description provided"}
+                      {(wf as Workflow & { description?: string }).description || "No description provided"}
                     </p>
                     <div className="flex items-center gap-2 text-gray-600">
                       <Calendar className="h-4 w-4" />
@@ -210,7 +216,7 @@ export const DashboardTabs = () => {
                           Nodes ({wf.nodes.length}):
                         </div>
                         <div className="flex flex-wrap gap-1">
-                          {wf.nodes.slice(0, 5).map((node: any, idx: number) => (
+                          {(wf.nodes as INode[]).slice(0, 5).map((node, idx: number) => (
                             <span
                               key={idx}
                               className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-teal-50 text-teal-700 border border-teal-200"
@@ -359,7 +365,7 @@ export const DashboardTabs = () => {
                                   {isEditing ? (
                                     <Input
                                       value={
-                                        formData.data?.[key] || value || ""
+                                        String(formData.data?.[key] ?? value ?? "")
                                       }
                                       onChange={(e) =>
                                         handleChange(key, e.target.value, true)

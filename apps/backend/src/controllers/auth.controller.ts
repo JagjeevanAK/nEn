@@ -41,7 +41,6 @@ export const generateRefreshToken = (user: any) =>
 export const signup: RequestHandler = asyncHandler(
   async (req: Request, res: Response) => {
     const { email, password, name } = req.body;
-    // console.log(email, password);
 
     let existingUser;
     const user = await prisma.user.findUnique({
@@ -97,8 +96,6 @@ export const signin: RequestHandler = asyncHandler(async (req, res) => {
     data: { refreshToken: hashedRefreshToken, refreshTokenExpiry: expiresAt },
   });
 
-  // console.log(accessToken)
-
   res
     .status(200)
     .cookie("accessToken", accessToken, generateCookieOptions())
@@ -142,7 +139,6 @@ const SCOPES = [
   "https://www.googleapis.com/auth/userinfo.email",
 ];
 
-// Verify Google token from frontend (for user authentication)
 export const verifyGoogleToken = asyncHandler(async (req, res) => {
   const { credential } = req.body;
 
@@ -175,7 +171,7 @@ export const verifyGoogleToken = asyncHandler(async (req, res) => {
         data: {
           email: payload.email,
           name: name || undefined,
-          passwordHash: "", // No password for OAuth users
+          passwordHash: "",
           lastLoggedId: new Date(),
         },
       });
@@ -215,9 +211,9 @@ export const verifyGoogleToken = asyncHandler(async (req, res) => {
 
 export const signInWithGoogle = asyncHandler(async (req, res) => {
   const url = oauth2Client.generateAuthUrl({
-    access_type: "offline", // important for refresh_token
+    access_type: "offline",
     scope: SCOPES,
-    prompt: "consent", // ensures refresh_token each time
+    prompt: "consent",
   });
   res.redirect(url);
 });
@@ -226,12 +222,8 @@ export const handleSignInCallback = asyncHandler(async (req, res) => {
   const code = req.query.code as string;
 
   const { tokens } = await oauth2Client.getToken(code);
-
-  // tokens = { access_token, refresh_token, expiry_date, id_token }
-  // save refresh_token with sec
   const userId = req.user.id;
 
-  // Save credentials in DB
   const createdCred = await prisma.userCredentials.create({
     data: {
       name: "Google Account",

@@ -137,9 +137,8 @@ export class Workflow {
     try {
       let output: any = null;
 
-      // handling diff node types
       if (node.type === "webhookTrigger") {
-        const triggerData = (this.executionData as any).triggerData;
+        const triggerData = this.executionData.triggerData;
 
         console.log("Webhook trigger executed with data:", {
           payload: triggerData?.webhookPayload,
@@ -157,7 +156,6 @@ export class Workflow {
           timestamp: new Date().toISOString(),
         };
 
-        // store webhook output for other nodes to use
         this.nodeOutputs.set(nodeId, output);
       } else if (node.type === "manualTrigger") {
         console.log("Manual trigger executed");
@@ -172,14 +170,14 @@ export class Workflow {
       } else if (node.type === "scheduleTrigger") {
         console.log("Schedule trigger executed");
 
-        const triggerData = (this.executionData as any).metadata;
+        const metadata = this.executionData.metadata;
 
         output = {
           triggeredBy: "schedule",
           timestamp: new Date().toISOString(),
           executionId: this.executionData.executionId,
-          scheduledTime: triggerData?.scheduledTime,
-          nodeId: triggerData?.nodeId,
+          scheduledTime: metadata?.scheduledTime,
+          nodeId: metadata?.nodeId,
         };
 
         this.nodeOutputs.set(nodeId, output);
@@ -187,11 +185,8 @@ export class Workflow {
         if (!this.actionExecutor) {
           await this.loadCredentials();
         }
-        // Prepare context from previous node outputs
         const previousOutputs = Object.fromEntries(this.nodeOutputs);
 
-        // Find the parent node(s) connected to this node via edges
-        // and add as 'previousNode' alias for template resolution
         const parentEdges = this.executionData.workflow.edges.filter(
           edge => edge.target === nodeId
         );
@@ -206,9 +201,6 @@ export class Workflow {
           }
         }
 
-        console.log("\n╔════════════════════════════════════════════════════");
-        console.log("║ DATA FLOW CONTEXT");
-        console.log("╠════════════════════════════════════════════════════");
         console.log(`║ Current Node: ${node.id} (${node.data.actionType})`);
         console.log("║ Available Data from Previous Nodes:");
 
@@ -220,7 +212,6 @@ export class Workflow {
             if (output && typeof output === 'object') {
               const keys = Object.keys(output);
               console.log(`║      Available fields: ${keys.join(', ')}`);
-              // Show preview of content if available
               if ('content' in output) {
                 const preview = String(output.content).substring(0, 80);
                 console.log(`║      content: "${preview}${String(output.content).length > 80 ? '...' : ''}"`);
@@ -228,14 +219,10 @@ export class Workflow {
             }
           }
         }
-        console.log("╚════════════════════════════════════════════════════\n");
 
         console.log(`Executing action: ${node.data.actionType}`);
 
-        // execute the action using actionExecutor
         output = await this.actionExecutor.executeAction(node, previousOutputs);
-
-        // store the output for subsequent nodes
         this.nodeOutputs.set(nodeId, output);
 
         console.log("\nAction completed successfully");
@@ -248,10 +235,9 @@ export class Workflow {
         output = {
           error: `Unknown node type: ${node.type}`,
           timestamp: new Date().toISOString(),
-        };
+        }
       }
 
-      // publishing the success event
       this.eventPublisher.publish("workflow.event", {
         executionId: this.executionData.executionId,
         workflow: this.executionData.workflow.id,
@@ -271,7 +257,6 @@ export class Workflow {
 
       this.nodeOutputs.set(nodeId, errorOutput);
 
-      // publish thefailure event
       this.eventPublisher.publish("workflow.event", {
         executionId: this.executionData.executionId,
         workflow: this.executionData.workflow.id,

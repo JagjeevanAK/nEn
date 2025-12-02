@@ -96,7 +96,7 @@ export const triggerWebhook = asyncHandler(async (req, res) => {
 
     await workflowQueue.add("execute-workflow", executionJob, {
       jobId: executionId,
-      priority: 1, // High priority
+      priority: 1,
       removeOnComplete: 1000,
       removeOnFail: 5000,
     });

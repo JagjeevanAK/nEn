@@ -123,7 +123,6 @@ export const updateWorkflow = asyncHandler(async (req, res) => {
 
     console.log("Workflow updated successfully:", updatedWorkflow.id);
 
-    // Notify engine to refresh schedules for this workflow
     try {
       await publisherRedis.publish(
         "workflow:schedule:refresh",
@@ -249,8 +248,8 @@ export const executeFlow = asyncHandler(async (req, res) => {
 
     await workflowQueue.add("execute-workflow", executionJob, {
       jobId: executionId,
-      removeOnComplete: 1000, // Keep last 1000 completed jobs
-      removeOnFail: 5000, // Keep last 5000 failed jobs
+      removeOnComplete: 1000,
+      removeOnFail: 5000,
     });
 
     queueJobsCounter.inc({ queue_name: "workflow:execution", status: "queued" });

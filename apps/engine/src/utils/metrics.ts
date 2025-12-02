@@ -2,7 +2,6 @@ import { Registry, Counter, Histogram, Gauge } from "prom-client";
 
 export const register = new Registry();
 
-// Workflow metrics
 export const workflowExecutionCounter = new Counter({
   name: "workflow_executions_total",
   help: "Total number of workflow executions",
@@ -24,7 +23,6 @@ export const activeWorkflowsGauge = new Gauge({
   registers: [register],
 });
 
-// Queue metrics
 export const queueJobsCounter = new Counter({
   name: "queue_jobs_total",
   help: "Total number of jobs processed",
@@ -40,7 +38,6 @@ export const queueProcessingDuration = new Histogram({
   registers: [register],
 });
 
-// Node execution metrics
 export const nodeExecutionCounter = new Counter({
   name: "node_executions_total",
   help: "Total number of node executions",
@@ -56,7 +53,6 @@ export const nodeExecutionDuration = new Histogram({
   registers: [register],
 });
 
-// Error metrics
 export const errorCounter = new Counter({
   name: "errors_total",
   help: "Total number of errors",

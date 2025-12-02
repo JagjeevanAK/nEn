@@ -18,7 +18,6 @@ const consoleFormat = winston.format.combine(
   })
 );
 
-// JSON format for Loki
 const lokiFormat = winston.format.combine(
   winston.format.timestamp(),
   winston.format.json()
@@ -31,7 +30,6 @@ const transports: winston.transport[] = [
   }),
 ];
 
-// Add Loki transport in production or if LOKI_URL is set
 if (process.env.LOKI_URL) {
   transports.push(
     new LokiTransport({
@@ -51,10 +49,8 @@ export const logger = winston.createLogger({
   transports,
 });
 
-// Helper to add execution ID to logs
 export const createChildLogger = (executionId: string) => {
   return logger.child({ executionId });
 };
 
-// Export for easier import
 export default logger;

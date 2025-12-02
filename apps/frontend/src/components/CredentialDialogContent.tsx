@@ -202,7 +202,7 @@ export function CredentialDialogContent({
                         <li>Paste your API key below</li>
                       </ol>
                       <div className="mt-2 text-xs text-blue-700">
-                        💡 Tip: Use a verified domain for the "From" address when sending emails
+                        Tip: Use a verified domain for the "From" address when sending emails
                       </div>
                     </div>
                   )}

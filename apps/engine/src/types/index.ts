@@ -2,6 +2,18 @@ type ExecutionMetadata = {
   source: string;
   userAgent: string;
   ip: string;
+  scheduledTime?: string;
+  nodeId?: string;
+};
+
+type TriggerData = {
+  nodeId?: string;
+  webhookPayload?: Record<string, unknown>;
+  queryParams?: Record<string, unknown>;
+  headers?: Record<string, string>;
+  method?: string;
+  ip?: string;
+  emailData?: Record<string, unknown>;
 };
 
 export type NodeData = {
@@ -42,12 +54,13 @@ export type WorkflowExecutionData = {
   executionId: string;
   workflowId: string;
   userId: string;
-  triggeredBy: "manual" | "api" | "schedule";
+  triggeredBy: "manual" | "api" | "schedule" | "webhook" | "email";
   triggeredAt: string;
   status: "queued" | "running" | "completed" | "failed";
   priority: "low" | "normal" | "high";
-  maxRetries: number;
-  timeout: number;
-  metadata: ExecutionMetadata;
+  maxRetries?: number;
+  timeout?: number;
+  metadata?: ExecutionMetadata;
+  triggerData?: TriggerData;
   workflow: WorkflowDefinition;
 };

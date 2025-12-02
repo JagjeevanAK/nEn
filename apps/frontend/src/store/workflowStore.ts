@@ -32,52 +32,43 @@ export interface WorkflowEvent {
 }
 
 export interface WorkflowState {
-  // Core workflow data
   nodes: Node[];
   edges: Edge[];
-  workflowId?: string; // Add workflow ID for tracking
+  workflowId?: string;
 
-  // UI state
   isWorkflowActive: boolean;
   projectName: string;
   projectDescription: string;
 
-  // Data
   triggers: TriggerI[];
   userCredentials: UserCredentials[];
 
-  // Loading states
   isLoading: boolean;
   isSaving: boolean;
 
-  // Actions for nodes and edges
-  onNodesChange: OnNodesChange; // manages the nodes state changes
-  onEdgesChange: OnEdgesChange; // manages the edges state changes
-  onConnect: OnConnect; // manages the connections of one node to another
+  onNodesChange: OnNodesChange;
+  onEdgesChange: OnEdgesChange;
+  onConnect: OnConnect;
 
-  // Actions for workflow management
-  setIsWorkflowActive: (active: boolean) => void; // not using abhi ke liye likin for webhook and pinging 
-  setProjectName: (name: string) => void; // not using abhi will use baad mai 
+  setIsWorkflowActive: (active: boolean) => void;
+  setProjectName: (name: string) => void;
   setProjectDescription: (description: string) => void;
-  resetWorkflow: () => void; // reset to initial state, will use this later as well 
+  resetWorkflow: () => void;
 
-  updateNodeData: (id: string, data: any) => void; // nodes mai new data ko append krdeta hai - spread and override the existisng vals 
-  deleteNode: (nodeId: string) => void; // delete node and its connected edges
+  updateNodeData: (id: string, data: any) => void;
+  deleteNode: (nodeId: string) => void;
 
-  // Actions for triggers
-  setTriggers: (triggers: TriggerI[]) => void; // this is used for sheets mai triggers dikhane ke liye AND ek addtrigger node bhi dalne ke liye
-  addTriggerNode: (trigger: TriggerI) => void; // this is used for adding the new seleced trigger node from the sheet AND romoving the ADD Trigger node from canvas 
+  setTriggers: (triggers: TriggerI[]) => void;
+  addTriggerNode: (trigger: TriggerI) => void;
 
-  // Actions for credentials
-  setUserCredentials: (credentials: UserCredentials[]) => void; // sets the user credentials jo api se mangwae the 
+  setUserCredentials: (credentials: UserCredentials[]) => void;
 
-  // Async actions
-  saveWorkflow: (workflowId?: string) => Promise<string | null>; // Return workflow ID and save the workflow or update the workflow 
-  loadWorkflow: (workflowId: string) => Promise<void>; // Load specific workflow
-  loadTriggers: () => Promise<void>; // load the triggers from the apis 
-  loadUserCredentials: () => Promise<void>; // loading the user credentials 
+  saveWorkflow: (workflowId?: string) => Promise<string | null>;
+  loadWorkflow: (workflowId: string) => Promise<void>;
+  loadTriggers: () => Promise<void>;
+  loadUserCredentials: () => Promise<void>;
 
-  addActionNode: (actionData: any) => void; // add Action Node with action id 
+  addActionNode: (actionData: any) => void; 
 
 
   ws: WebSocket | null;
@@ -211,7 +202,6 @@ export const useWorkflowStore = create<WorkflowState>()(
         }));
       },
 
-      // Credentials management
       setUserCredentials: (credentials) => {
         set({ userCredentials: credentials });
       },
@@ -431,12 +421,10 @@ export const useWorkflowStore = create<WorkflowState>()(
           };
 
           websocket.onmessage = (event) => {
-            // jese hi fe pe data aaega from ws i will extract the status from the web event
-            // const workflowEvent: WorkflowEvent = JSON.parse(event.data);
             const workflowEvent: WorkflowEvent = JSON.parse(event.data);
 
             set((state) => {
-              const newNodeStatus = new Map(state.nodeStatuses); // nodeId -> status 
+              const newNodeStatus = new Map(state.nodeStatuses); 
 
               switch (workflowEvent.status) {
                 case "started":
@@ -504,13 +492,11 @@ export const useWorkflowStore = create<WorkflowState>()(
         if (!workflowId) throw new Error("No workflow Id available");
 
         try {
-          // starting mai sabka status idle daal do 
           const nodeStatuses = new Map();
           nodes.forEach((node) => {
             return nodeStatuses.set(node.id, "idle");
           });
 
-          // isExecuting state truee krdo for loading show kr ne ke liye 
           set({
             isExecuting: true,
             nodeStatuses,
@@ -519,7 +505,6 @@ export const useWorkflowStore = create<WorkflowState>()(
 
           toast.loading("Executing Workflow...", { id: "workflow-execution" });
 
-          // hit the be endpoint isme => workflowId se workflow nikal ke be will send to engine and engine will execute the thing 
           const res = await axios.post(
             `${BACKEND_URL}/api/v1/workflow/execute/${workflowId}`,
             {},
@@ -529,7 +514,7 @@ export const useWorkflowStore = create<WorkflowState>()(
           if (res.status === 200) {
             const { executionId } = res.data.data;
 
-            get().connectWebSocket(executionId); // abh ws connnect krlo kyuki be ka wss is started and wo message send krega to fe with event info 
+            get().connectWebSocket(executionId);
             return executionId;
           }
         } catch (error) {
