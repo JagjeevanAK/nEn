@@ -417,8 +417,9 @@ export const useWorkflowStore = create<WorkflowState>()(
         }
 
         try {
+          const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:3002';
           const websocket = new WebSocket(
-            `ws://localhost:8080/${executionId}`
+            `${wsUrl}/${executionId}`
           );
 
           websocket.onopen = () => {

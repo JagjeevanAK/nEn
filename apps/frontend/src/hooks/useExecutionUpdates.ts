@@ -24,7 +24,9 @@ export const useExecutionUpdates = (options: UseExecutionUpdatesOptions = {}) =>
   const [userId, setUserId] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<number | null>(null);
+  const reconnectAttemptsRef = useRef(0);
   const activeExecutionsRef = useRef<Set<string>>(new Set());
+  const maxReconnectAttempts = 5;
 
   const fetchUserId = useCallback(async () => {
     try {
@@ -48,6 +50,7 @@ export const useExecutionUpdates = (options: UseExecutionUpdatesOptions = {}) =>
     ws.onopen = () => {
       console.log("Execution WebSocket connected");
       setConnected(true);
+      reconnectAttemptsRef.current = 0;
     };
 
     ws.onmessage = (event) => {
@@ -75,9 +78,13 @@ export const useExecutionUpdates = (options: UseExecutionUpdatesOptions = {}) =>
       setConnected(false);
       wsRef.current = null;
       
-      reconnectTimeoutRef.current = window.setTimeout(() => {
-        if (uid) connect(uid);
-      }, 3000);
+      if (reconnectAttemptsRef.current < maxReconnectAttempts) {
+        reconnectAttemptsRef.current++;
+        const delay = Math.min(3000 * reconnectAttemptsRef.current, 15000);
+        reconnectTimeoutRef.current = window.setTimeout(() => {
+          if (uid) connect(uid);
+        }, delay);
+      }
     };
 
     ws.onerror = (error) => {
