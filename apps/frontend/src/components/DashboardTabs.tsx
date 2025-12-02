@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEffect, useState } from "react";
 import type { UserCredentials, Workflow } from "@nen/db";
@@ -7,7 +6,7 @@ import { toast } from "sonner";
 import { BACKEND_URL } from "@/config/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Pencil, Save, Trash } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ExecutionsTabImproved } from "@/components/ExecutionsTab";
 import {
   Dialog,
@@ -20,6 +19,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 export const DashboardTabs = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentTab = searchParams.get("tab") || "workflows";
+
   const [credentials, setCredentials] = useState<UserCredentials[] | null>();
   const [loading, setLoading] = useState(false);
   const [workflowLoading, setWorkflowLoading] = useState(false);
@@ -31,6 +33,10 @@ export const DashboardTabs = () => {
   const [formData, setFormData] = useState<any>({});
 
   const navigate = useNavigate();
+
+  const handleTabChange = (value: string) => {
+    setSearchParams({ tab: value });
+  };
 
   const fetchWorkflows = async () => {
     try {
@@ -123,7 +129,11 @@ export const DashboardTabs = () => {
 
   return (
     <div className="flex w-full flex-col gap-6">
-      <Tabs className="p-5" defaultValue="workflows">
+      <Tabs
+        className="p-5"
+        value={currentTab}
+        onValueChange={handleTabChange}
+      >
         <div className="w-full">
           <TabsList className="gap py-5.5 bg-neutral-100">
             <TabsTrigger className="p-4" value="workflows">WorkFlows</TabsTrigger>
@@ -155,18 +165,28 @@ export const DashboardTabs = () => {
                   onClick={() => {
                     navigate(`/workflow/${wf.id}`);
                   }}
-                  className=" bg-teal-100/20 shadow-sm cursor-pointer py-4 px-0 hover:shadow-md transition rounded-lg gap-2 border border-gray-200"
+                  className={`shadow-sm cursor-pointer py-4 px-0 hover:shadow-md transition rounded-lg gap-2 border border-gray-200 ${(wf as any).deletedAt ? "bg-red-50" : "bg-teal-100/20"
+                    }`}
                 >
                   <CardHeader className="flex flex-row items-center justify-between px-3 gap-2">
-                    <CardTitle className=" flw text-base">{wf.name}</CardTitle>
-                    <Trash
-                      width={20}
-                      onClick={(e) => {
-                        e.stopPropagation(); // prevent card navigation
-                        handleDeleteWorkflow(wf.id);
-                      }}
-                      className="cursor-pointer z-10 text-red-800 transition-transform duration-200 hover:scale-110"
-                    />
+                    <div className="flex items-center gap-2">
+                      <CardTitle className=" flw text-base">{wf.name}</CardTitle>
+                      {(wf as any).deletedAt && (
+                        <span className="px-2 py-0.5 rounded text-xs bg-red-100 text-red-800 border border-red-200 font-medium">
+                          Deleted
+                        </span>
+                      )}
+                    </div>
+                    {!(wf as any).deletedAt && (
+                      <Trash
+                        width={20}
+                        onClick={(e) => {
+                          e.stopPropagation(); // prevent card navigation
+                          handleDeleteWorkflow(wf.id);
+                        }}
+                        className="cursor-pointer z-10 text-red-800 transition-transform duration-200 hover:scale-110"
+                      />
+                    )}
                   </CardHeader>
                   <CardContent className="text-sm px-3 space-y-2">
                     <p className="text-gray-600 text-sm line-clamp-2 mb-3">

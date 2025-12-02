@@ -4,7 +4,7 @@ import { CustomError } from "../utils/CustomError";
 import { WorkflowSchema } from "../utils/workflowSchema";
 import { prisma } from "@nen/db";
 import { createClient } from "redis";
-import {} from "../utils/queueWorker";
+import { } from "../utils/queueWorker";
 import { v4 as uuidv4 } from "uuid";
 import { workflowQueue } from "../utils/queue";
 import { queueJobsCounter, workflowExecutionCounter } from "../utils/metrics";
@@ -41,10 +41,10 @@ export const saveWorkflow = asyncHandler(async (req, res) => {
       },
     });
 
-    logger.info("Workflow saved successfully", { 
+    logger.info("Workflow saved successfully", {
       workflowId: savedWorkflow.id,
       userId: req.user?.id,
-      correlationId: req.correlationId 
+      correlationId: req.correlationId
     });
 
     res.status(201).json(
@@ -170,6 +170,8 @@ export const getUserWorkflows = asyncHandler(async (req, res) => {
         tags: true,
         createdAt: true,
         updatedAt: true,
+        deletedAt: true,
+        nodes: true,
       },
       orderBy: {
         updatedAt: "desc",
@@ -196,7 +198,7 @@ export const executeFlow = asyncHandler(async (req, res) => {
   const { workflowId } = req.params;
   if (!workflowId) throw new CustomError(404, "workflow id not found");
   let workflow;
-  
+
   try {
     workflow = await prisma.workflow.findFirst({
       where: {
@@ -210,7 +212,7 @@ export const executeFlow = asyncHandler(async (req, res) => {
 
   if (!workflow) throw new CustomError(404, "Workflow doesnot exists");
 
-  console.log("Workflow==>>",workflow)
+  console.log("Workflow==>>", workflow)
 
   try {
     const executionId = uuidv4();
@@ -283,22 +285,27 @@ export const executeFlow = asyncHandler(async (req, res) => {
   }
 });
 
-export const deleteWorkflow = asyncHandler(async(req, res ) =>{
+export const deleteWorkflow = asyncHandler(async (req, res) => {
   const userId = req.user.id;
-  const {workflowId} = req.params
-  if( !userId) throw new CustomError(404, "userid not found")
-    let delWf;
-    try {
-       delWf = await prisma.workflow.delete({
-        where:{
-          id: workflowId
-        }
-      })
+  const { workflowId } = req.params
+  if (!userId) throw new CustomError(404, "userid not found")
+  let delWf;
+  try {
+    delWf = await prisma.workflow.update({
+      where: {
+        id: workflowId,
+        userId: userId
+      },
+      data: {
+        deletedAt: new Date(),
+        active: false
+      }
+    })
 
-    } catch (error) {
-      throw new CustomError(400, "failed to delete the workflow")
-    }
+  } catch (error) {
+    throw new CustomError(400, "failed to delete the workflow")
+  }
 
-    res.status(200).json(new ApiResponse(200, "Workflow deleted successfully", delWf))
+  res.status(200).json(new ApiResponse(200, "Workflow deleted successfully", delWf))
 })
 
