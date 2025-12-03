@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Grid } from "@/components/grid/Grid";
 import { GridCell } from "@/components/grid/GridCell";
 import Navbar from "@/components/Navbar";
+import JsonViewer from "@/components/JsonViewer";
 import heroWorkflow from "@/assets/hero-workflow.png";
 import featureAi from "@/assets/feature-ai.png";
 import featureCode from "@/assets/feature-code.png";
@@ -113,11 +114,7 @@ export default function HomePage() {
                             </div>
                         </div>
                         <div className="mt-6 w-full">
-                            <div className="rounded-md bg-gray-900 p-4 overflow-x-auto">
-                                <pre className="text-sm text-gray-100 font-mono">
-                                    <code>{WORKFLOW_JSON}</code>
-                                </pre>
-                            </div>
+                            <JsonViewer data={JSON.parse(WORKFLOW_JSON)} initialExpanded={true} />
                             <span className="text-xs text-gray-500 mt-2 block">
                                 Defining a workflow in JSON
                             </span>
