@@ -1,62 +1,40 @@
-import { startTracing } from "./utils/tracing";
-startTracing();
+import express from 'express';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import dotenv from 'dotenv';
 
-import cookieParser from "cookie-parser";
-import express, { urlencoded } from "express";
-import cors from "cors";
-import { httpRequestCounter, httpRequestDuration } from "./utils/metrics";
-import { correlationIdMiddleware } from "./middlewares/correlationId.middleware";
-import logger from "./utils/logger";
+import apiRouter from './routes/index'; // Import the main API router
+
+dotenv.config({
+  path: './.env'
+});
 
 const app = express();
-const PORT = process.env.BACKEND_PORT || 3000
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://nen.jagjeevan.me",
-  "https://nen.jagjeevan.me",
-  process.env.FRONTEND_URL
-].filter(Boolean);
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
-
+// Standard middleware setup
+app.use(cors({
+    origin: process.env.CORS_ORIGIN || 'http://localhost:5173', // Adjust based on frontend URL
+    credentials: true
+}));
+app.use(express.json({ limit: '16kb' }));
+app.use(express.urlencoded({ extended: true, limit: '16kb' }));
+app.use(express.static('public')); // Serve static files
 app.use(cookieParser());
-app.use(urlencoded({ extended: true }));
-app.use(express.json());
-app.use(correlationIdMiddleware);
 
-app.use((req, res, next) => {
-  const start = Date.now();
-  res.on("finish", () => {
-    const duration = (Date.now() - start) / 1000;
-    httpRequestCounter.inc({ method: req.method, route: req.path, status_code: res.statusCode });
-    httpRequestDuration.observe({ method: req.method, route: req.path, status_code: res.statusCode }, duration);
-  });
-  next();
+// Mount the API router at the /api path
+app.use('/api', apiRouter);
+
+// Basic route for testing
+app.get('/', (req, res) => {
+  res.send('nEn Backend is running!');
 });
 
-import v1 from "./routes"
-import metricsRouter from "./routes/metrics.routes";
-import { errorHandler } from "./middlewares/error.middleware";
+// Error handling middleware (example, assuming it exists elsewhere)
+// app.use(errorMiddleware);
 
-app.use("/api/v1", v1);
-app.use("/", metricsRouter);
-
-app.use(errorHandler);
-
+const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
-  logger.info(`Backend server listening on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
+
+export default app;

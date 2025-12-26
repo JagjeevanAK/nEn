@@ -1,16 +1,24 @@
-import { Router } from "express";
-import authRouter from "./auth.routes";
-import credRouter from "./cred.routes";
-import triggerRouter from "./triggers.routes"
-import workflowRouter from "./workflow.routes"
-import webHookRouter from "./webhook.routes"
+import express from 'express';
+import { apiRateLimiter } from '../utils/rateLimiter';
+import authRoutes from './auth.routes';
+// Placeholder for other routes - uncomment and import as needed
+// import credRoutes from './cred.routes';
+// import triggersRoutes from './triggers.routes';
+// import workflowRoutes from './workflow.routes';
+// import webhookRoutes from './webhook.routes';
+// import metricsRoutes from './metrics.routes';
 
-const router = Router();
+const router = express.Router();
 
-router.use("/auth", authRouter);
-router.use("/cred", credRouter);
-router.use("/trigger", triggerRouter)
-router.use('/workflow', workflowRouter)
-router.use('/webhook', webHookRouter)
+// Apply the general API rate limiter to all routes handled by this router
+router.use(apiRateLimiter);
+
+// Mount specific routers
+router.use('/auth', authRoutes);
+// router.use('/cred', credRoutes);
+// router.use('/triggers', triggersRoutes);
+// router.use('/workflow', workflowRoutes);
+// router.use('/webhook', webhookRoutes);
+// router.use('/metrics', metricsRoutes);
 
 export default router;
