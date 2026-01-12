@@ -1,0 +1,23 @@
+{
+  "name": "@nen/redis",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@nen/config": "workspace:*",
+    "redis": "^5.8.2"
+  },
+  "devDependencies": {
+    "@nen/eslint-config": "*",
+    "@nen/typescript-config": "*",
+    "@types/node": "^22",
+    "eslint": "^9",
+    "typescript": "^5.6.2"
+  }
+}

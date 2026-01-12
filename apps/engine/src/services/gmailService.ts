@@ -1,11 +1,11 @@
 import Imap from "imap";
 import { simpleParser } from "mailparser";
 import { prisma } from "@nen/db";
-import { createClient } from "redis";
+import { createRedisClient } from "@nen/redis";
 import { v4 as uuidv4 } from "uuid";
 import { workflowQueue } from "./queue";
 
-const publisherRedis = createClient({ url: process.env.REDIS_URL || "redis://localhost:6379" });
+const publisherRedis = createRedisClient();
 publisherRedis.connect();
 
 class GmailMonitor {

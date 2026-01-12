@@ -1,10 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
+import appConfig from "@nen/config";
 
 export  type{ CredentialsI,PropertiesI, CredentialSubmitPayload , UserCredentials,IEdge,INode, Measured,NodeData,Position,Workflow } from "./types"
 
-const connectionString = process.env.DATABASE_URL || "postgresql://nen_user:nen_password@localhost:5432/nen_db";
+const connectionString = appConfig.database.url;
 const pool = new pg.Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 

@@ -1,11 +1,10 @@
 import axios from "axios";
 import Imap from "imap";
 import { v4 as uuidv4 } from "uuid";
-import { createClient } from "redis";
+import { createRedisClient, getRedisConfig } from "@nen/redis";
+import type { RedisClientType } from "redis";
 import { Resend } from "resend";
 import { Queue, QueueEvents } from "bullmq";
-
-type RedisClientType = ReturnType<typeof createClient>;
 
 export class ActionExecutor {
   private credentials: Map<string, any>;
@@ -17,14 +16,13 @@ export class ActionExecutor {
   constructor() {
     this.credentials = new Map();
     this.nodeOutputs = new Map();
-    this.redis = createClient({ url: process.env.REDIS_URL || "redis://localhost:6379" });
+    this.redis = createRedisClient();
 
-    const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
-    const redisConfig = new URL(redisUrl);
+    const redisConfig = getRedisConfig();
     this.aiQueue = new Queue("ai-tasks", {
       connection: {
-        host: redisConfig.hostname,
-        port: parseInt(redisConfig.port) || 6379,
+        host: redisConfig.host,
+        port: redisConfig.port,
       },
     });
 

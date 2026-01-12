@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
-import { CustomError } from "../utils/CustomError";
+import { CustomError } from "@nen/auth";
+import config from "@nen/config";
 import jwt, { TokenExpiredError } from "jsonwebtoken";
 import dotenv from "dotenv";
 import type { decodedUser } from "../../types";
@@ -14,7 +15,7 @@ export const isLoggedIn = async (
   if (!accessToken) throw new CustomError(404, "No Access token in middleware");
 
   try {
-    const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET!);
+    const decoded = jwt.verify(accessToken, config.auth.accessTokenSecret);
     req.user = decoded as decodedUser;
     next();
   } catch (error:any) {

@@ -1,10 +1,10 @@
 import { prisma } from "@nen/db";
 import { v4 as uuidv4 } from "uuid";
-import asyncHandler from "../utils/asyncHandler";
-import { createClient } from "redis";
-import { workflowQueue } from "../utils/queue";
+import { asyncHandler } from "@nen/auth";
+import { createRedisClient } from "@nen/redis";
+import { workflowQueue } from "@nen/queue";
 
-const publisherRedis = createClient({ url: process.env.REDIS_URL || "redis://localhost:6379" });
+const publisherRedis = createRedisClient();
 
 const connectRedis = async () => {
   try {

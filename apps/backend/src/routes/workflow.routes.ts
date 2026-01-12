@@ -6,13 +6,13 @@ import {
   getUserWorkflows,
   executeFlow,
   deleteWorkflow
-} from "../controllers/workflow.controller";
+} from "../controllers";
 import {
   getUserExecutions,
   getExecutionDetails,
   getExecutionStats
-} from "../controllers/execution.controller";
-import { isLoggedIn } from "../middlewares/auth.middleware";
+} from "../controllers";
+import { isLoggedIn } from "../middlewares";
 
 const router = Router();
 

@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { getUser, handleSignInCallback, logout, signin, signInWithGoogle, signup, verifyGoogleToken } from "../controllers/auth.controller";
-import { isLoggedIn } from "../middlewares/auth.middleware";
+import { getUser, handleSignInCallback, logout, signin, signInWithGoogle, signup, verifyGoogleToken } from "../controllers";
+import { isLoggedIn } from "../middlewares";
 
 const router = Router();
 

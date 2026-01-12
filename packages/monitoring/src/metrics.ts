@@ -48,29 +48,29 @@ export const httpRequestCounter = new Counter({
 export const httpRequestDuration = new Histogram({
   name: "http_request_duration_seconds",
   help: "Duration of HTTP requests in seconds",
-  labelNames: ["method", "route", "status_code"],
-  buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5],
+  labelNames: ["method", "route"],
+  buckets: [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 2, 5],
   registers: [register],
 });
 
-export const nodeExecutionCounter = new Counter({
-  name: "node_executions_total",
-  help: "Total number of node executions",
-  labelNames: ["node_type", "status"],
+export const actionExecutionCounter = new Counter({
+  name: "action_executions_total",
+  help: "Total number of action executions",
+  labelNames: ["action_type", "status"],
   registers: [register],
 });
 
-export const nodeExecutionDuration = new Histogram({
-  name: "node_execution_duration_seconds",
-  help: "Duration of individual node executions",
-  labelNames: ["node_type"],
-  buckets: [0.01, 0.05, 0.1, 0.5, 1, 2, 5, 10],
+export const actionExecutionDuration = new Histogram({
+  name: "action_execution_duration_seconds",
+  help: "Duration of action executions in seconds",
+  labelNames: ["action_type"],
+  buckets: [0.1, 0.5, 1, 2, 5, 10, 30, 60],
   registers: [register],
 });
 
-export const errorCounter = new Counter({
-  name: "errors_total",
-  help: "Total number of errors",
-  labelNames: ["error_type", "component"],
+export const eventPublishCounter = new Counter({
+  name: "events_published_total",
+  help: "Total number of events published",
+  labelNames: ["event_type"],
   registers: [register],
 });

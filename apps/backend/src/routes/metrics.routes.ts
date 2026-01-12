@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { register } from "../utils/metrics";
+import { register } from "@nen/monitoring";
 
 const router = Router();
 

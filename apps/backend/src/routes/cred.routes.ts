@@ -1,7 +1,7 @@
 
 import { Router } from "express";
-import { isLoggedIn } from "../middlewares/auth.middleware";
-import { getCredentialApis, createCredentials, getAllCredentials, updateCredential, deleteCredentials } from "../controllers/cred.controller";
+import { isLoggedIn } from "../middlewares";
+import { getCredentialApis, createCredentials, getAllCredentials, updateCredential, deleteCredentials } from "../controllers";
 
 const router = Router();
 

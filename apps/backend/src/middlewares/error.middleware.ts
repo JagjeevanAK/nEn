@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { CustomError } from "../utils/CustomError.js";
+import { CustomError } from "@nen/auth";
 
 const errorHandler = ( error : any, req: Request, res: Response , next : NextFunction) =>{
     let customError : CustomError

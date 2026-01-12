@@ -1,10 +1,10 @@
-import {createClient} from "redis"
+import { createRedisClient } from "@nen/redis";
 
 export class EventPublisher {
-    private client ; 
+    private client;
 
-    constructor(){
-        this.client = createClient({url: process.env.REDIS_URL || "redis://localhost:6379"})
+    constructor() {
+        this.client = createRedisClient();
         this.client.connect();
     }
 

@@ -1,0 +1,19 @@
+{
+  "name": "@nen/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0"
+  },
+  "devDependencies": {
+    "@nen/eslint-config": "workspace:*",
+    "@nen/typescript-config": "workspace:*",
+    "@types/node": "^22",
+    "eslint": "^9.39.1",
+    "typescript": "^5.6.2"
+  }
+}

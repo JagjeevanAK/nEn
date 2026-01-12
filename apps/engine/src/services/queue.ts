@@ -1,6 +1,7 @@
 import { Queue } from "bullmq";
+import config from "@nen/config";
 
-const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
+const redisUrl = config.redis.url;
 const redisConfig = new URL(redisUrl);
 
 export const workflowQueue = new Queue("workflow-execution", {

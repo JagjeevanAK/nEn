@@ -1,20 +1,25 @@
-import { startTracing } from "./utils/tracing";
-startTracing();
+import { startTracing, createLogger, queueJobsCounter, queueProcessingDuration, activeWorkflowsGauge } from "@nen/monitoring";
+import config from "@nen/config";
+startTracing("nen-engine");
 
 import "./config/metricsServer";
 
 import { Workflow } from "./workers/workflow";
 import { Worker } from "bullmq";
-import { queueJobsCounter, queueProcessingDuration, activeWorkflowsGauge } from "./utils/metrics";
 import { trace } from "@opentelemetry/api";
-import logger, { createChildLogger } from "./utils/logger";
+
+const logger = createLogger({ serviceName: "nen-engine" });
+
+export const createChildLogger = (executionId: string) => {
+  return logger.child({ executionId });
+};
 import { scheduleService } from "./services/scheduleService";
 import { createAIWorker } from "./workers/ai-worker";
 import { prisma } from "@nen/db";
 
 const tracer = trace.getTracer("nen-engine");
 
-const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
+const redisUrl = config.redis.url;
 const redisConfig = new URL(redisUrl);
 
 const worker = new Worker(

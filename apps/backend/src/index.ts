@@ -1,21 +1,22 @@
-import { startTracing } from "./utils/tracing";
-startTracing();
+import { startTracing, createLogger, httpRequestCounter, httpRequestDuration } from "@nen/monitoring";
+import config from "@nen/config";
+startTracing("nen-backend");
 
 import cookieParser from "cookie-parser";
 import express, { urlencoded } from "express";
 import cors from "cors";
-import { httpRequestCounter, httpRequestDuration } from "./utils/metrics";
-import { correlationIdMiddleware } from "./middlewares/correlationId.middleware";
-import logger from "./utils/logger";
+import { correlationIdMiddleware } from "./middlewares";
+
+const logger = createLogger({ serviceName: "nen-backend" });
 
 const app = express();
-const PORT = process.env.BACKEND_PORT || 3000
+const PORT = config.backend.port;
 
 const allowedOrigins = [
   "http://localhost:5173",
   "http://nen.jagjeevan.me",
   "https://nen.jagjeevan.me",
-  process.env.FRONTEND_URL
+  config.backend.frontendUrl
 ].filter(Boolean);
 
 app.use(
@@ -43,14 +44,14 @@ app.use((req, res, next) => {
   res.on("finish", () => {
     const duration = (Date.now() - start) / 1000;
     httpRequestCounter.inc({ method: req.method, route: req.path, status_code: res.statusCode });
-    httpRequestDuration.observe({ method: req.method, route: req.path, status_code: res.statusCode }, duration);
+    httpRequestDuration.observe({ method: req.method, route: req.path }, duration);
   });
   next();
 });
 
 import v1 from "./routes"
 import metricsRouter from "./routes/metrics.routes";
-import { errorHandler } from "./middlewares/error.middleware";
+import { errorHandler } from "./middlewares/index.js";
 
 app.use("/api/v1", v1);
 app.use("/", metricsRouter);

@@ -1,9 +1,11 @@
 import express from "express";
-import { register } from "../utils/metrics"
-import logger from "../utils/logger";
+import { register, createLogger } from "@nen/monitoring";
+import config from "@nen/config";
+
+const logger = createLogger({ serviceName: "nen-engine" });
 
 const app = express();
-const PORT = process.env.ENGINE_METRICS_PORT || 3000;
+const PORT = config.engine.metricsPort;
 
 app.get("/metrics", async (req, res) => {
   try {

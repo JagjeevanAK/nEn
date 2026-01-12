@@ -1,7 +1,12 @@
 import { Worker, Job } from "bullmq";
 import { trace } from "@opentelemetry/api";
-import logger, { createChildLogger } from "../utils/logger";
-import { queueJobsCounter, queueProcessingDuration } from "../utils/metrics";
+import { createLogger, queueJobsCounter, queueProcessingDuration } from "@nen/monitoring";
+
+const logger = createLogger({ serviceName: "nen-engine" });
+
+export const createChildLogger = (executionId: string) => {
+  return logger.child({ executionId });
+};
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText } from "ai";
 

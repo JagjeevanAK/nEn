@@ -2,8 +2,11 @@ import * as cron from "node-cron";
 import { prisma } from "@nen/db";
 import { workflowQueue } from "./queue";
 import { v4 as uuidv4 } from "uuid";
-import logger from "../utils/logger";
-import { createClient } from "redis";
+import { createLogger } from "@nen/monitoring";
+import { createRedisClient } from "@nen/redis";
+import config from "@nen/config";
+
+const logger = createLogger({ serviceName: "nen-engine" });
 
 interface ScheduledJob {
   workflowId: string;
@@ -14,7 +17,7 @@ interface ScheduledJob {
 
 class ScheduleService {
   private scheduledJobs: Map<string, ScheduledJob> = new Map();
-  private subscriber = createClient({ url: process.env.REDIS_URL || "redis://localhost:6379" });
+  private subscriber = createRedisClient({ url: config.redis.url });
 
   constructor() {
     setInterval(() => {

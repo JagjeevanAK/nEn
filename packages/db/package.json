@@ -17,6 +17,7 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
+    "@nen/config": "workspace:*",
     "@prisma/adapter-pg": "^7.0.0",
     "@prisma/client": "^7.0.0",
     "pg": "^8.16.3",

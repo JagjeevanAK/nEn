@@ -102,3 +102,13 @@ export const WorkflowSchema = z.object({
   createdAt: z.date().optional(),
   updatedAt: z.date().optional()
 });
+
+export type CredentialsI = z.infer<typeof CredentialsISchema>;
+export type CredentialSubmitPayload = z.infer<typeof CredentialSubmitPayloadSchema>;
+export type UserCredentials = z.infer<typeof UserCredentialsSchema>;
+export type Position = z.infer<typeof PositionSchema>;
+export type Measured = z.infer<typeof MeasuredSchema>;
+export type NodeData = z.infer<typeof NodeDataSchema>;
+export type INode = z.infer<typeof INodeSchema>;
+export type IEdge = z.infer<typeof IEdgeSchema>;
+export type Workflow = z.infer<typeof WorkflowSchema>;

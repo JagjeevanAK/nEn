@@ -14,12 +14,13 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@nen/auth": "workspace:*",
+    "@nen/config": "workspace:*",
     "@nen/db": "workspace:*",
-    "@opentelemetry/api": "^1.9.0",
-    "@opentelemetry/auto-instrumentations-node": "^0.67.0",
-    "@opentelemetry/exporter-trace-otlp-http": "^0.208.0",
-    "@opentelemetry/resources": "^2.2.0",
-    "@opentelemetry/sdk-node": "^0.208.0",
+    "@nen/monitoring": "workspace:*",
+    "@nen/queue": "workspace:*",
+    "@nen/redis": "workspace:*",
+    "@nen/workflow": "workspace:*",
     "@types/cookie-parser": "^1.4.9",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",

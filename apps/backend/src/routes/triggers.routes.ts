@@ -2,8 +2,8 @@ import { Router } from "express";
 import {
   createTrigger,
   getAllTriggers,
-} from "../controllers/triggers.controller";
-import { isLoggedIn } from "../middlewares/auth.middleware";
+} from "../controllers";
+import { isLoggedIn } from "../middlewares";
 
 const router = Router();
 
