@@ -9,6 +9,9 @@
   "scripts": {
     "lint": "eslint . --max-warnings 0"
   },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  },
   "devDependencies": {
     "@nen/eslint-config": "workspace:*",
     "@nen/typescript-config": "workspace:*",
