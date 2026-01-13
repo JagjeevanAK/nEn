@@ -1,7 +1,6 @@
 import { asyncHandler, ApiResponse, CustomError } from "@nen/auth";
 import fs from "fs";
 import path from "path";
-import { returnSaveCred } from "../utils/handleSaveCred";
 import { credentialsService } from "../services/index.js";
 
 export const getCredentialApis = asyncHandler(async (req, res) => {

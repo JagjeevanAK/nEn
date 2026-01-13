@@ -13,6 +13,7 @@ const connectRedis = async () => {
     console.log("redis cannot connect", error);
   }
 };
+
 connectRedis();
 
 export const triggerWebhook = asyncHandler(async (req, res) => {

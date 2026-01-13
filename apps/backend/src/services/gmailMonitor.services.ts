@@ -6,7 +6,16 @@ import { v4 as uuidv4 } from "uuid";
 import { workflowQueue } from "@nen/queue";
 
 const publisherRedis = createRedisClient();
-publisherRedis.connect();
+
+const connectRedis = async () => {
+  try {
+    await publisherRedis.connect();
+  } catch (error) {
+    console.log("redis cannot connect", error);
+  }
+};
+
+connectRedis();
 
 class GmailMonitor {
   private connections: Map<string, Imap> = new Map();
