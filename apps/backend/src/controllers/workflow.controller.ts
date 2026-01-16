@@ -1,7 +1,6 @@
 import { ApiResponse, asyncHandler, CustomError } from "@nen/auth";
 import { workflowService } from "../services/index.js";
-import { trace } from "@opentelemetry/api";
-import { createLogger } from "@nen/monitoring";
+import { trace, createLogger } from "@nen/monitoring";
 
 const logger = createLogger({ serviceName: "nen-backend" });
 

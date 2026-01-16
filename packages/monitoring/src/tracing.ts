@@ -38,3 +38,6 @@ export function startTracing(serviceName: string) {
 
   return sdk;
 }
+
+// Re-export trace API for use in other packages
+export { trace, context, SpanStatusCode } from "@opentelemetry/api";
