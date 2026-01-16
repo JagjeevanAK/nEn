@@ -14,10 +14,8 @@ COPY apps/engine/package.json ./apps/engine/package.json
 COPY packages ./packages
 
 RUN bun install
-RUN cd packages/db && bunx --bun prisma generate
+RUN bunx --bun prisma generate --schema=packages/db/prisma/schema.prisma
 
 COPY apps/engine ./apps/engine
-
-RUN bun run build
 
 CMD ["bun", "start:engine"]

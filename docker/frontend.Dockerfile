@@ -15,8 +15,13 @@ COPY package.json bun.lock turbo.json ./
 COPY apps/frontend/package.json ./apps/frontend/package.json
 COPY packages ./packages
 
+# Install build tools for native dependencies
+RUN apt-get update && apt-get install -y \
+    python3 make g++ \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN bun install
-RUN cd packages/db && bunx --bun prisma generate
+RUN bunx --bun prisma generate --schema=packages/db/prisma/schema.prisma
 
 COPY apps/frontend ./apps/frontend
 
