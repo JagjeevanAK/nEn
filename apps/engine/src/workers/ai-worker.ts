@@ -1,5 +1,5 @@
 import { Worker, Job } from "bullmq";
-import { trace } from "@opentelemetry/api";
+import { trace } from "@nen/monitoring";
 import { createLogger, queueJobsCounter, queueProcessingDuration } from "@nen/monitoring";
 
 const logger = createLogger({ serviceName: "nen-engine" });

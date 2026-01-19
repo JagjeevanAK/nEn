@@ -14,6 +14,8 @@ const PORT = config.backend.port;
 
 const allowedOrigins = [
   "http://localhost:5173",
+  "http://localhost:8080",
+  "http://localhost:80",
   "http://nen.jagjeevan.me",
   "https://nen.jagjeevan.me",
   config.backend.frontendUrl

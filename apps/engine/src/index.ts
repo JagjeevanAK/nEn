@@ -6,7 +6,7 @@ import "./config/metricsServer";
 
 import { Workflow } from "./workers/workflow";
 import { Worker } from "bullmq";
-import { trace } from "@opentelemetry/api";
+import { trace } from "@nen/monitoring";
 
 const logger = createLogger({ serviceName: "nen-engine" });
 

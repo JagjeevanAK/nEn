@@ -28,8 +28,8 @@ export class ActionExecutor {
 
     this.queueEvents = new QueueEvents("ai-tasks", {
       connection: {
-        host: redisConfig.hostname,
-        port: parseInt(redisConfig.port) || 6379,
+        host: redisConfig.host,
+        port: redisConfig.port,
       },
     });
   }
@@ -118,7 +118,7 @@ export class ActionExecutor {
     console.log("Available Context (Previous Outputs):", Object.keys(previousOutputs));
     console.log("Parameters:", parameters);
     console.log("================================\n");
-    
+
     try {
       switch (actionType) {
         case "TelegramNodeType":
